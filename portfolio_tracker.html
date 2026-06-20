@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Ledger: Stocks & Options</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+
+    <div id="app" class="container mx-auto p-4 max-w-7xl" v-cloak>
+        <!-- Header -->
+        <header
+            class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-8 pb-4 border-b border-gray-800 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-emerald-400">Portfolio Ledger</h1>
+                <p class="text-gray-400 text-sm">Stocks, Single Options, and Multi-Leg Spreads/Rolls</p>
+            </div>
+
+            <!-- Connection Hub & Configurations -->
+            <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+                <div class="flex items-center gap-2 bg-gray-800 px-3 py-2 rounded border border-gray-700 text-xs">
+                    <span class="text-gray-400">Storage:</span>
+                    <span v-if="fileStatus === 'unlinked'" class="flex items-center gap-1.5 text-blue-400 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> Browser Memory
+                    </span>
+                    <span v-else-if="fileStatus === 'locked'"
+                        class="flex items-center gap-1.5 text-amber-400 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> Locked ({{ fileName }})
+                    </span>
+                    <span v-else class="flex items-center gap-1.5 text-emerald-400 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Linked ({{ fileName }})
+                    </span>
+                </div>
+
+                <div class="flex gap-2">
+                    <button v-if="isSupported && fileStatus === 'unlinked'" @click="linkLocalFile"
+                        class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded transition">
+                        Link Local File
+                    </button>
+                    <button v-if="isSupported && fileStatus === 'locked'" @click="authorizeFile"
+                        class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded transition animate-pulse">
+                        Authorize File Access
+                    </button>
+                    <button v-if="isSupported && fileStatus !== 'unlinked'" @click="unlinkFile"
+                        class="px-2 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded transition">
+                        Unlink File
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-2 bg-gray-800 px-3 py-2 rounded border border-gray-700">
+                    <span class="text-xs text-gray-400">Stock API Key:</span>
+                    <input type="password" v-model="apiKey" @change="saveApiKey" placeholder="Finnhub key"
+                        class="bg-gray-700 border border-gray-600 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-emerald-500 w-28">
+                </div>
+
+                <button @click="syncPrices" :disabled="isSyncing || !apiKey"
+                    :class="(!apiKey || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white'"
+                    class="px-3 py-2 rounded text-xs font-semibold transition flex items-center gap-1">
+                    <span v-if="isSyncing">Syncing...</span>
+                    <span v-else>Sync Live Stocks</span>
+                </button>
+
+                <button @click="clearAllData"
+                    class="px-3 py-2 bg-red-900/40 hover:bg-red-900 text-red-300 text-xs rounded transition">
+                    Clear Ledger
+                </button>
+            </div>
+        </header>
+
+        <!-- Top Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div class="text-gray-400 text-xs uppercase font-semibold">Active Stocks Value</div>
+                <div class="text-2xl font-bold mt-1 text-white">${{ formatNumber(stockPortfolioValue) }}</div>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div class="text-gray-400 text-xs uppercase font-semibold font-mono">Stock Unrealized P/L</div>
+                <div class="text-2xl font-bold mt-1"
+                    :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    ${{ formatNumber(stockUnrealizedPL) }}
+                </div>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div class="text-gray-400 text-xs uppercase font-semibold">Realized Stock P/L</div>
+                <div class="text-2xl font-bold mt-1"
+                    :class="realizedStockPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    ${{ formatNumber(realizedStockPL) }}
+                </div>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                <div class="text-gray-400 text-xs uppercase font-semibold">Realized Options P/L</div>
+                <div class="text-2xl font-bold mt-1"
+                    :class="realizedOptionsPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    ${{ formatNumber(realizedOptionsPL) }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Banner -->
+        <div v-if="notification.message"
+            :class="notification.type === 'error' ? 'bg-rose-950 border-rose-800 text-rose-300' : 'bg-emerald-950 border-emerald-800 text-emerald-300'"
+            class="p-3 mb-6 rounded border text-sm flex justify-between items-center transition">
+            <span>{{ notification.message }}</span>
+            <button @click="notification.message = ''" class="text-xs font-bold hover:text-white">✕</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Side: Add Transaction Form, Chart & Stock Prices -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Transaction Form -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 relative">
+                    <!-- Roll Assistant Header Status -->
+                    <div v-if="isRolling"
+                        :class="rollStep === 1 ? 'bg-amber-950/70 border-amber-800 text-amber-300' : 'bg-emerald-950/70 border-emerald-800 text-emerald-300'"
+                        class="p-3 mb-4 rounded border text-xs flex justify-between items-center">
+                        <div>
+                            <span class="font-bold uppercase block">Rolling Position Mode</span>
+                            <span v-if="rollStep === 1">Step 1 of 2: Close Existing Position (Enter Debit/Credit to
+                                exit)</span>
+                            <span v-else">Step 2 of 2: Open New Position (Adjust Strike, Exp & Premium)</span>
+                        </div>
+                        <button type="button" @click="cancelRoll"
+                            class="text-xs underline hover:text-white ml-2">Cancel</button>
+                    </div>
+
+                    <h2 class="text-lg font-semibold mb-4 text-emerald-400">Record Transaction</h2>
+
+                    <form @submit.prevent="addTransaction" class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Asset Type</label>
+                            <div class="flex space-x-2">
+                                <button type="button" :disabled="isRolling" @click="setAssetType('Stock')"
+                                    :class="[form.assetType === 'Stock' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
+                                    class="flex-1 py-1.5 rounded text-sm font-semibold transition">Stock</button>
+                                <button type="button" :disabled="isRolling" @click="setAssetType('Option')"
+                                    :class="[form.assetType === 'Option' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
+                                    class="flex-1 py-1.5 rounded text-sm font-semibold transition">Option</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Action</label>
+                                <select v-model="form.action" :disabled="isRolling && rollStep === 1"
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                    <option v-for="action in availableActions" :value="action.value">{{ action.label }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Ticker Symbol</label>
+                                <input type="text" v-model="form.ticker" :disabled="isRolling" placeholder="e.g. LMND"
+                                    required
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-500 uppercase focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                            </div>
+                        </div>
+
+                        <!-- Option Specific Fields -->
+                        <div v-if="form.assetType === 'Option'"
+                            class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Option Type</label>
+                                    <select v-model="form.optionType" :disabled="isRolling && rollStep === 1"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white disabled:opacity-50">
+                                        <option value="Call">Call</option>
+                                        <option value="Put">Put</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Strike Price ($)</label>
+                                    <input type="number" step="any" v-model.number="form.strike" placeholder="Strike"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Expiration Date</label>
+                                <input type="date" v-model="form.expiration"
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
+                            </div>
+                        </div>
+
+                        <!-- Spread / Roll Specific Fields (Only displays dynamically if user clicked "Roll" on an active spread position) -->
+                        <div v-if="form.assetType === 'Spread' && isRolling"
+                            class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1">Spread Strategy Description</label>
+                                <input type="text" v-model="form.strategyName"
+                                    placeholder="Calendar 12 JUN 26/5 JUN 26 60 PUT" required
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+
+                        <!-- Quantities & Cost -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                    {{ form.assetType === 'Stock' ? 'Shares' : 'Contracts' }}
+                                </label>
+                                <input type="number" step="any" v-model.number="form.quantity" :disabled="isRolling"
+                                    required min="0.0001"
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                    Price per {{ form.assetType === 'Stock' ? 'Share ($)' : 'Contract ($)' }}
+                                </label>
+                                <input type="number" step="any" v-model.number="form.price" required min="0.00"
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Transaction Date</label>
+                            <input type="date" v-model="form.date" required
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded transition">
+                            <span v-if="isRolling && rollStep === 1">Save Close Leg (Step 1)</span>
+                            <span v-else-if="isRolling && rollStep === 2">Save Open Leg (Step 2)</span>
+                            <span v-else>Save Transaction</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Portfolio Allocation Chart Card -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-2 text-emerald-400">Stock Allocation</h2>
+                    <p class="text-xs text-gray-400 mb-4">Capital distribution (market value) of active stock holdings
+                        by Ticker.</p>
+                    <div class="relative flex items-center justify-center min-h-[260px]">
+                        <canvas id="allocationChart" class="max-w-[250px] max-h-[250px]"></canvas>
+                        <div v-if="hasNoStockHoldings"
+                            class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
+                            No active stock positions to display allocation.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Price Manual Updates -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-2 text-emerald-400">Stock Price Manual Updates</h2>
+                    <p class="text-xs text-gray-400 mb-4">Values update automatically with Stock API, or can be adjusted
+                        here manually.</p>
+                    <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                        <div v-for="ticker in uniqueStockTickers" :key="ticker"
+                            class="flex justify-between items-center bg-gray-700/40 p-2 rounded">
+                            <span class="font-bold text-sm text-gray-300">{{ ticker }}</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs text-gray-400">$</span>
+                                <input type="number" step="any" v-model.number="marketPrices[ticker]"
+                                    @input="savePrices"
+                                    class="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-right text-white">
+                            </div>
+                        </div>
+                        <div v-if="uniqueStockTickers.length === 0" class="text-xs text-gray-500 text-center py-4">
+                            No stock assets tracked yet.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Current Holdings & Transaction History -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- Stock Holdings Table -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
+                        <span>Current Stock Holdings</span>
+                        <span class="text-xs text-gray-400 font-normal">P/L fluctuates with current market price</span>
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
+                                    <th class="pb-3 font-semibold">Symbol</th>
+                                    <th class="pb-3 text-right font-semibold">Shares</th>
+                                    <th class="pb-3 text-right font-semibold">Avg Cost</th>
+                                    <th class="pb-3 text-right font-semibold">Current Price</th>
+                                    <th class="pb-3 text-right font-semibold">Market Value</th>
+                                    <th class="pb-3 text-right font-semibold">Unrealized P/L</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700/50 text-sm">
+                                <tr v-for="holding in computedStockHoldings" :key="holding.symbol"
+                                    class="hover:bg-gray-700/20">
+                                    <td class="py-3 font-bold text-white">{{ holding.symbol }}</td>
+                                    <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
+                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
+                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.currentPrice) }}</td>
+                                    <td class="py-3 text-right font-mono text-white">${{
+                                        formatNumber(holding.marketValue) }}</td>
+                                    <td class="py-3 text-right font-mono font-semibold"
+                                        :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                        ${{ formatNumber(holding.unrealizedPL) }}
+                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent)
+                                            }})</div>
+                                    </td>
+                                </tr>
+                                <tr v-if="computedStockHoldings.length === 0">
+                                    <td colspan="6" class="py-8 text-center text-gray-500 text-sm">No open stock
+                                        positions.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Active Option & Spread Positions Table -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
+                        <span>Active Options & Spreads</span>
+                        <span class="text-xs text-gray-400 font-normal">Close or expire position to realize ledger
+                            P/L.</span>
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
+                                    <th class="pb-3 font-semibold">Underlying / Structure</th>
+                                    <th class="pb-3 font-semibold">Type</th>
+                                    <th class="pb-3 text-right font-semibold">Contracts</th>
+                                    <th class="pb-3 text-right font-semibold">Avg Entry Premium</th>
+                                    <th class="pb-3 text-right font-semibold">Net Cost / Credit</th>
+                                    <th class="pb-3 text-center font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700/50 text-sm">
+                                <tr v-for="holding in computedOptionHoldings" :key="holding.key"
+                                    class="hover:bg-gray-700/20">
+                                    <td class="py-3">
+                                        <span class="font-bold text-white">{{ holding.symbol }}</span>
+                                        <span v-if="holding.assetType === 'Option'" class="text-xs text-gray-400 block">
+                                            {{ holding.optionType }} ${{ holding.strike }} Exp: {{ holding.expiration }}
+                                        </span>
+                                        <span v-else class="text-xs text-amber-400 block font-medium">
+                                            {{ holding.strategyName }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                        <span
+                                            :class="holding.positionType === 'Long' ? 'text-emerald-400 bg-emerald-950/40 border border-emerald-900/50' : 'text-amber-400 bg-amber-950/40 border border-amber-900/50'"
+                                            class="px-2 py-0.5 rounded text-xs font-semibold">
+                                            {{ holding.positionType }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
+                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
+                                    <td class="py-3 text-right font-mono text-white">
+                                        {{ holding.positionType === 'Long' ? 'Debit:' : 'Credit:' }} ${{
+                                        formatNumber(holding.totalCost) }}
+                                    </td>
+                                    <td class="py-3 text-center flex items-center justify-center gap-1.5">
+                                        <button @click="quickCloseOption(holding)"
+                                            class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-emerald-400 transition">
+                                            Close / Expire
+                                        </button>
+                                        <button @click="startRollOption(holding)"
+                                            class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-amber-400 transition">
+                                            Roll
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="computedOptionHoldings.length === 0">
+                                    <td colspan="6" class="py-8 text-center text-gray-500 text-sm">No active option or
+                                        spread positions.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Transaction Ledger (History) -->
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-lg font-semibold mb-4 text-emerald-400">Transaction History</h2>
+                    <div class="overflow-x-auto max-h-96">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
+                                    <th class="pb-3 font-semibold">Date</th>
+                                    <th class="pb-3 font-semibold">Asset</th>
+                                    <th class="pb-3 font-semibold">Action</th>
+                                    <th class="pb-3 text-right font-semibold">Qty</th>
+                                    <th class="pb-3 text-right font-semibold">Price</th>
+                                    <th class="pb-3 text-right font-semibold">Total Amount</th>
+                                    <th class="pb-3 text-center font-semibold">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700/50 text-sm">
+                                <tr v-for="tx in sortedTransactions" :key="tx.id" class="hover:bg-gray-700/20">
+                                    <td class="py-3 text-xs text-gray-400">{{ tx.date }}</td>
+                                    <td class="py-3">
+                                        <span class="font-bold text-white">{{ tx.ticker }}</span>
+                                        <span v-if="tx.assetType === 'Option'" class="text-xs text-gray-400 block">
+                                            {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
+                                        </span>
+                                        <span v-else-if="tx.assetType === 'Spread'"
+                                            class="text-xs text-amber-400 block">
+                                            {{ tx.strategyName }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3">
+                                        <span
+                                            :class="['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'"
+                                            class="px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap">
+                                            {{ tx.action }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 text-right font-mono">{{ tx.quantity }}</td>
+                                    <td class="py-3 text-right font-mono">${{ formatNumber(tx.price) }}</td>
+                                    <td class="py-3 text-right font-mono text-white">${{ formatNumber(tx.totalValue) }}
+                                    </td>
+                                    <td class="py-3 text-center">
+                                        <button @click="deleteTransaction(tx.id)"
+                                            class="text-rose-400 hover:text-rose-300 text-xs font-medium transition">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr v-if="transactions.length === 0">
+                                    <td colspan="7" class="py-8 text-center text-gray-500 text-sm">No transactions
+                                        entered yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        const { createApp, ref, computed, watch, onMounted, nextTick } = Vue;
+
+        createApp({
+            setup() {
+                const transactions = ref([]);
+                const marketPrices = ref({});
+                const apiKey = ref('');
+                const isSyncing = ref(false);
+                const notification = ref({ message: '', type: 'success' });
+
+                // File System State
+                const fileHandle = ref(null);
+                const fileStatus = ref('unlinked');
+                const fileName = ref('');
+                const isSupported = ref('showOpenFilePicker' in window);
+
+                // Advanced Roll State Machine
+                const isRolling = ref(false);
+                const rollStep = ref(1);
+                const rollSourceHolding = ref(null);
+
+                // Chart Instance Reference
+                let chartInstance = null;
+
+                const form = ref({
+                    id: null,
+                    date: new Date().toISOString().substr(0, 10),
+                    assetType: 'Stock',
+                    ticker: '',
+                    action: 'Buy',
+                    quantity: null,
+                    price: null,
+                    optionType: 'Call',
+                    strike: null,
+                    expiration: '',
+                    strategyName: ''
+                });
+
+                const availableActions = computed(() => {
+                    if (form.value.assetType === 'Stock') {
+                        return [
+                            { value: 'Buy', label: 'Buy' },
+                            { value: 'Sell', label: 'Sell' }
+                        ];
+                    } else {
+                        return [
+                            { value: 'Buy to Open', label: 'Buy to Open (Long)' },
+                            { value: 'Sell to Close', label: 'Sell to Close (Close Long)' },
+                            { value: 'Sell to Open', label: 'Sell to Open (Short / Credit)' },
+                            { value: 'Buy to Close', label: 'Buy to Close (Close Short)' }
+                        ];
+                    }
+                });
+
+                const setAssetType = (type) => {
+                    form.value.assetType = type;
+                    form.value.action = type === 'Stock' ? 'Buy' : 'Buy to Open';
+                };
+
+                const loadMockData = () => {
+                    const defaultTx = [
+                        { id: '1', date: '2024-01-10', assetType: 'Stock', ticker: 'AAPL', action: 'Buy', quantity: 10, price: 150 },
+                        { id: '2', date: '2024-01-15', assetType: 'Stock', ticker: 'AAPL', action: 'Buy', quantity: 5, price: 160 },
+                        { id: '3', date: '2024-01-20', assetType: 'Option', ticker: 'AAPL', action: 'Sell to Open', quantity: 2, price: 4.50, optionType: 'Call', strike: 180, expiration: '2024-06-21' },
+                        { id: '4', date: '2024-01-25', assetType: 'Stock', ticker: 'AAPL', action: 'Sell', quantity: 5, price: 175 },
+                        { id: '5', date: '2026-06-04', assetType: 'Spread', ticker: 'LMND', action: 'Sell to Open', quantity: 1, price: 0.40, strategyName: 'Calendar 12 JUN 26/5 JUN 26 60 PUT' }
+                    ];
+                    transactions.value = defaultTx;
+                    marketPrices.value = { 'AAPL': 180, 'LMND': 25 };
+                    saveLedgerData();
+                };
+
+                const getDB = () => {
+                    return new Promise((resolve, reject) => {
+                        const request = indexedDB.open('FileStorageDB', 1);
+                        request.onupgradeneeded = () => request.result.createObjectStore('store');
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                };
+
+                const setStoredHandle = async (handle) => {
+                    const db = await getDB();
+                    return new Promise((resolve) => {
+                        const tx = db.transaction('store', 'readwrite');
+                        tx.objectStore('store').put(handle, 'file_handle');
+                        tx.oncomplete = () => resolve();
+                    });
+                };
+
+                const getStoredHandle = async () => {
+                    const db = await getDB();
+                    return new Promise((resolve) => {
+                        const tx = db.transaction('store', 'readonly');
+                        const req = tx.objectStore('store').get('file_handle');
+                        req.onsuccess = () => resolve(req.result);
+                    });
+                };
+
+                const removeStoredHandle = async () => {
+                    const db = await getDB();
+                    return new Promise((resolve) => {
+                        const tx = db.transaction('store', 'readwrite');
+                        tx.objectStore('store').delete('file_handle');
+                        tx.oncomplete = () => resolve();
+                    });
+                };
+
+                const verifyPermission = async (handle, readWrite) => {
+                    const options = {};
+                    if (readWrite) options.mode = 'readwrite';
+                    if ((await handle.queryPermission(options)) === 'granted') return true;
+                    if ((await handle.requestPermission(options)) === 'granted') return true;
+                    return false;
+                };
+
+                const linkLocalFile = async () => {
+                    try {
+                        const [handle] = await window.showOpenFilePicker({
+                            types: [{
+                                description: 'JSON Database File',
+                                accept: { 'application/json': ['.json'] },
+                            }],
+                            multiple: false
+                        });
+
+                        fileHandle.value = handle;
+                        fileName.value = handle.name;
+
+                        const hasPermission = await verifyPermission(handle, true);
+                        if (hasPermission) {
+                            fileStatus.value = 'active';
+                            await setStoredHandle(handle);
+                            await loadFromFile();
+                        } else {
+                            fileStatus.value = 'locked';
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Failed to open file or operation canceled.", "error");
+                    }
+                };
+
+                const authorizeFile = async () => {
+                    if (!fileHandle.value) return;
+                    const hasPermission = await verifyPermission(fileHandle.value, true);
+                    if (hasPermission) {
+                        fileStatus.value = 'active';
+                        await loadFromFile();
+                    } else {
+                        showNotification("Permission denied. Keeping data in browser memory.", "error");
+                    }
+                };
+
+                const unlinkFile = async () => {
+                    fileHandle.value = null;
+                    fileStatus.value = 'unlinked';
+                    fileName.value = '';
+                    await removeStoredHandle();
+
+                    const savedTx = localStorage.getItem('tx_portfolio_data');
+                    if (savedTx) transactions.value = JSON.parse(savedTx);
+                    showNotification("File unlinked. Switched back to browser memory.", "success");
+                };
+
+                const loadFromFile = async () => {
+                    try {
+                        const file = await fileHandle.value.getFile();
+                        const content = await file.text();
+                        if (content.trim() === '') {
+                            transactions.value = [];
+                        } else {
+                            transactions.value = JSON.parse(content);
+                        }
+                        showNotification(`Loaded successfully from ${fileName.value}`, "success");
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Failed to load records from linked file.", "error");
+                    }
+                };
+
+                const saveLedgerData = async () => {
+                    if (fileStatus.value === 'active' && fileHandle.value) {
+                        try {
+                            const writable = await fileHandle.value.createWritable();
+                            await writable.write(JSON.stringify(transactions.value, null, 2));
+                            await writable.close();
+                        } catch (err) {
+                            console.error(err);
+                            showNotification("Local file write failed. Saved to browser backup.", "error");
+                            localStorage.setItem('tx_portfolio_data', JSON.stringify(transactions.value));
+                        }
+                    } else {
+                        localStorage.setItem('tx_portfolio_data', JSON.stringify(transactions.value));
+                    }
+                };
+
+                onMounted(async () => {
+                    if (isSupported.value) {
+                        try {
+                            const savedHandle = await getStoredHandle();
+                            if (savedHandle) {
+                                fileHandle.value = savedHandle;
+                                fileName.value = savedHandle.name;
+                                fileStatus.value = 'locked';
+                                showNotification("Local database linked. Please click 'Authorize File Access'.", "success");
+                            }
+                        } catch (e) {
+                            console.warn("Could not retrieve file database handle.", e);
+                        }
+                    }
+
+                    if (fileStatus.value === 'unlinked') {
+                        const savedTx = localStorage.getItem('tx_portfolio_data');
+                        if (savedTx) transactions.value = JSON.parse(savedTx);
+                        else loadMockData();
+                    }
+
+                    const savedPrices = localStorage.getItem('tx_market_prices');
+                    const savedKey = localStorage.getItem('finnhub_api_key');
+                    if (savedPrices) marketPrices.value = JSON.parse(savedPrices);
+                    if (savedKey) apiKey.value = savedKey;
+
+                    // Initial chart draw
+                    updateAllocationChart();
+                });
+
+                const savePrices = () => {
+                    localStorage.setItem('tx_market_prices', JSON.stringify(marketPrices.value));
+                };
+
+                const saveApiKey = () => {
+                    localStorage.setItem('finnhub_api_key', apiKey.value);
+                };
+
+                const showNotification = (msg, type = 'success') => {
+                    notification.value.message = msg;
+                    notification.value.type = type;
+                    setTimeout(() => {
+                        if (notification.value.message === msg) {
+                            notification.value.message = '';
+                        }
+                    }, 5000);
+                };
+
+                const syncPrices = async () => {
+                    if (!apiKey.value) return;
+                    isSyncing.value = true;
+                    showNotification('Fetching live stock prices...', 'success');
+
+                    const stockTickers = uniqueStockTickers.value;
+                    let errors = 0;
+
+                    for (const symbol of stockTickers) {
+                        try {
+                            const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey.value}`);
+                            const data = await response.json();
+                            if (data && data.c) {
+                                marketPrices.value[symbol] = data.c;
+                            } else {
+                                errors++;
+                            }
+                            await new Promise(resolve => setTimeout(resolve, 300));
+                        } catch (err) {
+                            console.error(`Failed to fetch ${symbol}:`, err);
+                            errors++;
+                        }
+                    }
+
+                    savePrices();
+                    isSyncing.value = false;
+
+                    if (errors > 0) {
+                        showNotification(`Sync complete, but failed to fetch ${errors} stock(s).`, 'error');
+                    } else {
+                        showNotification('Stock prices updated.', 'success');
+                    }
+                };
+
+                const clearAllData = () => {
+                    if (confirm("Are you sure you want to clear all transaction history?")) {
+                        transactions.value = [];
+                        marketPrices.value = {};
+                        saveLedgerData();
+                        localStorage.removeItem('tx_market_prices');
+                    }
+                };
+
+                const addTransaction = () => {
+                    const id = Date.now().toString();
+                    const newTx = { ...form.value, id, ticker: form.value.ticker.toUpperCase().trim() };
+
+                    transactions.value.push(newTx);
+                    saveLedgerData();
+
+                    if (newTx.assetType === 'Stock' && !marketPrices.value[newTx.ticker]) {
+                        marketPrices.value[newTx.ticker] = newTx.price;
+                        savePrices();
+                    }
+
+                    // Handle Roll State Transition
+                    if (isRolling.value) {
+                        if (rollStep.value === 1) {
+                            rollStep.value = 2;
+                            form.value.action = rollSourceHolding.value.positionType === 'Long' ? 'Buy to Open' : 'Sell to Open';
+                            form.value.price = null;
+                            showNotification("Roll Step 1 saved. Now edit your new contract details and premium, then save Step 2.", "success");
+                            return;
+                        } else {
+                            cancelRoll();
+                            showNotification("Spread/Option rolled successfully!", "success");
+                        }
+                    }
+
+                    form.value.quantity = null;
+                    form.value.price = null;
+                    form.value.strategyName = '';
+                };
+
+                const deleteTransaction = (id) => {
+                    transactions.value = transactions.value.filter(t => t.id !== id);
+                    saveLedgerData();
+                };
+
+                const quickCloseOption = (holding) => {
+                    cancelRoll();
+                    form.value.assetType = holding.assetType;
+                    form.value.ticker = holding.symbol;
+
+                    if (holding.assetType === 'Option') {
+                        form.value.optionType = holding.optionType;
+                        form.value.strike = holding.strike;
+                        form.value.expiration = holding.expiration;
+                    } else if (holding.assetType === 'Spread') {
+                        form.value.strategyName = holding.strategyName;
+                    }
+
+                    form.value.quantity = holding.quantity;
+                    form.value.action = holding.positionType === 'Long' ? 'Sell to Close' : 'Buy to Close';
+                    form.value.price = 0.00;
+
+                    showNotification(`Filled form parameters to close ${holding.symbol} position.`, "success");
+                };
+
+                const startRollOption = (holding) => {
+                    isRolling.value = true;
+                    rollStep.value = 1;
+                    rollSourceHolding.value = holding;
+
+                    form.value.assetType = holding.assetType;
+                    form.value.ticker = holding.symbol;
+
+                    if (holding.assetType === 'Option') {
+                        form.value.optionType = holding.optionType;
+                        form.value.strike = holding.strike;
+                        form.value.expiration = holding.expiration;
+                    } else if (holding.assetType === 'Spread') {
+                        form.value.strategyName = holding.strategyName;
+                    }
+
+                    form.value.quantity = holding.quantity;
+                    form.value.action = holding.positionType === 'Long' ? 'Sell to Close' : 'Buy to Close';
+                    form.value.price = null;
+
+                    showNotification("Roll initiated. Enter the price paid/received to CLOSE your current position (Step 1).", "success");
+                };
+
+                const cancelRoll = () => {
+                    isRolling.value = false;
+                    rollStep.value = 1;
+                    rollSourceHolding.value = null;
+                    form.value.quantity = null;
+                    form.value.price = null;
+                    form.value.strategyName = '';
+                    form.value.assetType = 'Stock';
+                    form.value.action = 'Buy';
+                };
+
+                const getTrackingKey = (tx) => {
+                    if (tx.assetType === 'Stock') return tx.ticker;
+                    if (tx.assetType === 'Option') {
+                        return `${tx.ticker}_OPT_${tx.optionType.toUpperCase()}_${tx.strike}_${tx.expiration}`;
+                    }
+                    return `${tx.ticker}_SPREAD_${tx.strategyName.toUpperCase().trim()}`;
+                };
+
+                const sortedTransactions = computed(() => {
+                    return [...transactions.value].sort((a, b) => new Date(b.date) - new Date(a.date));
+                });
+
+                const uniqueStockTickers = computed(() => {
+                    const list = new Set();
+                    transactions.value.forEach(tx => {
+                        if (tx.assetType === 'Stock') list.add(tx.ticker);
+                    });
+                    return Array.from(list);
+                });
+
+                const computedStockHoldings = computed(() => {
+                    const stockMap = {};
+                    const chronTransactions = [...transactions.value]
+                        .filter(tx => tx.assetType === 'Stock')
+                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    chronTransactions.forEach(tx => {
+                        if (!stockMap[tx.ticker]) {
+                            stockMap[tx.ticker] = { symbol: tx.ticker, quantity: 0, totalCost: 0, avgCost: 0 };
+                        }
+                        const stock = stockMap[tx.ticker];
+
+                        if (tx.action === 'Buy') {
+                            stock.quantity += tx.quantity;
+                            stock.totalCost += (tx.quantity * tx.price);
+                            stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
+                        } else if (tx.action === 'Sell') {
+                            const costBasisSold = tx.quantity * stock.avgCost;
+                            stock.quantity -= tx.quantity;
+                            stock.totalCost -= costBasisSold;
+                            if (stock.quantity <= 0) {
+                                stock.quantity = 0;
+                                stock.totalCost = 0;
+                                stock.avgCost = 0;
+                            }
+                        }
+                    });
+
+                    return Object.values(stockMap).filter(s => s.quantity > 0).map(s => {
+                        const currentPrice = marketPrices.value[s.symbol] || s.avgCost;
+                        const marketValue = s.quantity * currentPrice;
+                        const unrealizedPL = marketValue - s.totalCost;
+                        const unrealizedPercent = s.totalCost > 0 ? (unrealizedPL / s.totalCost) * 100 : 0;
+                        return {
+                            ...s,
+                            currentPrice,
+                            marketValue,
+                            unrealizedPL,
+                            unrealizedPercent
+                        };
+                    });
+                });
+
+                const computedOptionHoldings = computed(() => {
+                    const optionMap = {};
+                    const chronTransactions = [...transactions.value]
+                        .filter(tx => tx.assetType === 'Option' || tx.assetType === 'Spread')
+                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    chronTransactions.forEach(tx => {
+                        const key = getTrackingKey(tx);
+                        if (!optionMap[key]) {
+                            optionMap[key] = {
+                                key,
+                                symbol: tx.ticker,
+                                assetType: tx.assetType,
+                                optionType: tx.optionType || null,
+                                strike: tx.strike || null,
+                                expiration: tx.expiration || null,
+                                strategyName: tx.strategyName || null,
+                                quantity: 0,
+                                totalCost: 0,
+                                avgCost: 0,
+                                positionType: tx.action === 'Buy to Open' ? 'Long' : 'Short'
+                            };
+                        }
+                        const opt = optionMap[key];
+
+                        if (tx.action === 'Buy to Open') {
+                            opt.quantity += tx.quantity;
+                            opt.totalCost += (tx.quantity * tx.price * 100);
+                            opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
+                        } else if (tx.action === 'Sell to Close') {
+                            opt.quantity -= tx.quantity;
+                            opt.totalCost -= (tx.quantity * opt.avgCost * 100);
+                        } else if (tx.action === 'Sell to Open') {
+                            opt.quantity += tx.quantity;
+                            opt.totalCost += (tx.quantity * tx.price * 100);
+                            opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
+                        } else if (tx.action === 'Buy to Close') {
+                            opt.quantity -= tx.quantity;
+                            opt.totalCost -= (tx.quantity * opt.avgCost * 100);
+                        }
+
+                        if (opt.quantity <= 0) {
+                            delete optionMap[key];
+                        }
+                    });
+
+                    return Object.values(optionMap);
+                });
+
+                // Toggle placeholder depending purely on active stock holdings
+                const hasNoStockHoldings = computed(() => {
+                    return computedStockHoldings.value.length === 0;
+                });
+
+                // Exclude Option holdings - Aggregate strictly stock market values
+                const chartData = computed(() => {
+                    const totals = {};
+
+                    computedStockHoldings.value.forEach(s => {
+                        if (!totals[s.symbol]) totals[s.symbol] = 0;
+                        totals[s.symbol] += s.marketValue;
+                    });
+
+                    return totals;
+                });
+
+                const updateAllocationChart = () => {
+                    nextTick(() => {
+                        const canvas = document.getElementById('allocationChart');
+                        if (!canvas) return;
+
+                        const dataMap = chartData.value;
+                        const labels = Object.keys(dataMap);
+                        const values = Object.values(dataMap);
+
+                        if (labels.length === 0) {
+                            if (chartInstance) {
+                                chartInstance.destroy();
+                                chartInstance = null;
+                            }
+                            return;
+                        }
+
+                        const backgroundColors = [
+                            '#10b981', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e',
+                            '#f59e0b', '#14b8a6', '#f97316', '#6366f1', '#ec4899'
+                        ];
+
+                        if (chartInstance) {
+                            chartInstance.data.labels = labels;
+                            chartInstance.data.datasets[0].data = values;
+                            chartInstance.update();
+                        } else {
+                            chartInstance = new Chart(canvas, {
+                                type: 'pie',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        data: values,
+                                        backgroundColor: backgroundColors.slice(0, labels.length),
+                                        borderWidth: 2,
+                                        borderColor: '#1f2937' // gray-800 background
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: {
+                                                color: '#9ca3af', // gray-400
+                                                font: { size: 10 },
+                                                boxWidth: 10
+                                            }
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: (context) => {
+                                                    const val = context.raw || 0;
+                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                                    return ` ${context.label}: $${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${pct}%)`;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                };
+
+                // Watch stock holdings to dynamically update the allocation chart canvas
+                watch(computedStockHoldings, () => {
+                    updateAllocationChart();
+                }, { deep: true });
+
+                const stockPortfolioValue = computed(() => {
+                    return computedStockHoldings.value.reduce((acc, curr) => acc + curr.marketValue, 0);
+                });
+
+                const stockCostBasis = computed(() => {
+                    return computedStockHoldings.value.reduce((acc, curr) => acc + curr.totalCost, 0);
+                });
+
+                const stockUnrealizedPL = computed(() => {
+                    return stockPortfolioValue.value - stockCostBasis.value;
+                });
+
+                const realizedStockPL = computed(() => {
+                    let totalRealized = 0;
+                    const stockMap = {};
+                    const chronTransactions = [...transactions.value]
+                        .filter(tx => tx.assetType === 'Stock')
+                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    chronTransactions.forEach(tx => {
+                        if (!stockMap[tx.ticker]) {
+                            stockMap[tx.ticker] = { quantity: 0, totalCost: 0, avgCost: 0 };
+                        }
+                        const stock = stockMap[tx.ticker];
+
+                        if (tx.action === 'Buy') {
+                            stock.quantity += tx.quantity;
+                            stock.totalCost += (tx.quantity * tx.price);
+                            stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
+                        } else if (tx.action === 'Sell') {
+                            const costBasisSold = tx.quantity * stock.avgCost;
+                            const profit = (tx.quantity * tx.price) - costBasisSold;
+                            totalRealized += profit;
+                            stock.quantity -= tx.quantity;
+                            stock.totalCost -= costBasisSold;
+                        }
+                    });
+                    return totalRealized;
+                });
+
+                const realizedOptionsPL = computed(() => {
+                    let totalRealized = 0;
+                    const optMap = {};
+                    const chronTransactions = [...transactions.value]
+                        .filter(tx => tx.assetType === 'Option' || tx.assetType === 'Spread')
+                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    chronTransactions.forEach(tx => {
+                        const key = getTrackingKey(tx);
+                        if (!optMap[key]) {
+                            optMap[key] = { quantity: 0, avgCost: 0, positionType: null };
+                        }
+                        const h = optMap[key];
+
+                        if (tx.action === 'Buy to Open') {
+                            h.positionType = 'Long';
+                            h.quantity += tx.quantity;
+                            h.avgCost = ((h.quantity - tx.quantity) * h.avgCost + tx.quantity * tx.price) / h.quantity;
+                        } else if (tx.action === 'Sell to Close') {
+                            const profit = (tx.price - h.avgCost) * tx.quantity * 100;
+                            totalRealized += profit;
+                            h.quantity -= tx.quantity;
+                        } else if (tx.action === 'Sell to Open') {
+                            h.positionType = 'Short';
+                            h.quantity += tx.quantity;
+                            h.avgCost = ((h.quantity - tx.quantity) * h.avgCost + tx.quantity * tx.price) / h.quantity;
+                        } else if (tx.action === 'Buy to Close') {
+                            const profit = (h.avgCost - tx.price) * tx.quantity * 100;
+                            totalRealized += profit;
+                            h.quantity -= tx.quantity;
+                        }
+                    });
+                    return totalRealized;
+                });
+
+                const formatNumber = (num) => {
+                    if (num === undefined || isNaN(num)) return '0.00';
+                    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                };
+
+                const formatPercent = (num) => {
+                    if (num === undefined || isNaN(num)) return '0.00%';
+                    return (num >= 0 ? '+' : '') + num.toFixed(2) + '%';
+                };
+
+                transactions.value.forEach(tx => {
+                    tx.totalValue = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
+                });
+
+                watch(transactions, (newVal) => {
+                    newVal.forEach(tx => {
+                        tx.totalValue = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
+                    });
+                }, { deep: true });
+
+                return {
+                    transactions,
+                    marketPrices,
+                    form,
+                    apiKey,
+                    isSyncing,
+                    notification,
+                    availableActions,
+                    isSupported,
+                    fileStatus,
+                    fileName,
+                    isRolling,
+                    rollStep,
+                    hasNoStockHoldings,
+                    setAssetType,
+                    addTransaction,
+                    deleteTransaction,
+                    quickCloseOption,
+                    startRollOption,
+                    cancelRoll,
+                    clearAllData,
+                    uniqueStockTickers,
+                    sortedTransactions,
+                    computedStockHoldings,
+                    computedOptionHoldings,
+                    stockPortfolioValue,
+                    stockUnrealizedPL,
+                    realizedStockPL,
+                    realizedOptionsPL,
+                    savePrices,
+                    saveApiKey,
+                    syncPrices,
+                    linkLocalFile,
+                    authorizeFile,
+                    unlinkFile,
+                    formatNumber,
+                    formatPercent
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>

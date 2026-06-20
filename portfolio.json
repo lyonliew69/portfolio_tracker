@@ -1,0 +1,70 @@
+[
+  {
+    "id": "1781951107908",
+    "date": "2025-06-20",
+    "assetType": "Stock",
+    "ticker": "AAPL",
+    "action": "Buy",
+    "quantity": 1,
+    "price": 120,
+    "optionType": "Call",
+    "strike": null,
+    "expiration": "",
+    "totalValue": 120
+  },
+  {
+    "id": "1781951168010",
+    "date": "2025-06-20",
+    "assetType": "Option",
+    "ticker": "AAPL",
+    "action": "Sell to Open",
+    "quantity": 1,
+    "price": 8.1,
+    "optionType": "Put",
+    "strike": 120,
+    "expiration": "2026-06-27",
+    "totalValue": 810
+  },
+  {
+    "id": "1781958761508",
+    "date": "2026-06-20",
+    "assetType": "Option",
+    "ticker": "AAPL",
+    "action": "Buy to Close",
+    "quantity": 1,
+    "price": 0.1,
+    "optionType": "Put",
+    "strike": 120,
+    "expiration": "2026-06-27",
+    "strategyName": "",
+    "totalValue": 10
+  },
+  {
+    "id": "1781958795019",
+    "date": "2026-06-20",
+    "assetType": "Option",
+    "ticker": "AAPL",
+    "action": "Sell to Open",
+    "quantity": 1,
+    "price": 1.2,
+    "optionType": "Put",
+    "strike": 120,
+    "expiration": "2026-06-27",
+    "strategyName": "",
+    "totalValue": 120
+  },
+  {
+    "id": "1781959548490",
+    "date": "2026-06-20",
+    "assetType": "Stock",
+    "ticker": "SPCX",
+    "action": "Buy",
+    "quantity": 1,
+    "price": 170,
+    "optionType": "Call",
+    "strike": null,
+    "expiration": "",
+    "strategyName": "",
+    "totalValue": 170
+  }
+]
