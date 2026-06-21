@@ -247,36 +247,46 @@
 
                 <!-- Portfolio Allocation Chart Card -->
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 class="text-lg font-semibold mb-2 text-emerald-400">Stock Allocation</h2>
-                    <p class="text-xs text-gray-400 mb-4">Capital distribution (market value) of active stock holdings
-                        by Ticker.</p>
-                    <div class="relative flex items-center justify-center min-h-[260px]">
-                        <canvas id="allocationChart" class="max-w-[250px] max-h-[250px]"></canvas>
-                        <div v-if="hasNoStockHoldings"
-                            class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
-                            No active stock positions to display allocation.
+                    <h2 @click="showAllocation = !showAllocation" class="text-lg font-semibold mb-2 text-emerald-400 cursor-pointer flex justify-between items-center select-none">
+                        <span>Stock Allocation</span>
+                        <svg :class="{'rotate-180': showAllocation}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div v-show="showAllocation">
+                        <p class="text-xs text-gray-400 mb-4">Capital distribution (market value) of active stock holdings
+                            by Ticker.</p>
+                        <div class="relative flex items-center justify-center min-h-[260px]">
+                            <canvas id="allocationChart" class="max-w-[250px] max-h-[250px]"></canvas>
+                            <div v-if="hasNoStockHoldings"
+                                class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
+                                No active stock positions to display allocation.
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Stock Price Manual Updates -->
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 class="text-lg font-semibold mb-2 text-emerald-400">Stock Price Manual Updates</h2>
-                    <p class="text-xs text-gray-400 mb-4">Values update automatically with Stock API, or can be adjusted
-                        here manually.</p>
-                    <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
-                        <div v-for="ticker in uniqueStockTickers" :key="ticker"
-                            class="flex justify-between items-center bg-gray-700/40 p-2 rounded">
-                            <span class="font-bold text-sm text-gray-300">{{ ticker }}</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs text-gray-400">$</span>
-                                <input type="number" step="any" v-model.number="marketPrices[ticker]"
-                                    @input="savePrices"
-                                    class="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-right text-white">
+                    <h2 @click="showManualPrices = !showManualPrices" class="text-lg font-semibold mb-2 text-emerald-400 cursor-pointer flex justify-between items-center select-none">
+                        <span>Stock Price Manual Updates</span>
+                        <svg :class="{'rotate-180': showManualPrices}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div v-show="showManualPrices">
+                        <p class="text-xs text-gray-400 mb-4">Values update automatically with Stock API, or can be adjusted
+                            here manually.</p>
+                        <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                            <div v-for="ticker in uniqueStockTickers" :key="ticker"
+                                class="flex justify-between items-center bg-gray-700/40 p-2 rounded">
+                                <span class="font-bold text-sm text-gray-300">{{ ticker }}</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-gray-400">$</span>
+                                    <input type="number" step="any" v-model.number="marketPrices[ticker]"
+                                        @input="savePrices"
+                                        class="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-right text-white">
+                                </div>
                             </div>
-                        </div>
-                        <div v-if="uniqueStockTickers.length === 0" class="text-xs text-gray-500 text-center py-4">
-                            No stock assets tracked yet.
+                            <div v-if="uniqueStockTickers.length === 0" class="text-xs text-gray-500 text-center py-4">
+                                No stock assets tracked yet.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -394,8 +404,11 @@
 
                 <!-- Transaction Ledger (History) -->
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 class="text-lg font-semibold mb-4 text-emerald-400">Transaction History</h2>
-                    <div class="overflow-x-auto max-h-96">
+                    <h2 @click="showHistory = !showHistory" class="text-lg font-semibold mb-4 text-emerald-400 cursor-pointer flex justify-between items-center select-none">
+                        <span>Transaction History</span>
+                        <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </h2>
+                    <div v-show="showHistory" class="overflow-x-auto max-h-96">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
@@ -465,6 +478,11 @@
                 const apiKey = ref('');
                 const isSyncing = ref(false);
                 const notification = ref({ message: '', type: 'success' });
+
+                // Toggle states for panels
+                const showAllocation = ref(false);
+                const showManualPrices = ref(false);
+                const showHistory = ref(false);
 
                 // File System State
                 const fileHandle = ref(null);
@@ -1191,6 +1209,9 @@
                     fileName,
                     isRolling,
                     rollStep,
+                    showAllocation,
+                    showManualPrices,
+                    showHistory,
                     hasNoStockHoldings,
                     setAssetType,
                     addTransaction,
