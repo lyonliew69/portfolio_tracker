@@ -935,7 +935,7 @@
                         }
                     });
                     
-                    return Array.from(list).filter(t => activeTickers.has(t) || !hiddenTickers.value.includes(t));
+                    return Array.from(list).filter(t => activeTickers.has(t) || !hiddenTickers.value.includes(t)).sort((a, b) => a.localeCompare(b));
                 });
 
                 const computedStockHoldings = computed(() => {
