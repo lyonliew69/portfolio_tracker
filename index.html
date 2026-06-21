@@ -73,7 +73,7 @@
                     <span v-else>Sync Live Stocks</span>
                 </button>
 
-                <button @click="clearAllData"
+                <button @click="showClearConfirm = true"
                     class="px-3 py-2 bg-red-900/40 hover:bg-red-900 text-red-300 text-xs rounded transition">
                     Clear Ledger
                 </button>
@@ -479,6 +479,23 @@
                 </div>
             </div>
         </div>
+
+        <!-- Clear Ledger Confirmation Modal -->
+        <div v-if="showClearConfirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 max-w-sm w-full shadow-2xl">
+                <h3 class="text-xl font-bold text-rose-400 mb-2">Clear Ledger</h3>
+                <p class="text-sm text-gray-300 mb-6">Are you sure you want to delete all transaction history? This action cannot be undone.</p>
+                <div class="flex justify-end space-x-3">
+                    <button @click="showClearConfirm = false" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded transition">
+                        Cancel
+                    </button>
+                    <button @click="executeClearAllData" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold rounded transition shadow-lg shadow-rose-900/20">
+                        Yes, Clear Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Application Script Logic -->
@@ -497,6 +514,7 @@
                 const showAllocation = ref(false);
                 const showManualPrices = ref(false);
                 const showHistory = ref(false);
+                const showClearConfirm = ref(false);
 
                 // Hidden & manual tickers state
                 const hiddenTickers = ref(JSON.parse(localStorage.getItem('hiddenTickers')) || []);
@@ -806,13 +824,13 @@
                     }
                 };
 
-                const clearAllData = () => {
-                    if (confirm("Are you sure you want to clear all transaction history?")) {
-                        transactions.value = [];
-                        marketPrices.value = {};
-                        saveLedgerData();
-                        localStorage.removeItem('tx_market_prices');
-                    }
+                const executeClearAllData = () => {
+                    transactions.value = [];
+                    marketPrices.value = {};
+                    saveLedgerData();
+                    localStorage.removeItem('tx_market_prices');
+                    showClearConfirm.value = false;
+                    showNotification('Ledger cleared successfully.', 'success');
                 };
 
                 const addTransaction = () => {
@@ -1278,7 +1296,7 @@
                     quickCloseOption,
                     startRollOption,
                     cancelRoll,
-                    clearAllData,
+                    executeClearAllData,
                     uniqueStockTickers,
                     hideTicker,
                     addWatchlistTicker,
@@ -1288,6 +1306,7 @@
                     computedStockHoldings,
                     computedOptionHoldings,
                     stockPortfolioValue,
+                    stockCostBasis,
                     stockUnrealizedPL,
                     realizedStockPL,
                     realizedOptionsPL,
@@ -1298,7 +1317,8 @@
                     authorizeFile,
                     unlinkFile,
                     formatNumber,
-                    formatPercent
+                    formatPercent,
+                    showClearConfirm
                 };
             }
         }).mount('#app');
