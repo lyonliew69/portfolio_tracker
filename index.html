@@ -204,8 +204,8 @@
                             </div>
                         </div>
 
-                        <!-- Quantities & Cost -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <!-- Quantities, Cost & Fee -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div>
                                 <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
                                     {{ form.assetType === 'Stock' ? 'Shares' : 'Contracts' }}
@@ -219,6 +219,13 @@
                                     Price per {{ form.assetType === 'Stock' ? 'Share ($)' : 'Contract ($)' }}
                                 </label>
                                 <input type="number" step="any" v-model.number="form.price" required min="0.00"
+                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                    Fee ($)
+                                </label>
+                                <input type="number" step="any" v-model.number="form.fee" required min="0.00"
                                     class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                             </div>
                         </div>
@@ -397,7 +404,8 @@
                                     <th class="pb-3 font-semibold">Action</th>
                                     <th class="pb-3 text-right font-semibold">Qty</th>
                                     <th class="pb-3 text-right font-semibold">Price</th>
-                                    <th class="pb-3 text-right font-semibold">Total Amount</th>
+                                    <th class="pb-3 text-right font-semibold">Fee</th>
+                                    <th class="pb-3 text-right font-semibold">Net Amount</th>
                                     <th class="pb-3 text-center font-semibold">Actions</th>
                                 </tr>
                             </thead>
@@ -423,7 +431,9 @@
                                     </td>
                                     <td class="py-3 text-right font-mono">{{ tx.quantity }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(tx.price) }}</td>
-                                    <td class="py-3 text-right font-mono text-white">${{ formatNumber(tx.totalValue) }}
+                                    <td class="py-3 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
+                                    <td class="py-3 text-right font-mono text-white" :class="['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
+                                        {{ ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? '-' : '+' }}${{ formatNumber(tx.totalValue) }}
                                     </td>
                                     <td class="py-3 text-center">
                                         <button @click="deleteTransaction(tx.id)"
@@ -478,6 +488,7 @@
                     action: 'Buy',
                     quantity: null,
                     price: null,
+                    fee: 0.00,
                     optionType: 'Call',
                     strike: null,
                     expiration: '',
@@ -794,6 +805,7 @@
 
                     form.value.quantity = null;
                     form.value.price = null;
+                    form.value.fee = 0.00;
                     form.value.strategyName = '';
                 };
 
@@ -851,6 +863,7 @@
                     rollSourceHolding.value = null;
                     form.value.quantity = null;
                     form.value.price = null;
+                    form.value.fee = 0.00;
                     form.value.strategyName = '';
                     form.value.assetType = 'Stock';
                     form.value.action = 'Buy';
@@ -894,7 +907,7 @@
 
                         if (tx.action === 'Buy') {
                             stock.quantity += tx.quantity;
-                            stock.totalCost += (tx.quantity * tx.price);
+                            stock.totalCost += (tx.quantity * tx.price) + (tx.fee || 0);
                             stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
                         } else if (tx.action === 'Sell') {
                             const costBasisSold = tx.quantity * stock.avgCost;
@@ -950,14 +963,14 @@
 
                         if (tx.action === 'Buy to Open') {
                             opt.quantity += tx.quantity;
-                            opt.totalCost += (tx.quantity * tx.price * 100);
+                            opt.totalCost += (tx.quantity * tx.price * 100) + (tx.fee || 0);
                             opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
                         } else if (tx.action === 'Sell to Close') {
                             opt.quantity -= tx.quantity;
                             opt.totalCost -= (tx.quantity * opt.avgCost * 100);
                         } else if (tx.action === 'Sell to Open') {
                             opt.quantity += tx.quantity;
-                            opt.totalCost += (tx.quantity * tx.price * 100);
+                            opt.totalCost += (tx.quantity * tx.price * 100) - (tx.fee || 0);
                             opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
                         } else if (tx.action === 'Buy to Close') {
                             opt.quantity -= tx.quantity;
@@ -1088,11 +1101,11 @@
 
                         if (tx.action === 'Buy') {
                             stock.quantity += tx.quantity;
-                            stock.totalCost += (tx.quantity * tx.price);
+                            stock.totalCost += (tx.quantity * tx.price) + (tx.fee || 0);
                             stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
                         } else if (tx.action === 'Sell') {
                             const costBasisSold = tx.quantity * stock.avgCost;
-                            const profit = (tx.quantity * tx.price) - costBasisSold;
+                            const profit = (tx.quantity * tx.price) - costBasisSold - (tx.fee || 0);
                             totalRealized += profit;
                             stock.quantity -= tx.quantity;
                             stock.totalCost -= costBasisSold;
@@ -1118,17 +1131,17 @@
                         if (tx.action === 'Buy to Open') {
                             h.positionType = 'Long';
                             h.quantity += tx.quantity;
-                            h.avgCost = ((h.quantity - tx.quantity) * h.avgCost + tx.quantity * tx.price) / h.quantity;
+                            h.avgCost = ((h.quantity - tx.quantity) * h.avgCost * 100 + tx.quantity * tx.price * 100 + (tx.fee || 0)) / (h.quantity * 100);
                         } else if (tx.action === 'Sell to Close') {
-                            const profit = (tx.price - h.avgCost) * tx.quantity * 100;
+                            const profit = (tx.price - h.avgCost) * tx.quantity * 100 - (tx.fee || 0);
                             totalRealized += profit;
                             h.quantity -= tx.quantity;
                         } else if (tx.action === 'Sell to Open') {
                             h.positionType = 'Short';
                             h.quantity += tx.quantity;
-                            h.avgCost = ((h.quantity - tx.quantity) * h.avgCost + tx.quantity * tx.price) / h.quantity;
+                            h.avgCost = ((h.quantity - tx.quantity) * h.avgCost * 100 + tx.quantity * tx.price * 100 - (tx.fee || 0)) / (h.quantity * 100);
                         } else if (tx.action === 'Buy to Close') {
-                            const profit = (h.avgCost - tx.price) * tx.quantity * 100;
+                            const profit = (h.avgCost - tx.price) * tx.quantity * 100 - (tx.fee || 0);
                             totalRealized += profit;
                             h.quantity -= tx.quantity;
                         }
@@ -1147,12 +1160,14 @@
                 };
 
                 transactions.value.forEach(tx => {
-                    tx.totalValue = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
+                    const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
+                    tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                 });
 
                 watch(transactions, (newVal) => {
                     newVal.forEach(tx => {
-                        tx.totalValue = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
+                        const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
+                        tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                     });
                 }, { deep: true });
 
