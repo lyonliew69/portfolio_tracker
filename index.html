@@ -424,7 +424,7 @@
                                     </td>
                                     <td class="py-3">
                                         <span
-                                            :class="['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'"
+                                            :class="tx.action === 'Expire' ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
                                             class="px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap">
                                             {{ tx.action }}
                                         </span>
@@ -432,8 +432,8 @@
                                     <td class="py-3 text-right font-mono">{{ tx.quantity }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(tx.price) }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
-                                    <td class="py-3 text-right font-mono text-white" :class="['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
-                                        {{ ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? '-' : '+' }}${{ formatNumber(tx.totalValue) }}
+                                    <td class="py-3 text-right font-mono text-white" :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
+                                        {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? '-' : '+' }}${{ formatNumber(tx.totalValue) }}
                                     </td>
                                     <td class="py-3 text-center">
                                         <button @click="deleteTransaction(tx.id)"
@@ -506,7 +506,8 @@
                             { value: 'Buy to Open', label: 'Buy to Open (Long)' },
                             { value: 'Sell to Close', label: 'Sell to Close (Close Long)' },
                             { value: 'Sell to Open', label: 'Sell to Open (Short / Credit)' },
-                            { value: 'Buy to Close', label: 'Buy to Close (Close Short)' }
+                            { value: 'Buy to Close', label: 'Buy to Close (Close Short)' },
+                            { value: 'Expire', label: 'Expire Worthless' }
                         ];
                     }
                 });
@@ -828,7 +829,7 @@
                     }
 
                     form.value.quantity = holding.quantity;
-                    form.value.action = holding.positionType === 'Long' ? 'Sell to Close' : 'Buy to Close';
+                    form.value.action = 'Expire';
                     form.value.price = 0.00;
 
                     showNotification(`Filled form parameters to close ${holding.symbol} position.`, "success");
@@ -965,16 +966,13 @@
                             opt.quantity += tx.quantity;
                             opt.totalCost += (tx.quantity * tx.price * 100) + (tx.fee || 0);
                             opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
-                        } else if (tx.action === 'Sell to Close') {
+                        } else if (tx.action === 'Sell to Close' || tx.action === 'Buy to Close' || tx.action === 'Expire') {
                             opt.quantity -= tx.quantity;
                             opt.totalCost -= (tx.quantity * opt.avgCost * 100);
                         } else if (tx.action === 'Sell to Open') {
                             opt.quantity += tx.quantity;
                             opt.totalCost += (tx.quantity * tx.price * 100) - (tx.fee || 0);
                             opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
-                        } else if (tx.action === 'Buy to Close') {
-                            opt.quantity -= tx.quantity;
-                            opt.totalCost -= (tx.quantity * opt.avgCost * 100);
                         }
 
                         if (opt.quantity <= 0) {
@@ -1144,6 +1142,15 @@
                             const profit = (h.avgCost - tx.price) * tx.quantity * 100 - (tx.fee || 0);
                             totalRealized += profit;
                             h.quantity -= tx.quantity;
+                        } else if (tx.action === 'Expire') {
+                            let profit = 0;
+                            if (h.positionType === 'Long') {
+                                profit = (tx.price - h.avgCost) * tx.quantity * 100 - (tx.fee || 0);
+                            } else if (h.positionType === 'Short') {
+                                profit = (h.avgCost - tx.price) * tx.quantity * 100 - (tx.fee || 0);
+                            }
+                            totalRealized += profit;
+                            h.quantity -= tx.quantity;
                         }
                     });
                     return totalRealized;
@@ -1161,13 +1168,13 @@
 
                 transactions.value.forEach(tx => {
                     const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
-                    tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
+                    tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                 });
 
                 watch(transactions, (newVal) => {
                     newVal.forEach(tx => {
                         const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
-                        tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
+                        tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                     });
                 }, { deep: true });
 
