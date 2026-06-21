@@ -292,6 +292,16 @@
                                 No stock assets tracked yet.
                             </div>
                         </div>
+
+                        <!-- Add Manual Watchlist Ticker -->
+                        <div class="mt-4 pt-3 border-t border-gray-700/50 flex space-x-2 items-center">
+                            <input type="text" v-model="newWatchlistTicker" placeholder="e.g. MSFT" @keyup.enter="addWatchlistTicker"
+                                class="flex-1 bg-gray-700 border border-gray-600 rounded p-1.5 text-xs text-white uppercase placeholder-gray-500 focus:outline-none focus:border-emerald-500">
+                            <button @click="addWatchlistTicker"
+                                class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-emerald-400 text-xs font-semibold rounded border border-gray-600 hover:border-emerald-500 transition whitespace-nowrap">
+                                Add to Watchlist
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -488,8 +498,10 @@
                 const showManualPrices = ref(false);
                 const showHistory = ref(false);
 
-                // Hidden tickers state
+                // Hidden & manual tickers state
                 const hiddenTickers = ref(JSON.parse(localStorage.getItem('hiddenTickers')) || []);
+                const manualWatchlistTickers = ref(JSON.parse(localStorage.getItem('manualWatchlistTickers')) || []);
+                const newWatchlistTicker = ref('');
 
                 // File System State
                 const fileHandle = ref(null);
@@ -914,14 +926,16 @@
                 const uniqueStockTickers = computed(() => {
                     const list = new Set();
                     const activeTickers = new Set(computedStockHoldings.value.map(h => h.symbol));
+                    
+                    manualWatchlistTickers.value.forEach(t => list.add(t));
+                    
                     transactions.value.forEach(tx => {
                         if (tx.assetType === 'Stock') {
-                            if (activeTickers.has(tx.ticker) || !hiddenTickers.value.includes(tx.ticker)) {
-                                list.add(tx.ticker);
-                            }
+                            list.add(tx.ticker);
                         }
                     });
-                    return Array.from(list);
+                    
+                    return Array.from(list).filter(t => activeTickers.has(t) || !hiddenTickers.value.includes(t));
                 });
 
                 const computedStockHoldings = computed(() => {
@@ -1197,10 +1211,32 @@
                 };
 
                 const hideTicker = (ticker) => {
+                    if (manualWatchlistTickers.value.includes(ticker)) {
+                        manualWatchlistTickers.value = manualWatchlistTickers.value.filter(t => t !== ticker);
+                        localStorage.setItem('manualWatchlistTickers', JSON.stringify(manualWatchlistTickers.value));
+                    }
                     if (!hiddenTickers.value.includes(ticker)) {
                         hiddenTickers.value.push(ticker);
                         localStorage.setItem('hiddenTickers', JSON.stringify(hiddenTickers.value));
                     }
+                };
+
+                const addWatchlistTicker = () => {
+                    const ticker = newWatchlistTicker.value.toUpperCase().trim();
+                    if (!ticker) return;
+                    
+                    if (hiddenTickers.value.includes(ticker)) {
+                        hiddenTickers.value = hiddenTickers.value.filter(t => t !== ticker);
+                        localStorage.setItem('hiddenTickers', JSON.stringify(hiddenTickers.value));
+                    }
+                    if (!manualWatchlistTickers.value.includes(ticker)) {
+                        manualWatchlistTickers.value.push(ticker);
+                        localStorage.setItem('manualWatchlistTickers', JSON.stringify(manualWatchlistTickers.value));
+                    }
+                    if (marketPrices.value[ticker] === undefined) {
+                        marketPrices.value[ticker] = 0.00;
+                    }
+                    newWatchlistTicker.value = '';
                 };
 
                 const isTickerInHoldings = (ticker) => {
@@ -1245,6 +1281,8 @@
                     clearAllData,
                     uniqueStockTickers,
                     hideTicker,
+                    addWatchlistTicker,
+                    newWatchlistTicker,
                     isTickerInHoldings,
                     sortedTransactions,
                     computedStockHoldings,
