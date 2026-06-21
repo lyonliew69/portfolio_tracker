@@ -282,6 +282,10 @@
                                     <input type="number" step="any" v-model.number="marketPrices[ticker]"
                                         @input="savePrices"
                                         class="w-24 bg-gray-700 border border-gray-600 rounded px-2 py-1 text-xs text-right text-white">
+                                    <button v-if="!isTickerInHoldings(ticker)" @click="hideTicker(ticker)" title="Remove from tracking"
+                                        class="text-rose-400 hover:text-rose-300 p-1 bg-gray-800 rounded border border-gray-600 hover:border-rose-400 transition flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
                                 </div>
                             </div>
                             <div v-if="uniqueStockTickers.length === 0" class="text-xs text-gray-500 text-center py-4">
@@ -483,6 +487,9 @@
                 const showAllocation = ref(false);
                 const showManualPrices = ref(false);
                 const showHistory = ref(false);
+
+                // Hidden tickers state
+                const hiddenTickers = ref(JSON.parse(localStorage.getItem('hiddenTickers')) || []);
 
                 // File System State
                 const fileHandle = ref(null);
@@ -906,8 +913,13 @@
 
                 const uniqueStockTickers = computed(() => {
                     const list = new Set();
+                    const activeTickers = new Set(computedStockHoldings.value.map(h => h.symbol));
                     transactions.value.forEach(tx => {
-                        if (tx.assetType === 'Stock') list.add(tx.ticker);
+                        if (tx.assetType === 'Stock') {
+                            if (activeTickers.has(tx.ticker) || !hiddenTickers.value.includes(tx.ticker)) {
+                                list.add(tx.ticker);
+                            }
+                        }
                     });
                     return Array.from(list);
                 });
@@ -1184,6 +1196,17 @@
                     return (num >= 0 ? '+' : '') + num.toFixed(2) + '%';
                 };
 
+                const hideTicker = (ticker) => {
+                    if (!hiddenTickers.value.includes(ticker)) {
+                        hiddenTickers.value.push(ticker);
+                        localStorage.setItem('hiddenTickers', JSON.stringify(hiddenTickers.value));
+                    }
+                };
+
+                const isTickerInHoldings = (ticker) => {
+                    return computedStockHoldings.value.some(h => h.symbol === ticker);
+                };
+
                 transactions.value.forEach(tx => {
                     const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
                     tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
@@ -1221,6 +1244,8 @@
                     cancelRoll,
                     clearAllData,
                     uniqueStockTickers,
+                    hideTicker,
+                    isTickerInHoldings,
                     sortedTransactions,
                     computedStockHoldings,
                     computedOptionHoldings,
