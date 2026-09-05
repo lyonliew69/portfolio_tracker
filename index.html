@@ -130,11 +130,22 @@
                     ${{ formatNumber(realizedStockPL) }}
                 </div>
             </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="text-gray-400 text-xs uppercase font-semibold">Realized Options P/L</div>
+            <div @click="openOptionsHistoryModal"
+                class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
+                title="Click to view full Options Realized History & Filter by Year/Date">
+                <div class="flex items-center justify-between">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Realized Options P/L</div>
+                    <span class="text-[10px] text-emerald-400/90 bg-emerald-950/70 border border-emerald-800/70 px-1.5 py-0.5 rounded font-medium group-hover:border-emerald-500 group-hover:bg-emerald-900/60 transition flex items-center gap-1">
+                        History ↗
+                    </span>
+                </div>
                 <div class="text-2xl font-bold mt-1"
                     :class="realizedOptionsPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                     ${{ formatNumber(realizedOptionsPL) }}
+                </div>
+                <div class="text-[11px] text-gray-500 group-hover:text-gray-300 transition mt-0.5 flex items-center justify-between">
+                    <span>Click to view breakdown</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by year/date</span>
                 </div>
             </div>
         </div>
@@ -1046,6 +1057,373 @@
             </div>
         </div>
 
+        <!-- Realized Options P/L History Modal -->
+        <div v-if="showOptionsHistoryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+            <div class="bg-gray-900 border border-gray-700/90 rounded-2xl p-4 sm:p-6 max-w-6xl w-full shadow-2xl space-y-4 my-auto max-h-[95vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 bg-emerald-950/70 border border-emerald-800/80 rounded-xl text-emerald-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-xl font-bold text-white">Realized Options P/L History</h2>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-semibold">
+                                    {{ filteredOptionsRecords.length }} Records
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                Performance breakdown of expired, assigned, and closed option contracts across all years.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized P/L</div>
+                            <div class="text-lg font-bold font-mono" :class="optionsHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                ${{ formatNumber(optionsHistorySummary.totalPL) }}
+                            </div>
+                        </div>
+                        <button @click="closeOptionsHistoryModal" class="text-gray-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg hover:bg-gray-800 transition">✕</button>
+                    </div>
+                </div>
+
+                <!-- Multi-Dimensional Filter Controls Bar -->
+                <div class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2.5">
+                        <!-- Year Pills -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Year:
+                            </span>
+                            <button @click="setHistoryYear('ALL')"
+                                :class="historyYearFilter === 'ALL' && !historyDateFrom && !historyDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                All Years
+                            </button>
+                            <button v-for="y in availableHistoryYears" :key="y" @click="setHistoryYear(y)"
+                                :class="historyYearFilter === y && !historyDateFrom && !historyDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                {{ y }}
+                            </button>
+                        </div>
+
+                        <!-- Reset / Clear Button -->
+                        <button @click="resetHistoryFilters"
+                            class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2 py-1 rounded bg-gray-800/80 hover:bg-gray-800 border border-gray-700">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Reset Filters
+                        </button>
+                    </div>
+
+                    <!-- Date Range, Ticker, Action Type, and Search -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
+                        <!-- Date From -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">From:</span>
+                            <input type="date" v-model="historyDateFrom" @change="historyYearFilter = 'CUSTOM'"
+                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                        </div>
+
+                        <!-- Date To -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">To:</span>
+                            <input type="date" v-model="historyDateTo" @change="historyYearFilter = 'CUSTOM'"
+                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                        </div>
+
+                        <!-- Ticker Filter -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Ticker:</span>
+                            <select v-model="historyTickerFilter" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
+                                <option value="" class="bg-gray-800">All Tickers ({{ availableHistoryTickers.length }})</option>
+                                <option v-for="t in availableHistoryTickers" :key="t" :value="t" class="bg-gray-800">{{ t }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Closing Action Type Filter -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Action:</span>
+                            <select v-model="historyActionFilter" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
+                                <option value="ALL" class="bg-gray-800">All Closing Types</option>
+                                <option value="EXPIRED" class="bg-gray-800">Expired Worthless (OTM)</option>
+                                <option value="ASSIGNED" class="bg-gray-800">Assigned / Exercised</option>
+                                <option value="CLOSE" class="bg-gray-800">Buy/Sell to Close (Early)</option>
+                            </select>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" v-model="historySearchQuery" placeholder="Search contract or strike..."
+                                class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
+                            <button v-if="historySearchQuery" @click="historySearchQuery = ''" class="text-gray-400 hover:text-white">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Summary Cards Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- 1. Realized P/L in Selection -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized P/L</div>
+                        <div class="text-xl font-bold font-mono mt-1" :class="optionsHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                            ${{ formatNumber(optionsHistorySummary.totalPL) }}
+                        </div>
+                        <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
+                            <span>{{ optionsHistorySummary.totalTrades }} closed trades</span>
+                            <span class="text-emerald-400 font-medium">{{ optionsHistorySummary.winRate.toFixed(1) }}% win rate</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Win / Loss Record -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Win / Loss Record</div>
+                        <div class="text-xl font-bold font-mono mt-1 text-white flex items-baseline gap-2">
+                            <span class="text-emerald-400">{{ optionsHistorySummary.wins }}W</span>
+                            <span class="text-gray-500 text-sm">/</span>
+                            <span class="text-rose-400">{{ optionsHistorySummary.losses }}L</span>
+                            <span v-if="optionsHistorySummary.breakeven > 0" class="text-gray-400 text-xs font-normal">({{ optionsHistorySummary.breakeven }} Even)</span>
+                        </div>
+                        <!-- Mini Win Bar -->
+                        <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mt-2 flex">
+                            <div class="bg-emerald-500 h-full" :style="{ width: optionsHistorySummary.winRate + '%' }"></div>
+                            <div class="bg-rose-500 h-full" :style="{ width: (100 - optionsHistorySummary.winRate) + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Strategy Category Breakdown -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Strategy Breakdown</div>
+                        <div class="space-y-1 mt-1 text-[11px]">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Expired OTM:</span>
+                                <span class="font-mono font-semibold text-emerald-400">+${{ formatNumber(optionsHistorySummary.expirePL) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Assigned ITM:</span>
+                                <span class="font-mono font-semibold text-indigo-300">+${{ formatNumber(optionsHistorySummary.assignPL) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Early Close / Roll:</span>
+                                <span class="font-mono font-semibold" :class="optionsHistorySummary.closePL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                    ${{ formatNumber(optionsHistorySummary.closePL) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Total Net Fees -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Commissions & Fees</div>
+                        <div class="text-xl font-bold font-mono mt-1 text-amber-400">
+                            ${{ formatNumber(optionsHistorySummary.totalFees) }}
+                        </div>
+                        <div class="text-[11px] text-gray-400 mt-1">
+                            Schwab regulatory & contract fees deducted
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs: Ledger vs Yearly Overview -->
+                <div class="flex items-center justify-between border-b border-gray-800 pt-1">
+                    <div class="flex gap-2">
+                        <button @click="historyActiveTab = 'trades'"
+                            :class="historyActiveTab === 'trades' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            Closed Trades Ledger ({{ filteredOptionsRecords.length }})
+                        </button>
+                        <button @click="historyActiveTab = 'yearly'"
+                            :class="historyActiveTab === 'yearly' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            Yearly Performance Breakdown
+                        </button>
+                    </div>
+
+                    <!-- Per Page Selector for Trades -->
+                    <div v-if="historyActiveTab === 'trades'" class="flex items-center gap-2 text-xs text-gray-400 pb-2">
+                        <span>Show:</span>
+                        <select v-model.number="historyPerPage" @change="historyPage = 1" class="bg-gray-800 border border-gray-700 text-gray-200 rounded px-2 py-0.5 text-xs">
+                            <option :value="15">15</option>
+                            <option :value="25">25</option>
+                            <option :value="50">50</option>
+                            <option :value="100">100</option>
+                            <option :value="-1">All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Content Area (Scrollable) -->
+                <div class="overflow-y-auto flex-1 pr-1 min-h-[300px]">
+                    <!-- TAB 1: Detailed Trades Ledger -->
+                    <div v-if="historyActiveTab === 'trades'">
+                        <div v-if="filteredOptionsRecords.length === 0" class="text-center py-12 text-gray-400 text-xs">
+                            No option records found matching the active filters.
+                            <button @click="resetHistoryFilters" class="block mx-auto mt-2 text-emerald-400 underline">Reset all filters</button>
+                        </div>
+                        <div v-else class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-700">
+                                    <tr>
+                                        <th @click="toggleHistorySort('date')" class="p-2.5 cursor-pointer hover:text-white transition">
+                                            Date {{ historySortKey === 'date' ? (historySortAsc ? '↑' : '↓') : '' }}
+                                        </th>
+                                        <th @click="toggleHistorySort('ticker')" class="p-2.5 cursor-pointer hover:text-white transition">
+                                            Underlying {{ historySortKey === 'ticker' ? (historySortAsc ? '↑' : '↓') : '' }}
+                                        </th>
+                                        <th class="p-2.5">Contract Details</th>
+                                        <th class="p-2.5">Closing Action</th>
+                                        <th class="p-2.5 text-center">Qty</th>
+                                        <th class="p-2.5 text-right">Entry Basis</th>
+                                        <th class="p-2.5 text-right">Exit Price</th>
+                                        <th class="p-2.5 text-right">Fee</th>
+                                        <th @click="toggleHistorySort('profit')" class="p-2.5 text-right cursor-pointer hover:text-white transition">
+                                            Realized P/L {{ historySortKey === 'profit' ? (historySortAsc ? '↑' : '↓') : '' }}
+                                        </th>
+                                        <th class="p-2.5 text-right">Return %</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800 text-gray-200">
+                                    <tr v-for="rec in paginatedHistoryRecords" :key="rec.id" class="hover:bg-gray-800/50 transition">
+                                        <td class="p-2.5 font-mono text-gray-400 whitespace-nowrap">{{ rec.date }}</td>
+                                        <td class="p-2.5 font-bold text-white whitespace-nowrap">{{ rec.ticker }}</td>
+                                        <td class="p-2.5 whitespace-nowrap">
+                                            <span :class="rec.optionType === 'Call' ? 'text-emerald-400' : 'text-amber-400'" class="font-semibold">
+                                                {{ rec.optionType }}
+                                            </span>
+                                            <span class="font-mono text-gray-300 ml-1.5">${{ rec.strike }}</span>
+                                            <span class="text-gray-500 text-[11px] ml-1.5">Exp: {{ rec.expiration }}</span>
+                                        </td>
+                                        <td class="p-2.5 whitespace-nowrap">
+                                            <span v-if="rec.closingType === 'Expired'"
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 border border-emerald-800 text-emerald-300">
+                                                Expired (OTM)
+                                            </span>
+                                            <span v-else-if="rec.closingType === 'Assigned'"
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950/80 border border-indigo-800 text-indigo-300">
+                                                Assigned (ITM)
+                                            </span>
+                                            <span v-else
+                                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-800 border border-gray-700 text-gray-300">
+                                                {{ rec.action }}
+                                            </span>
+                                        </td>
+                                        <td class="p-2.5 text-center font-mono font-semibold text-gray-300">{{ rec.quantity }}x</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-300">${{ rec.entryPrice.toFixed(2) }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-300">${{ rec.closePrice.toFixed(2) }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-400">${{ rec.fee.toFixed(2) }}</td>
+                                        <td class="p-2.5 text-right font-mono font-bold whitespace-nowrap"
+                                            :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ rec.profit >= 0 ? '+' : '' }}${{ formatNumber(rec.profit) }}
+                                        </td>
+                                        <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap"
+                                            :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ formatPercent(rec.returnPct) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div v-if="historyPerPage !== -1 && historyTotalPages > 1"
+                            class="flex items-center justify-between border-t border-gray-800 pt-3 mt-2 text-xs text-gray-400">
+                            <div>
+                                Showing {{ (historyPage - 1) * historyPerPage + 1 }} - 
+                                {{ Math.min(historyPage * historyPerPage, filteredOptionsRecords.length) }}
+                                of {{ filteredOptionsRecords.length }} records
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="historyPage = Math.max(1, historyPage - 1)" :disabled="historyPage === 1"
+                                    class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 disabled:opacity-40 disabled:hover:bg-gray-800 border border-gray-700 transition">
+                                    Previous
+                                </button>
+                                <span class="px-2 font-mono text-gray-300">Page {{ historyPage }} of {{ historyTotalPages }}</span>
+                                <button @click="historyPage = Math.min(historyTotalPages, historyPage + 1)" :disabled="historyPage === historyTotalPages"
+                                    class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 disabled:opacity-40 disabled:hover:bg-gray-800 border border-gray-700 transition">
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Yearly Performance Breakdown Table -->
+                    <div v-if="historyActiveTab === 'yearly'" class="space-y-4">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold border-b border-gray-700">
+                                    <tr>
+                                        <th class="p-3">Year</th>
+                                        <th class="p-3 text-right">Realized P/L</th>
+                                        <th class="p-3 text-center">Win Rate</th>
+                                        <th class="p-3 text-center">Closed Trades</th>
+                                        <th class="p-3 text-right">Expired OTM</th>
+                                        <th class="p-3 text-right">Assigned ITM</th>
+                                        <th class="p-3 text-right">Closed Early</th>
+                                        <th class="p-3">Top Underlying</th>
+                                        <th class="p-3 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800 text-gray-200">
+                                    <tr v-for="y in optionsYearlySummary" :key="y.year" class="hover:bg-gray-800/50 transition">
+                                        <td class="p-3 font-mono font-bold text-white text-sm">{{ y.year }}</td>
+                                        <td class="p-3 text-right font-mono font-bold text-sm"
+                                            :class="y.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ y.totalPL >= 0 ? '+' : '' }}${{ formatNumber(y.totalPL) }}
+                                        </td>
+                                        <td class="p-3 text-center font-mono font-semibold text-emerald-400">
+                                            {{ y.winRate.toFixed(1) }}%
+                                        </td>
+                                        <td class="p-3 text-center font-mono text-gray-300">
+                                            <span class="text-emerald-400">{{ y.wins }}W</span> / 
+                                            <span class="text-rose-400">{{ y.losses }}L</span>
+                                            <span class="text-gray-500 text-[11px] ml-1">({{ y.trades }})</span>
+                                        </td>
+                                        <td class="p-3 text-right font-mono text-emerald-400">
+                                            +${{ formatNumber(y.expirePL) }}
+                                        </td>
+                                        <td class="p-3 text-right font-mono text-indigo-300">
+                                            +${{ formatNumber(y.assignPL) }}
+                                        </td>
+                                        <td class="p-3 text-right font-mono" :class="y.closePL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ y.closePL >= 0 ? '+' : '' }}${{ formatNumber(y.closePL) }}
+                                        </td>
+                                        <td class="p-3 font-semibold text-gray-200">
+                                            {{ y.topTicker }}
+                                        </td>
+                                        <td class="p-3 text-center">
+                                            <button @click="setHistoryYear(y.year); historyActiveTab = 'trades'"
+                                                class="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 hover:text-white transition text-xs font-semibold">
+                                                View {{ y.year }} Trades →
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-between items-center pt-3 border-t border-gray-800 text-xs text-gray-400">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        Includes all multi-leg spreads, rolls, single options, and ACAT transfers.
+                    </span>
+                    <button type="button" @click="closeOptionsHistoryModal"
+                        class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Application Script Logic -->
@@ -1064,6 +1442,45 @@
                 const isTestingFinnhub = ref(false);
                 const isSyncing = ref(false);
                 const notification = ref({ message: '', type: 'success' });
+
+                // Realized Options History Modal State
+                const showOptionsHistoryModal = ref(false);
+                const historyActiveTab = ref('trades'); // 'trades' | 'yearly'
+                const historyYearFilter = ref('ALL');
+                const historyDateFrom = ref('');
+                const historyDateTo = ref('');
+                const historyTickerFilter = ref('');
+                const historyActionFilter = ref('ALL');
+                const historySearchQuery = ref('');
+                const historySortKey = ref('date');
+                const historySortAsc = ref(false);
+                const historyPage = ref(1);
+                const historyPerPage = ref(25);
+
+                const openOptionsHistoryModal = () => {
+                    showOptionsHistoryModal.value = true;
+                };
+
+                const closeOptionsHistoryModal = () => {
+                    showOptionsHistoryModal.value = false;
+                };
+
+                const resetHistoryFilters = () => {
+                    historyYearFilter.value = 'ALL';
+                    historyDateFrom.value = '';
+                    historyDateTo.value = '';
+                    historyTickerFilter.value = '';
+                    historyActionFilter.value = 'ALL';
+                    historySearchQuery.value = '';
+                    historyPage.value = 1;
+                };
+
+                const setHistoryYear = (year) => {
+                    historyYearFilter.value = year;
+                    historyDateFrom.value = '';
+                    historyDateTo.value = '';
+                    historyPage.value = 1;
+                };
 
                 // Toggle states for panels
                 const showAllocation = ref(false);
@@ -2052,8 +2469,8 @@ No markdown fences or commentary outside the JSON.`;
                     return totalRealized;
                 });
 
-                const realizedOptionsPL = computed(() => {
-                    let totalRealized = 0;
+                const allRealizedOptionsRecords = computed(() => {
+                    const records = [];
                     const optMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Option' || tx.assetType === 'Spread')
@@ -2072,7 +2489,28 @@ No markdown fences or commentary outside the JSON.`;
                             h.avgCost = ((h.quantity - tx.quantity) * h.avgCost * 100 + tx.quantity * tx.price * 100 + (tx.fee || 0)) / (h.quantity * 100);
                         } else if (tx.action === 'Sell to Close') {
                             const profit = (tx.price - h.avgCost) * tx.quantity * 100 - (tx.fee || 0);
-                            totalRealized += profit;
+                            const entryCost = h.avgCost;
+                            records.push({
+                                id: tx.id || `rec_${records.length}`,
+                                date: tx.date,
+                                year: tx.date ? tx.date.substring(0, 4) : '',
+                                ticker: resolveTicker(tx.ticker),
+                                assetType: tx.assetType,
+                                optionType: tx.optionType || '',
+                                strike: tx.strike,
+                                expiration: tx.expiration,
+                                strategyName: tx.strategyName || '',
+                                positionType: 'Long',
+                                action: tx.action,
+                                originalAction: tx.originalAction || tx.action,
+                                closingType: 'Close',
+                                quantity: tx.quantity,
+                                entryPrice: entryCost,
+                                closePrice: tx.price,
+                                fee: tx.fee || 0,
+                                profit: profit,
+                                returnPct: entryCost > 0 ? ((tx.price - entryCost) / entryCost) * 100 : 0
+                            });
                             h.quantity -= tx.quantity;
                         } else if (tx.action === 'Sell to Open') {
                             h.positionType = 'Short';
@@ -2080,22 +2518,267 @@ No markdown fences or commentary outside the JSON.`;
                             h.avgCost = ((h.quantity - tx.quantity) * h.avgCost * 100 + tx.quantity * tx.price * 100 - (tx.fee || 0)) / (h.quantity * 100);
                         } else if (tx.action === 'Buy to Close') {
                             const profit = (h.avgCost - tx.price) * tx.quantity * 100 - (tx.fee || 0);
-                            totalRealized += profit;
+                            const entryCost = h.avgCost;
+                            records.push({
+                                id: tx.id || `rec_${records.length}`,
+                                date: tx.date,
+                                year: tx.date ? tx.date.substring(0, 4) : '',
+                                ticker: resolveTicker(tx.ticker),
+                                assetType: tx.assetType,
+                                optionType: tx.optionType || '',
+                                strike: tx.strike,
+                                expiration: tx.expiration,
+                                strategyName: tx.strategyName || '',
+                                positionType: 'Short',
+                                action: tx.action,
+                                originalAction: tx.originalAction || tx.action,
+                                closingType: 'Close',
+                                quantity: tx.quantity,
+                                entryPrice: entryCost,
+                                closePrice: tx.price,
+                                fee: tx.fee || 0,
+                                profit: profit,
+                                returnPct: entryCost > 0 ? ((entryCost - tx.price) / entryCost) * 100 : 0
+                            });
                             h.quantity -= tx.quantity;
                         } else if (['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action)) {
                             let profit = 0;
                             const closePrice = tx.price || 0;
+                            const entryCost = h.avgCost;
+                            let retPct = 0;
                             if (h.positionType === 'Long') {
-                                profit = (closePrice - h.avgCost) * tx.quantity * 100 - (tx.fee || 0);
+                                profit = (closePrice - entryCost) * tx.quantity * 100 - (tx.fee || 0);
+                                retPct = entryCost > 0 ? ((closePrice - entryCost) / entryCost) * 100 : -100;
                             } else if (h.positionType === 'Short') {
-                                profit = (h.avgCost - closePrice) * tx.quantity * 100 - (tx.fee || 0);
+                                profit = (entryCost - closePrice) * tx.quantity * 100 - (tx.fee || 0);
+                                retPct = entryCost > 0 ? ((entryCost - closePrice) / entryCost) * 100 : 100;
                             }
-                            totalRealized += profit;
+
+                            const orig = (tx.originalAction || tx.action || '').toLowerCase();
+                            let cType = 'Expired';
+                            if (orig.includes('assign') || orig.includes('exercise')) {
+                                cType = 'Assigned';
+                            }
+
+                            records.push({
+                                id: tx.id || `rec_${records.length}`,
+                                date: tx.date,
+                                year: tx.date ? tx.date.substring(0, 4) : '',
+                                ticker: resolveTicker(tx.ticker),
+                                assetType: tx.assetType,
+                                optionType: tx.optionType || '',
+                                strike: tx.strike,
+                                expiration: tx.expiration,
+                                strategyName: tx.strategyName || '',
+                                positionType: h.positionType,
+                                action: tx.action,
+                                originalAction: tx.originalAction || tx.action,
+                                closingType: cType,
+                                quantity: tx.quantity,
+                                entryPrice: entryCost,
+                                closePrice: closePrice,
+                                fee: tx.fee || 0,
+                                profit: profit,
+                                returnPct: retPct
+                            });
                             h.quantity -= tx.quantity;
                         }
                     });
-                    return totalRealized;
+                    return records;
                 });
+
+                const realizedOptionsPL = computed(() => {
+                    return allRealizedOptionsRecords.value.reduce((sum, r) => sum + r.profit, 0);
+                });
+
+                const availableHistoryYears = computed(() => {
+                    const yearSet = new Set(allRealizedOptionsRecords.value.map(r => r.year).filter(Boolean));
+                    return Array.from(yearSet).sort().reverse();
+                });
+
+                const availableHistoryTickers = computed(() => {
+                    const tickerSet = new Set(allRealizedOptionsRecords.value.map(r => r.ticker).filter(Boolean));
+                    return Array.from(tickerSet).sort();
+                });
+
+                const filteredOptionsRecords = computed(() => {
+                    let list = [...allRealizedOptionsRecords.value];
+
+                    // Year Filter
+                    if (historyYearFilter.value !== 'ALL' && historyYearFilter.value !== 'CUSTOM') {
+                        list = list.filter(r => r.year === historyYearFilter.value);
+                    }
+
+                    // Date range filters
+                    if (historyDateFrom.value) {
+                        list = list.filter(r => r.date >= historyDateFrom.value);
+                    }
+                    if (historyDateTo.value) {
+                        list = list.filter(r => r.date <= historyDateTo.value);
+                    }
+
+                    // Ticker filter
+                    if (historyTickerFilter.value) {
+                        list = list.filter(r => r.ticker.toUpperCase() === historyTickerFilter.value.toUpperCase());
+                    }
+
+                    // Action / Closing Type filter
+                    if (historyActionFilter.value === 'EXPIRED') {
+                        list = list.filter(r => r.closingType === 'Expired');
+                    } else if (historyActionFilter.value === 'ASSIGNED') {
+                        list = list.filter(r => r.closingType === 'Assigned');
+                    } else if (historyActionFilter.value === 'CLOSE') {
+                        list = list.filter(r => r.closingType === 'Close');
+                    }
+
+                    // Search query
+                    if (historySearchQuery.value.trim()) {
+                        const q = historySearchQuery.value.trim().toLowerCase();
+                        list = list.filter(r => 
+                            r.ticker.toLowerCase().includes(q) ||
+                            (r.optionType && r.optionType.toLowerCase().includes(q)) ||
+                            (r.strike !== null && r.strike !== undefined && String(r.strike).includes(q)) ||
+                            (r.expiration && r.expiration.includes(q)) ||
+                            (r.action && r.action.toLowerCase().includes(q)) ||
+                            (r.date && r.date.includes(q))
+                        );
+                    }
+
+                    // Sorting
+                    list.sort((a, b) => {
+                        let valA = a[historySortKey.value];
+                        let valB = b[historySortKey.value];
+                        if (historySortKey.value === 'date') {
+                            valA = new Date(valA).getTime();
+                            valB = new Date(valB).getTime();
+                        }
+                        if (valA < valB) return historySortAsc.value ? -1 : 1;
+                        if (valA > valB) return historySortAsc.value ? 1 : -1;
+                        return 0;
+                    });
+
+                    return list;
+                });
+
+                const optionsHistorySummary = computed(() => {
+                    const list = filteredOptionsRecords.value;
+                    let totalPL = 0;
+                    let wins = 0;
+                    let losses = 0;
+                    let breakeven = 0;
+                    let expirePL = 0;
+                    let expireCount = 0;
+                    let assignPL = 0;
+                    let assignCount = 0;
+                    let closePL = 0;
+                    let closeCount = 0;
+                    let totalFees = 0;
+
+                    list.forEach(r => {
+                        totalPL += r.profit;
+                        totalFees += (r.fee || 0);
+                        if (r.profit > 0.001) wins++;
+                        else if (r.profit < -0.001) losses++;
+                        else breakeven++;
+
+                        if (r.closingType === 'Expired') {
+                            expirePL += r.profit;
+                            expireCount++;
+                        } else if (r.closingType === 'Assigned') {
+                            assignPL += r.profit;
+                            assignCount++;
+                        } else {
+                            closePL += r.profit;
+                            closeCount++;
+                        }
+                    });
+
+                    const winRate = (wins + losses) > 0 ? (wins / (wins + losses)) * 100 : 0;
+
+                    return {
+                        totalPL,
+                        wins,
+                        losses,
+                        breakeven,
+                        winRate,
+                        totalTrades: list.length,
+                        expirePL,
+                        expireCount,
+                        assignPL,
+                        assignCount,
+                        closePL,
+                        closeCount,
+                        totalFees
+                    };
+                });
+
+                const optionsYearlySummary = computed(() => {
+                    const byYear = {};
+                    allRealizedOptionsRecords.value.forEach(r => {
+                        const y = r.year || 'Unknown';
+                        if (!byYear[y]) {
+                            byYear[y] = {
+                                year: y,
+                                totalPL: 0,
+                                wins: 0,
+                                losses: 0,
+                                trades: 0,
+                                expirePL: 0,
+                                assignPL: 0,
+                                closePL: 0,
+                                tickerPL: {}
+                            };
+                        }
+                        const o = byYear[y];
+                        o.totalPL += r.profit;
+                        o.trades++;
+                        if (r.profit > 0.001) o.wins++;
+                        else if (r.profit < -0.001) o.losses++;
+
+                        if (r.closingType === 'Expired') o.expirePL += r.profit;
+                        else if (r.closingType === 'Assigned') o.assignPL += r.profit;
+                        else o.closePL += r.profit;
+
+                        o.tickerPL[r.ticker] = (o.tickerPL[r.ticker] || 0) + r.profit;
+                    });
+
+                    return Object.values(byYear).map(yData => {
+                        let topTicker = '-';
+                        let topTickerVal = -Infinity;
+                        Object.entries(yData.tickerPL).forEach(([t, p]) => {
+                            if (p > topTickerVal) {
+                                topTickerVal = p;
+                                topTicker = t;
+                            }
+                        });
+                        const winRate = (yData.wins + yData.losses) > 0 ? (yData.wins / (yData.wins + yData.losses)) * 100 : 0;
+                        return {
+                            ...yData,
+                            winRate,
+                            topTicker: topTickerVal > 0 ? `${topTicker} (+$${topTickerVal.toFixed(0)})` : topTicker
+                        };
+                    }).sort((a, b) => b.year.localeCompare(a.year));
+                });
+
+                const paginatedHistoryRecords = computed(() => {
+                    if (historyPerPage.value === -1) return filteredOptionsRecords.value;
+                    const start = (historyPage.value - 1) * historyPerPage.value;
+                    return filteredOptionsRecords.value.slice(start, start + historyPerPage.value);
+                });
+
+                const historyTotalPages = computed(() => {
+                    if (historyPerPage.value === -1) return 1;
+                    return Math.max(1, Math.ceil(filteredOptionsRecords.value.length / historyPerPage.value));
+                });
+
+                const toggleHistorySort = (key) => {
+                    if (historySortKey.value === key) {
+                        historySortAsc.value = !historySortAsc.value;
+                    } else {
+                        historySortKey.value = key;
+                        historySortAsc.value = false;
+                    }
+                };
 
                 const formatNumber = (num) => {
                     if (num === undefined || isNaN(num)) return '0.00';
@@ -2794,7 +3477,33 @@ No markdown fences or commentary outside the JSON.`;
                     editingTx,
                     openEditModal,
                     closeEditModal,
-                    saveEditedTransaction
+                    saveEditedTransaction,
+                    // Realized Options History Modal
+                    showOptionsHistoryModal,
+                    historyActiveTab,
+                    historyYearFilter,
+                    historyDateFrom,
+                    historyDateTo,
+                    historyTickerFilter,
+                    historyActionFilter,
+                    historySearchQuery,
+                    historySortKey,
+                    historySortAsc,
+                    historyPage,
+                    historyPerPage,
+                    openOptionsHistoryModal,
+                    closeOptionsHistoryModal,
+                    resetHistoryFilters,
+                    setHistoryYear,
+                    allRealizedOptionsRecords,
+                    availableHistoryYears,
+                    availableHistoryTickers,
+                    filteredOptionsRecords,
+                    optionsHistorySummary,
+                    optionsYearlySummary,
+                    paginatedHistoryRecords,
+                    historyTotalPages,
+                    toggleHistorySort
                 };
             }
         }).mount('#app');
