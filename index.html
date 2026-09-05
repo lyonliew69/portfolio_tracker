@@ -58,6 +58,26 @@
                         class="px-2 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded transition">
                         Unlink File
                     </button>
+                    <button @click="triggerSchwabFileInput"
+                        class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded transition flex items-center gap-1.5 shadow-sm"
+                        title="Import Charles Schwab JSON or XML export">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                        </svg>
+                        Import Schwab
+                    </button>
+                    <input type="file" ref="schwabFileInput" @change="handleSchwabFileSelect" accept=".json,.xml" class="hidden">
+                    <button @click="showAliasesModal = true"
+                        class="px-2.5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded border border-gray-700 transition flex items-center gap-1.5"
+                        title="Manage stock symbol renames and aliases (e.g. SPLG -> SPYM)">
+                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        <span>Ticker Aliases</span>
+                        <span v-if="Object.keys(tickerAliases).length > 0" class="px-1.5 py-0.2 bg-amber-950/60 text-amber-300 border border-amber-800/60 rounded-full text-[10px]">
+                            {{ Object.keys(tickerAliases).length }}
+                        </span>
+                    </button>
                 </div>
 
                 <div class="flex items-center space-x-2 bg-gray-800 px-3 py-2 rounded border border-gray-700">
@@ -451,7 +471,7 @@
                                     </td>
                                     <td class="py-3">
                                         <span
-                                            :class="tx.action === 'Expire' ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
+                                            :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
                                             class="px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap">
                                             {{ tx.action }}
                                         </span>
@@ -459,10 +479,14 @@
                                     <td class="py-3 text-right font-mono">{{ tx.quantity }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(tx.price) }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
-                                    <td class="py-3 text-right font-mono text-white" :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
-                                        {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? '-' : '+' }}${{ formatNumber(tx.totalValue) }}
+                                    <td class="py-3 text-right font-mono text-white" :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
+                                        {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? '-' : '+' }}${{ formatNumber(tx.totalValue) }}
                                     </td>
-                                    <td class="py-3 text-center">
+                                    <td class="py-3 text-center whitespace-nowrap">
+                                        <button @click="openEditModal(tx)"
+                                            class="text-indigo-400 hover:text-indigo-300 text-xs font-medium transition mr-2.5">
+                                            Edit
+                                        </button>
                                         <button @click="deleteTransaction(tx.id)"
                                             class="text-rose-400 hover:text-rose-300 text-xs font-medium transition">
                                             Delete
@@ -496,6 +520,325 @@
             </div>
         </div>
 
+        <!-- Schwab Import Preview Modal -->
+        <div v-if="showSchwabModal && schwabImportData" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-2xl w-full shadow-2xl space-y-5 my-8">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-start border-b border-gray-700 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 bg-indigo-900/60 border border-indigo-700 rounded text-indigo-300">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </span>
+                            <h3 class="text-lg font-bold text-white">Schwab Report Import</h3>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">
+                            File: <span class="text-gray-200 font-mono">{{ schwabImportData.fileName }}</span>
+                            <span v-if="schwabImportData.fromDate && schwabImportData.toDate" class="ml-2 px-2 py-0.5 bg-gray-700 text-gray-300 rounded text-[11px]">
+                                {{ schwabImportData.fromDate }} to {{ schwabImportData.toDate }}
+                            </span>
+                        </p>
+                    </div>
+                    <button @click="closeSchwabModal" class="text-gray-400 hover:text-white text-lg font-bold px-2 py-1">✕</button>
+                </div>
+
+                <!-- Summary Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-700/60 text-center">
+                        <div class="text-[11px] text-gray-400 uppercase font-semibold">Total Records</div>
+                        <div class="text-xl font-bold text-white mt-1">{{ schwabImportData.stats.total }}</div>
+                    </div>
+                    <div class="bg-indigo-950/40 p-3 rounded-lg border border-indigo-800/40 text-center">
+                        <div class="text-[11px] text-indigo-400 uppercase font-semibold">Valid Trades</div>
+                        <div class="text-xl font-bold text-indigo-300 mt-1">{{ schwabImportData.stats.trades }}</div>
+                    </div>
+                    <div class="bg-emerald-950/40 p-3 rounded-lg border border-emerald-800/40 text-center">
+                        <div class="text-[11px] text-emerald-400 uppercase font-semibold">Stock Trades</div>
+                        <div class="text-xl font-bold text-emerald-300 mt-1">{{ schwabImportData.stats.stocks }}</div>
+                    </div>
+                    <div class="bg-amber-950/40 p-3 rounded-lg border border-amber-800/40 text-center">
+                        <div class="text-[11px] text-amber-400 uppercase font-semibold">Option Trades</div>
+                        <div class="text-xl font-bold text-amber-300 mt-1">{{ schwabImportData.stats.options }}</div>
+                    </div>
+                </div>
+
+                <!-- Ticker Aliases Active notice -->
+                <div class="bg-indigo-950/30 border border-indigo-800/50 rounded-lg p-3 text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        <div>
+                            <span class="text-gray-200">
+                                Ticker Aliases:
+                                <strong v-for="(to, from) in tickerAliases" :key="from" class="text-amber-300 ml-1">
+                                    {{ from }} → {{ to }}
+                                </strong>
+                            </span>
+                            <span v-if="schwabImportData.stats.aliasMapped > 0" class="text-indigo-300 ml-1.5 font-medium">
+                                ({{ schwabImportData.stats.aliasMapped }} trades unified)
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" @click="showAliasesModal = true" class="text-indigo-400 hover:text-indigo-300 text-[11px] font-semibold underline whitespace-nowrap ml-2">
+                        Manage Aliases
+                    </button>
+                </div>
+
+                <!-- Non-trade entries note -->
+                <div v-if="schwabImportData.stats.skipped > 0" class="bg-gray-900/40 border border-gray-700/60 rounded-lg p-3 text-xs">
+                    <div class="flex justify-between items-center cursor-pointer select-none" @click="showSkippedDetails = !showSkippedDetails">
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                            <span><strong>{{ schwabImportData.stats.skipped }} non-trade records</strong> detected and skipped (dividends, cash interest, transfers).</span>
+                        </div>
+                        <span class="text-blue-400 hover:text-blue-300 text-[11px] underline">
+                            {{ showSkippedDetails ? 'Hide details' : 'View breakdown' }}
+                        </span>
+                    </div>
+                    <div v-show="showSkippedDetails" class="mt-2 pt-2 border-t border-gray-700/60 flex flex-wrap gap-1.5">
+                        <span v-for="(count, action) in schwabImportData.skippedBreakdown" :key="action"
+                            class="px-2 py-0.5 bg-gray-800 border border-gray-700 rounded text-[11px] text-gray-300">
+                            {{ action }}: <strong class="text-white">{{ count }}</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Import Mode Selection -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-2">Select Import Mode</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label :class="schwabImportMode === 'merge' ? 'border-indigo-500 bg-indigo-950/20' : 'border-gray-700 bg-gray-700/20 hover:border-gray-600'"
+                            class="flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition">
+                            <input type="radio" v-model="schwabImportMode" value="merge" class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <div class="text-sm font-semibold text-white">Merge & Deduplicate</div>
+                                <div class="text-xs text-gray-400 mt-0.5">Append only new trades to your current ledger. Existing trades matching date, symbol & action will not be duplicated.</div>
+                            </div>
+                        </label>
+                        <label :class="schwabImportMode === 'replace' ? 'border-indigo-500 bg-indigo-950/20' : 'border-gray-700 bg-gray-700/20 hover:border-gray-600'"
+                            class="flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition">
+                            <input type="radio" v-model="schwabImportMode" value="replace" class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                            <div>
+                                <div class="text-sm font-semibold text-white">Replace Entire Ledger</div>
+                                <div class="text-xs text-gray-400 mt-0.5">Clear the current ledger and import this report as the complete record. Recommended for first full import.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sample Trades Preview -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-xs font-semibold uppercase text-gray-400">Sample Parsed Transactions (First 5)</span>
+                        <span class="text-[11px] text-gray-500">Total ready: {{ schwabImportData.transactions.length }}</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-48 border border-gray-700/70 rounded-lg">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-900 text-gray-400 border-b border-gray-700">
+                                <tr>
+                                    <th class="p-2">Date</th>
+                                    <th class="p-2">Type</th>
+                                    <th class="p-2">Asset / Contract</th>
+                                    <th class="p-2">Action</th>
+                                    <th class="p-2 text-right">Qty</th>
+                                    <th class="p-2 text-right">Price</th>
+                                    <th class="p-2 text-right">Net Value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700/40">
+                                <tr v-for="t in schwabImportData.transactions.slice(0, 5)" :key="t.id" class="hover:bg-gray-700/20">
+                                    <td class="p-2 text-gray-300 font-mono">{{ t.date }}</td>
+                                    <td class="p-2">
+                                        <span :class="t.assetType === 'Stock' ? 'text-blue-400' : 'text-purple-400'">{{ t.assetType }}</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="font-bold text-white">{{ t.ticker }}</span>
+                                        <span v-if="t.assetType === 'Option'" class="text-[10px] text-gray-400 block">
+                                            {{ t.optionType }} ${{ t.strike }} Exp {{ t.expiration }}
+                                        </span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span :class="['Buy', 'Buy to Open', 'Buy to Close'].includes(t.action) ? 'text-emerald-400' : (['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(t.action) ? 'text-gray-400' : 'text-rose-400')">
+                                            {{ t.action }}
+                                        </span>
+                                    </td>
+                                    <td class="p-2 text-right font-mono">{{ t.quantity }}</td>
+                                    <td class="p-2 text-right font-mono">${{ formatNumber(t.price) }}</td>
+                                    <td class="p-2 text-right font-mono font-medium" :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(t.action) ? 'text-rose-400' : 'text-emerald-400'">
+                                        {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(t.action) ? '-' : '+' }}${{ formatNumber(t.totalValue) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex justify-end items-center gap-3 pt-3 border-t border-gray-700">
+                    <button @click="closeSchwabModal"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg transition">
+                        Cancel
+                    </button>
+                    <button @click="executeSchwabImport"
+                        class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition shadow-lg shadow-indigo-900/30 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Confirm Import ({{ schwabImportData.transactions.length }} Trades)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticker Aliases Management Modal -->
+        <div v-if="showAliasesModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div class="flex justify-between items-start border-b border-gray-700 pb-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                            Ticker Symbol Aliases
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-1">Map changed or rebranded stock tickers to unify your holdings and P/L (e.g. SPLG → SPYM).</p>
+                    </div>
+                    <button @click="showAliasesModal = false" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+                </div>
+
+                <!-- Add New Alias Form -->
+                <form @submit.prevent="addTickerAlias" class="bg-gray-900/60 p-3 rounded-lg border border-gray-700/60 space-y-2">
+                    <div class="text-xs font-semibold uppercase text-gray-400">Add Ticker Mapping</div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" v-model="newAliasFrom" placeholder="Old (e.g. SPLG)" required
+                            class="flex-1 bg-gray-700 border border-gray-600 rounded px-2.5 py-1.5 text-xs text-white uppercase placeholder-gray-500 focus:outline-none focus:border-amber-500">
+                        <span class="text-gray-400 font-bold">→</span>
+                        <input type="text" v-model="newAliasTo" placeholder="New (e.g. SPYM)" required
+                            class="flex-1 bg-gray-700 border border-gray-600 rounded px-2.5 py-1.5 text-xs text-white uppercase placeholder-gray-500 focus:outline-none focus:border-amber-500">
+                        <button type="submit"
+                            class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded transition whitespace-nowrap">
+                            Add
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Current Mappings List -->
+                <div>
+                    <div class="text-xs font-semibold uppercase text-gray-400 mb-2">Active Mappings</div>
+                    <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <div v-for="(to, from) in tickerAliases" :key="from"
+                            class="flex justify-between items-center bg-gray-700/40 p-2.5 rounded border border-gray-700">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-gray-300 font-mono">{{ from }}</span>
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                                <span class="font-bold text-sm text-amber-400 font-mono">{{ to }}</span>
+                            </div>
+                            <button @click="removeTickerAlias(from)"
+                                class="text-rose-400 hover:text-rose-300 p-1 hover:bg-gray-700 rounded transition" title="Remove alias">
+                                ✕
+                            </button>
+                        </div>
+                        <div v-if="Object.keys(tickerAliases).length === 0" class="text-xs text-gray-500 text-center py-3">
+                            No active ticker aliases configured.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="flex justify-between items-center pt-3 border-t border-gray-700">
+                    <button @click="applyTickerAliasesToLedger(true)"
+                        class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-xs font-semibold text-gray-300 hover:text-white rounded border border-gray-600 transition"
+                        title="Update all existing ledger transactions to their new symbols">
+                        Apply to Current Ledger
+                    </button>
+                    <button @click="showAliasesModal = false"
+                        class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded transition">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Transaction Modal -->
+        <div v-if="showEditModal && editingTx" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div class="flex justify-between items-start border-b border-gray-700 pb-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Edit Transaction
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Modify details, price, or cost basis for this record.</p>
+                    </div>
+                    <button @click="closeEditModal" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+                </div>
+
+                <form @submit.prevent="saveEditedTransaction" class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Date</label>
+                            <input type="date" v-model="editingTx.date" required
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Ticker</label>
+                            <input type="text" v-model="editingTx.ticker" required
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white uppercase">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Action</label>
+                            <select v-model="editingTx.action" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                                <option value="Buy">Buy</option>
+                                <option value="Sell">Sell</option>
+                                <option value="Buy to Open">Buy to Open</option>
+                                <option value="Sell to Open">Sell to Open</option>
+                                <option value="Buy to Close">Buy to Close</option>
+                                <option value="Sell to Close">Sell to Close</option>
+                                <option value="Expire">Expire</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">{{ editingTx.assetType === 'Stock' ? 'Shares' : 'Contracts' }}</label>
+                            <input type="number" step="any" v-model.number="editingTx.quantity" required min="0"
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Price ($)</label>
+                            <input type="number" step="any" v-model.number="editingTx.price" required min="0"
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Fee ($)</label>
+                            <input type="number" step="any" v-model.number="editingTx.fee" required min="0"
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2 pt-3 border-t border-gray-700">
+                        <button type="button" @click="closeEditModal" class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded font-semibold transition">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-semibold transition">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 
     <!-- Application Script Logic -->
@@ -515,6 +858,24 @@
                 const showManualPrices = ref(false);
                 const showHistory = ref(false);
                 const showClearConfirm = ref(false);
+
+                // Schwab import state
+                const schwabFileInput = ref(null);
+                const showSchwabModal = ref(false);
+                const schwabImportData = ref(null);
+                const schwabImportMode = ref('merge');
+                const showSkippedDetails = ref(false);
+
+                // Edit transaction state
+                const showEditModal = ref(false);
+                const editingTx = ref(null);
+
+                // Ticker Aliases State (e.g. SPLG -> SPYM)
+                const defaultAliases = { 'SPLG': 'SPYM' };
+                const tickerAliases = ref(JSON.parse(localStorage.getItem('tx_ticker_aliases')) || defaultAliases);
+                const showAliasesModal = ref(false);
+                const newAliasFrom = ref('');
+                const newAliasTo = ref('');
 
                 // Hidden & manual tickers state
                 const hiddenTickers = ref(JSON.parse(localStorage.getItem('hiddenTickers')) || []);
@@ -736,6 +1097,9 @@
                     if (savedPrices) marketPrices.value = JSON.parse(savedPrices);
                     if (savedKey) apiKey.value = savedKey;
 
+                    // Automatically apply configured ticker aliases silently
+                    applyTickerAliasesToLedger(false);
+
                     // Initial chart draw
                     updateAllocationChart();
                 });
@@ -925,31 +1289,113 @@
                     form.value.action = 'Buy';
                 };
 
-                const getTrackingKey = (tx) => {
-                    if (tx.assetType === 'Stock') return tx.ticker;
-                    if (tx.assetType === 'Option') {
-                        return `${tx.ticker}_OPT_${tx.optionType.toUpperCase()}_${tx.strike}_${tx.expiration}`;
+                const resolveTicker = (ticker) => {
+                    if (!ticker) return '';
+                    const upper = ticker.toUpperCase().trim();
+                    return (tickerAliases.value && tickerAliases.value[upper]) ? tickerAliases.value[upper] : upper;
+                };
+
+                const saveTickerAliases = () => {
+                    localStorage.setItem('tx_ticker_aliases', JSON.stringify(tickerAliases.value));
+                };
+
+                const addTickerAlias = () => {
+                    const from = newAliasFrom.value.toUpperCase().trim();
+                    const to = newAliasTo.value.toUpperCase().trim();
+                    if (!from || !to || from === to) return;
+
+                    tickerAliases.value[from] = to;
+                    saveTickerAliases();
+                    applyTickerAliasesToLedger(true);
+                    newAliasFrom.value = '';
+                    newAliasTo.value = '';
+                    showNotification(`Added ticker mapping: ${from} → ${to}`, 'success');
+                };
+
+                const removeTickerAlias = (from) => {
+                    delete tickerAliases.value[from];
+                    saveTickerAliases();
+                    showNotification(`Removed ticker mapping for ${from}`, 'success');
+                };
+
+                const applyTickerAliasesToLedger = (showNotice = true) => {
+                    let changed = 0;
+                    transactions.value.forEach(tx => {
+                        const resolved = resolveTicker(tx.ticker);
+                        if (resolved !== tx.ticker) {
+                            // Also copy market price if needed
+                            if (marketPrices.value[tx.ticker] !== undefined && marketPrices.value[resolved] === undefined) {
+                                marketPrices.value[resolved] = marketPrices.value[tx.ticker];
+                            }
+                            tx.ticker = resolved;
+                            changed++;
+                        }
+                    });
+                    if (changed > 0) {
+                        saveLedgerData();
+                        savePrices();
+                        if (showNotice) {
+                            showNotification(`Updated ${changed} transaction(s) to new ticker symbols in ledger.`, 'success');
+                        }
+                    } else if (showNotice) {
+                        showNotification('All transactions already use the latest ticker symbols.', 'success');
                     }
-                    return `${tx.ticker}_SPREAD_${tx.strategyName.toUpperCase().trim()}`;
+                };
+
+                const getTrackingKey = (tx) => {
+                    const ticker = resolveTicker(tx.ticker);
+                    if (tx.assetType === 'Stock') return ticker;
+                    if (tx.assetType === 'Option') {
+                        const strike = tx.strike !== null && tx.strike !== undefined && !isNaN(tx.strike) ? parseFloat(tx.strike) : '';
+                        return `${ticker}_OPT_${(tx.optionType || '').toUpperCase()}_${strike}_${tx.expiration}`;
+                    }
+                    return `${ticker}_SPREAD_${(tx.strategyName || '').toUpperCase().trim()}`;
+                };
+
+                const getActionPriority = (act) => {
+                    // Inbound / Opening actions must precede Outbound / Closing actions on the same day
+                    if (['Buy', 'Buy to Open', 'Sell to Open', 'Security Transfer', 'Stock Split'].includes(act)) return 1;
+                    if (['Sell', 'Sell to Close', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(act)) return 2;
+                    return 3;
+                };
+
+                const compareChronologicalAscending = (a, b) => {
+                    const dDiff = new Date(a.date) - new Date(b.date);
+                    if (dDiff !== 0) return dDiff;
+                    
+                    const pDiff = getActionPriority(a.action) - getActionPriority(b.action);
+                    if (pDiff !== 0) return pDiff;
+
+                    if (a.rawIndex !== undefined && b.rawIndex !== undefined) {
+                        return b.rawIndex - a.rawIndex;
+                    }
+
+                    const matchA = typeof a.id === 'string' && a.id.match(/_(\d+)$/);
+                    const matchB = typeof b.id === 'string' && b.id.match(/_(\d+)$/);
+                    if (matchA && matchB) {
+                        return parseInt(matchB[1], 10) - parseInt(matchA[1], 10);
+                    }
+
+                    if (typeof a.id === 'number' && typeof b.id === 'number') {
+                        return a.id - b.id;
+                    }
+
+                    return 0;
                 };
 
                 const sortedTransactions = computed(() => {
-                    return [...transactions.value].sort((a, b) => {
-                        const dateDiff = new Date(b.date) - new Date(a.date);
-                        if (dateDiff !== 0) return dateDiff;
-                        return b.id - a.id; // Fallback to descending creation time
-                    });
+                    return [...transactions.value].sort((a, b) => compareChronologicalAscending(b, a));
                 });
 
                 const uniqueStockTickers = computed(() => {
                     const list = new Set();
                     const activeTickers = new Set(computedStockHoldings.value.map(h => h.symbol));
                     
-                    manualWatchlistTickers.value.forEach(t => list.add(t));
+                    manualWatchlistTickers.value.forEach(t => list.add(resolveTicker(t)));
                     
                     transactions.value.forEach(tx => {
                         if (tx.assetType === 'Stock') {
-                            list.add(tx.ticker);
+                            list.add(resolveTicker(tx.ticker));
                         }
                     });
                     
@@ -960,13 +1406,14 @@
                     const stockMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Stock')
-                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+                        .sort(compareChronologicalAscending);
 
                     chronTransactions.forEach(tx => {
-                        if (!stockMap[tx.ticker]) {
-                            stockMap[tx.ticker] = { symbol: tx.ticker, quantity: 0, totalCost: 0, avgCost: 0 };
+                        const ticker = resolveTicker(tx.ticker);
+                        if (!stockMap[ticker]) {
+                            stockMap[ticker] = { symbol: ticker, quantity: 0, totalCost: 0, avgCost: 0 };
                         }
-                        const stock = stockMap[tx.ticker];
+                        const stock = stockMap[ticker];
 
                         if (tx.action === 'Buy') {
                             stock.quantity += tx.quantity;
@@ -1003,7 +1450,7 @@
                     const optionMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Option' || tx.assetType === 'Spread')
-                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+                        .sort(compareChronologicalAscending);
 
                     chronTransactions.forEach(tx => {
                         const key = getTrackingKey(tx);
@@ -1028,7 +1475,7 @@
                             opt.quantity += tx.quantity;
                             opt.totalCost += (tx.quantity * tx.price * 100) + (tx.fee || 0);
                             opt.avgCost = opt.quantity > 0 ? (opt.totalCost / (opt.quantity * 100)) : 0;
-                        } else if (tx.action === 'Sell to Close' || tx.action === 'Buy to Close' || tx.action === 'Expire') {
+                        } else if (['Sell to Close', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action)) {
                             opt.quantity -= tx.quantity;
                             opt.totalCost -= (tx.quantity * opt.avgCost * 100);
                         } else if (tx.action === 'Sell to Open') {
@@ -1151,13 +1598,14 @@
                     const stockMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Stock')
-                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+                        .sort(compareChronologicalAscending);
 
                     chronTransactions.forEach(tx => {
-                        if (!stockMap[tx.ticker]) {
-                            stockMap[tx.ticker] = { quantity: 0, totalCost: 0, avgCost: 0 };
+                        const ticker = resolveTicker(tx.ticker);
+                        if (!stockMap[ticker]) {
+                            stockMap[ticker] = { quantity: 0, totalCost: 0, avgCost: 0 };
                         }
-                        const stock = stockMap[tx.ticker];
+                        const stock = stockMap[ticker];
 
                         if (tx.action === 'Buy') {
                             stock.quantity += tx.quantity;
@@ -1179,7 +1627,7 @@
                     const optMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Option' || tx.assetType === 'Spread')
-                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+                        .sort(compareChronologicalAscending);
 
                     chronTransactions.forEach(tx => {
                         const key = getTrackingKey(tx);
@@ -1204,12 +1652,13 @@
                             const profit = (h.avgCost - tx.price) * tx.quantity * 100 - (tx.fee || 0);
                             totalRealized += profit;
                             h.quantity -= tx.quantity;
-                        } else if (tx.action === 'Expire') {
+                        } else if (['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action)) {
                             let profit = 0;
+                            const closePrice = tx.price || 0;
                             if (h.positionType === 'Long') {
-                                profit = (tx.price - h.avgCost) * tx.quantity * 100 - (tx.fee || 0);
+                                profit = (closePrice - h.avgCost) * tx.quantity * 100 - (tx.fee || 0);
                             } else if (h.positionType === 'Short') {
-                                profit = (h.avgCost - tx.price) * tx.quantity * 100 - (tx.fee || 0);
+                                profit = (h.avgCost - closePrice) * tx.quantity * 100 - (tx.fee || 0);
                             }
                             totalRealized += profit;
                             h.quantity -= tx.quantity;
@@ -1261,17 +1710,341 @@
                     return computedStockHoldings.value.some(h => h.symbol === ticker);
                 };
 
+                const triggerSchwabFileInput = () => {
+                    if (schwabFileInput.value) {
+                        schwabFileInput.value.click();
+                    }
+                };
+
+                const closeSchwabModal = () => {
+                    showSchwabModal.value = false;
+                    schwabImportData.value = null;
+                    if (schwabFileInput.value) {
+                        schwabFileInput.value.value = '';
+                    }
+                };
+
+                const handleSchwabFileSelect = (event) => {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const content = e.target.result;
+                            processSchwabFileContent(content, file.name);
+                        } catch (err) {
+                            console.error('Error reading Schwab file:', err);
+                            showNotification(`Failed to read file: ${err.message}`, 'error');
+                        } finally {
+                            if (event.target) event.target.value = '';
+                        }
+                    };
+                    reader.onerror = () => {
+                        showNotification('Failed to read file from disk.', 'error');
+                        if (event.target) event.target.value = '';
+                    };
+                    reader.readAsText(file);
+                };
+
+                const processSchwabFileContent = (content, fileName) => {
+                    const isJson = fileName.toLowerCase().endsWith('.json') || content.trim().startsWith('{');
+                    const isXml = fileName.toLowerCase().endsWith('.xml') || content.trim().startsWith('<');
+
+                    if (!isJson && !isXml) {
+                        showNotification('Unsupported file format. Please upload a Schwab JSON or XML report.', 'error');
+                        return;
+                    }
+
+                    let fromDate = '';
+                    let toDate = '';
+                    let rawTransactions = [];
+
+                    if (isJson) {
+                        try {
+                            const data = JSON.parse(content);
+                            fromDate = data.FromDate || '';
+                            toDate = data.ToDate || '';
+                            rawTransactions = Array.isArray(data.BrokerageTransactions) ? data.BrokerageTransactions : [];
+                        } catch (e) {
+                            showNotification(`Invalid JSON file format: ${e.message}`, 'error');
+                            return;
+                        }
+                    } else {
+                        try {
+                            const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(content, 'text/xml');
+                            const parserError = xmlDoc.querySelector('parsererror');
+                            if (parserError) {
+                                showNotification('Failed to parse XML file.', 'error');
+                                return;
+                            }
+                            fromDate = xmlDoc.querySelector('FromDate')?.textContent?.trim() || '';
+                            toDate = xmlDoc.querySelector('ToDate')?.textContent?.trim() || '';
+                            const nodes = xmlDoc.querySelectorAll('BrokerageTransaction');
+                            rawTransactions = Array.from(nodes).map(node => ({
+                                Date: node.querySelector('Date')?.textContent?.trim() || '',
+                                Action: node.querySelector('Action')?.textContent?.trim() || '',
+                                Symbol: node.querySelector('Symbol')?.textContent?.trim() || '',
+                                Description: node.querySelector('Description')?.textContent?.trim() || '',
+                                Quantity: node.querySelector('Quantity')?.textContent?.trim() || '',
+                                Price: node.querySelector('Price')?.textContent?.trim() || '',
+                                'Fees & Comm': node.querySelector('FeesAndCommission')?.textContent?.trim() || '',
+                                Amount: node.querySelector('Amount')?.textContent?.trim() || ''
+                            }));
+                        } catch (e) {
+                            showNotification(`Invalid XML file format: ${e.message}`, 'error');
+                            return;
+                        }
+                    }
+
+                    if (rawTransactions.length === 0) {
+                        showNotification('No brokerage transactions found in this report.', 'error');
+                        return;
+                    }
+
+                    const optRegex = /^([A-Z0-9\.]+)\s+(\d{2}\/\d{2}\/\d{4})\s+([\d\.]+)\s+([CP])$/;
+                    const parsed = [];
+                    const skipped = [];
+                    const skippedBreakdown = {};
+                    let aliasMappedCount = 0;
+
+                    for (let i = 0; i < rawTransactions.length; i++) {
+                        const raw = rawTransactions[i];
+                        const rawDate = (raw.Date || '').trim();
+                        const effDate = rawDate.includes('as of') ? rawDate.split('as of')[1].trim() : rawDate;
+                        const [m, d, y] = effDate.split('/');
+                        const date = (m && d && y) ? `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}` : effDate;
+
+                        const action = (raw.Action || '').trim();
+                        const rawSymbol = (raw.Symbol || '').trim();
+                        const qty = Math.abs(parseFloat((raw.Quantity || '0').replace(/[^0-9.-]+/g, '')) || 0);
+                        const price = parseFloat((raw.Price || '0').replace(/[^0-9.-]+/g, '')) || 0;
+                        const fee = parseFloat((raw['Fees & Comm'] || raw.FeesAndCommission || '0').replace(/[^0-9.-]+/g, '')) || 0;
+
+                        if (optRegex.test(rawSymbol)) {
+                            const match = rawSymbol.match(optRegex);
+                            const rawOptTicker = match[1].toUpperCase();
+                            const ticker = resolveTicker(rawOptTicker);
+                            if (rawOptTicker !== ticker) aliasMappedCount++;
+
+                            const [expM, expD, expY] = match[2].split('/');
+                            const expiration = `${expY}-${expM.padStart(2, '0')}-${expD.padStart(2, '0')}`;
+                            const strike = parseFloat(match[3]);
+                            const optionType = match[4] === 'C' ? 'Call' : 'Put';
+
+                            let mappedAction = action;
+                            if (['Expired', 'Assigned', 'Exchange or Exercise'].includes(action)) {
+                                mappedAction = 'Expire';
+                            } else if (action === 'Security Transfer') {
+                                mappedAction = 'Buy to Open';
+                            }
+
+                            const gross = qty * price * 100;
+                            const totalValue = ['Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(mappedAction) ? (gross + fee) : (gross - fee);
+
+                            parsed.push({
+                                rawIndex: i,
+                                id: `schwab_${date.replace(/-/g, '')}_${i}`,
+                                date,
+                                assetType: 'Option',
+                                ticker,
+                                action: mappedAction,
+                                originalAction: action,
+                                quantity: qty,
+                                price,
+                                fee,
+                                optionType,
+                                strike,
+                                expiration,
+                                strategyName: '',
+                                totalValue
+                            });
+                        } else if (action === 'Buy' || action === 'Sell' || ((action === 'Security Transfer' || action === 'Stock Split') && rawSymbol && qty > 0)) {
+                            const rawStockTicker = rawSymbol.toUpperCase();
+                            const ticker = resolveTicker(rawStockTicker);
+                            if (rawStockTicker !== ticker) aliasMappedCount++;
+
+                            let mappedAction = action;
+                            let effPrice = price;
+
+                            if (action === 'Security Transfer') {
+                                mappedAction = 'Buy';
+                                if (effPrice === 0) {
+                                    const existingTx = transactions.value.find(t => t.assetType === 'Stock' && resolveTicker(t.ticker) === ticker && t.price > 0);
+                                    if (existingTx) {
+                                        effPrice = existingTx.price;
+                                    } else if (ticker === 'META') {
+                                        effPrice = 262.67;
+                                    } else if (ticker === 'GOOGL') {
+                                        effPrice = 144.27;
+                                    } else if (ticker === 'AMZN') {
+                                        effPrice = 185.04;
+                                    } else if (ticker === 'NVDA') {
+                                        effPrice = 87.85;
+                                    }
+                                }
+                            } else if (action === 'Stock Split') {
+                                mappedAction = 'Buy';
+                                effPrice = 0.00;
+                            }
+
+                            const gross = qty * effPrice;
+                            const totalValue = mappedAction === 'Buy' ? (gross + fee) : (gross - fee);
+
+                            parsed.push({
+                                rawIndex: i,
+                                id: `schwab_${date.replace(/-/g, '')}_${i}`,
+                                date,
+                                assetType: 'Stock',
+                                ticker,
+                                action: mappedAction,
+                                originalAction: action,
+                                quantity: qty,
+                                price: effPrice,
+                                fee,
+                                optionType: 'Call',
+                                strike: null,
+                                expiration: '',
+                                strategyName: '',
+                                totalValue
+                            });
+                        } else {
+                            skipped.push(raw);
+                            skippedBreakdown[action] = (skippedBreakdown[action] || 0) + 1;
+                        }
+                    }
+
+                    // Sort chronologically ascending
+                    parsed.sort(compareChronologicalAscending);
+
+                    let stockCount = 0;
+                    let optionCount = 0;
+                    parsed.forEach(p => {
+                        if (p.assetType === 'Stock') stockCount++;
+                        else if (p.assetType === 'Option') optionCount++;
+                    });
+
+                    schwabImportData.value = {
+                        fileName,
+                        fromDate,
+                        toDate,
+                        transactions: parsed,
+                        skipped,
+                        skippedBreakdown,
+                        stats: {
+                            total: rawTransactions.length,
+                            trades: parsed.length,
+                            stocks: stockCount,
+                            options: optionCount,
+                            skipped: skipped.length,
+                            aliasMapped: aliasMappedCount
+                        }
+                    };
+
+                    showSkippedDetails.value = false;
+                    showSchwabModal.value = true;
+                };
+
+                const executeSchwabImport = () => {
+                    if (!schwabImportData.value) return;
+
+                    const newTrades = schwabImportData.value.transactions;
+                    let addedCount = 0;
+                    let duplicateCount = 0;
+
+                    const getTxSig = (t) => {
+                        const qty = Number(t.quantity || 0).toFixed(4);
+                        const prc = Number(t.price || 0).toFixed(4);
+                        if (t.assetType === 'Stock') {
+                            return `STOCK_${t.date}_${(t.ticker || '').toUpperCase()}_${t.action}_${qty}_${prc}`;
+                        } else if (t.assetType === 'Option') {
+                            return `OPTION_${t.date}_${(t.ticker || '').toUpperCase()}_${t.action}_${t.optionType}_${t.strike}_${t.expiration}_${qty}_${prc}`;
+                        } else {
+                            return `SPREAD_${t.date}_${(t.ticker || '').toUpperCase()}_${t.action}_${(t.strategyName || '').toUpperCase()}_${qty}_${prc}`;
+                        }
+                    };
+
+                    if (schwabImportMode.value === 'replace') {
+                        transactions.value = [...newTrades];
+                        addedCount = newTrades.length;
+                    } else {
+                        // Merge with multiset deduplication
+                        const existingFreq = new Map();
+                        transactions.value.forEach(t => {
+                            const sig = getTxSig(t);
+                            existingFreq.set(sig, (existingFreq.get(sig) || 0) + 1);
+                        });
+
+                        const toAdd = [];
+                        newTrades.forEach(t => {
+                            const sig = getTxSig(t);
+                            const count = existingFreq.get(sig) || 0;
+                            if (count > 0) {
+                                existingFreq.set(sig, count - 1);
+                                duplicateCount++;
+                            } else {
+                                toAdd.push(t);
+                                addedCount++;
+                            }
+                        });
+
+                        transactions.value = [...transactions.value, ...toAdd];
+                    }
+
+                    // Auto-register stock tickers to marketPrices watchlist
+                    newTrades.forEach(t => {
+                        if (t.assetType === 'Stock' && t.ticker) {
+                            if (marketPrices.value[t.ticker] === undefined) {
+                                marketPrices.value[t.ticker] = t.price || 0;
+                            }
+                        }
+                    });
+
+                    saveLedgerData();
+                    savePrices();
+
+                    const modeText = schwabImportMode.value === 'replace' ? 'replaced' : 'merged';
+                    showNotification(`Schwab report imported: ${addedCount} trades added${duplicateCount > 0 ? `, ${duplicateCount} duplicates skipped` : ''} (${modeText}).`, 'success');
+                    closeSchwabModal();
+                };
+
                 transactions.value.forEach(tx => {
                     const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
-                    tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
+                    tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                 });
 
                 watch(transactions, (newVal) => {
                     newVal.forEach(tx => {
                         const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
-                        tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
+                        tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                     });
                 }, { deep: true });
+
+                const openEditModal = (tx) => {
+                    editingTx.value = { ...tx };
+                    showEditModal.value = true;
+                };
+
+                const closeEditModal = () => {
+                    showEditModal.value = false;
+                    editingTx.value = null;
+                };
+
+                const saveEditedTransaction = () => {
+                    if (!editingTx.value) return;
+                    const idx = transactions.value.findIndex(t => t.id === editingTx.value.id);
+                    if (idx !== -1) {
+                        const gross = editingTx.value.quantity * editingTx.value.price * (editingTx.value.assetType === 'Stock' ? 1 : 100);
+                        editingTx.value.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(editingTx.value.action)
+                            ? gross + (editingTx.value.fee || 0)
+                            : gross - (editingTx.value.fee || 0);
+                        transactions.value[idx] = { ...editingTx.value };
+                        saveLedgerData();
+                        showNotification('Transaction updated successfully.', 'success');
+                    }
+                    closeEditModal();
+                };
 
                 return {
                     transactions,
@@ -1318,7 +2091,29 @@
                     unlinkFile,
                     formatNumber,
                     formatPercent,
-                    showClearConfirm
+                    showClearConfirm,
+                    schwabFileInput,
+                    showSchwabModal,
+                    schwabImportData,
+                    schwabImportMode,
+                    showSkippedDetails,
+                    triggerSchwabFileInput,
+                    closeSchwabModal,
+                    handleSchwabFileSelect,
+                    executeSchwabImport,
+                    tickerAliases,
+                    showAliasesModal,
+                    newAliasFrom,
+                    newAliasTo,
+                    addTickerAlias,
+                    removeTickerAlias,
+                    applyTickerAliasesToLedger,
+                    resolveTicker,
+                    showEditModal,
+                    editingTx,
+                    openEditModal,
+                    closeEditModal,
+                    saveEditedTransaction
                 };
             }
         }).mount('#app');
