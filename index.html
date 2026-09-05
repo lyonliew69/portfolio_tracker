@@ -123,11 +123,22 @@
                     ${{ formatNumber(stockUnrealizedPL) }}
                 </div>
             </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="text-gray-400 text-xs uppercase font-semibold">Realized Stock P/L</div>
+            <div @click="openStockHistoryModal"
+                class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
+                title="Click to view full Stock Realized History & Filter by Year/Date">
+                <div class="flex items-center justify-between">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Realized Stock P/L</div>
+                    <span class="text-[10px] text-emerald-400/90 bg-emerald-950/70 border border-emerald-800/70 px-1.5 py-0.5 rounded font-medium group-hover:border-emerald-500 group-hover:bg-emerald-900/60 transition flex items-center gap-1">
+                        History ↗
+                    </span>
+                </div>
                 <div class="text-2xl font-bold mt-1"
                     :class="realizedStockPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                     ${{ formatNumber(realizedStockPL) }}
+                </div>
+                <div class="text-[11px] text-gray-500 group-hover:text-gray-300 transition mt-0.5 flex items-center justify-between">
+                    <span>Click to view breakdown</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by year/date</span>
                 </div>
             </div>
             <div @click="openOptionsHistoryModal"
@@ -1424,6 +1435,339 @@
             </div>
         </div>
 
+        <!-- Realized Stock P/L History Modal -->
+        <div v-if="showStockHistoryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+            <div class="bg-gray-900 border border-gray-700/90 rounded-2xl p-4 sm:p-6 max-w-6xl w-full shadow-2xl space-y-4 my-auto max-h-[95vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 bg-emerald-950/70 border border-emerald-800/80 rounded-xl text-emerald-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-xl font-bold text-white">Realized Stock P/L History</h2>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-semibold">
+                                    {{ filteredStockRecords.length }} Records
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                Performance breakdown of closed stock sales, cost basis, and net capital returned across all years.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right hidden sm:block">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized P/L</div>
+                            <div class="text-lg font-bold font-mono" :class="stockHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                ${{ formatNumber(stockHistorySummary.totalPL) }}
+                            </div>
+                        </div>
+                        <button @click="closeStockHistoryModal" class="text-gray-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg hover:bg-gray-800 transition">✕</button>
+                    </div>
+                </div>
+
+                <!-- Multi-Dimensional Filter Controls Bar -->
+                <div class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2.5">
+                        <!-- Year Pills -->
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Year:
+                            </span>
+                            <button @click="setStockHistoryYear('ALL')"
+                                :class="stockHistoryYearFilter === 'ALL' && !stockHistoryDateFrom && !stockHistoryDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                All Years
+                            </button>
+                            <button v-for="y in availableStockHistoryYears" :key="y" @click="setStockHistoryYear(y)"
+                                :class="stockHistoryYearFilter === y && !stockHistoryDateFrom && !stockHistoryDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                {{ y }}
+                            </button>
+                        </div>
+
+                        <!-- Reset / Clear Button -->
+                        <button @click="resetStockHistoryFilters"
+                            class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2 py-1 rounded bg-gray-800/80 hover:bg-gray-800 border border-gray-700">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Reset Filters
+                        </button>
+                    </div>
+
+                    <!-- Date Range, Ticker, Outcome, and Search -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
+                        <!-- Date From -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">From:</span>
+                            <input type="date" v-model="stockHistoryDateFrom" @change="stockHistoryYearFilter = 'CUSTOM'"
+                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                        </div>
+
+                        <!-- Date To -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">To:</span>
+                            <input type="date" v-model="stockHistoryDateTo" @change="stockHistoryYearFilter = 'CUSTOM'"
+                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                        </div>
+
+                        <!-- Ticker Filter -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Ticker:</span>
+                            <select v-model="stockHistoryTickerFilter" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
+                                <option value="" class="bg-gray-800">All Tickers ({{ availableStockHistoryTickers.length }})</option>
+                                <option v-for="t in availableStockHistoryTickers" :key="t" :value="t" class="bg-gray-800">{{ t }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Outcome Filter -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Outcome:</span>
+                            <select v-model="stockHistoryOutcomeFilter" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
+                                <option value="ALL" class="bg-gray-800">All Trades</option>
+                                <option value="WIN" class="bg-gray-800">Profitable (Wins)</option>
+                                <option value="LOSS" class="bg-gray-800">Losses Only</option>
+                            </select>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" v-model="stockHistorySearchQuery" placeholder="Search ticker or date..."
+                                class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
+                            <button v-if="stockHistorySearchQuery" @click="stockHistorySearchQuery = ''" class="text-gray-400 hover:text-white">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Summary Cards Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <!-- 1. Realized P/L in Selection -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized P/L</div>
+                        <div class="text-xl font-bold font-mono mt-1" :class="stockHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                            ${{ formatNumber(stockHistorySummary.totalPL) }}
+                        </div>
+                        <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
+                            <span>{{ stockHistorySummary.totalTrades }} closed sells</span>
+                            <span class="text-emerald-400 font-medium">{{ stockHistorySummary.winRate.toFixed(1) }}% win rate</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Win / Loss Record -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Win / Loss Record</div>
+                        <div class="text-xl font-bold font-mono mt-1 text-white flex items-baseline gap-2">
+                            <span class="text-emerald-400">{{ stockHistorySummary.wins }}W</span>
+                            <span class="text-gray-500 text-sm">/</span>
+                            <span class="text-rose-400">{{ stockHistorySummary.losses }}L</span>
+                            <span v-if="stockHistorySummary.breakeven > 0" class="text-gray-400 text-xs font-normal">({{ stockHistorySummary.breakeven }} Even)</span>
+                        </div>
+                        <!-- Mini Win Bar -->
+                        <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mt-2 flex">
+                            <div class="bg-emerald-500 h-full" :style="{ width: stockHistorySummary.winRate + '%' }"></div>
+                            <div class="bg-rose-500 h-full" :style="{ width: (100 - stockHistorySummary.winRate) + '%' }"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Capital Returned & Cost Sold -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Proceeds & Basis</div>
+                        <div class="space-y-1 mt-1 text-[11px]">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Total Proceeds:</span>
+                                <span class="font-mono font-semibold text-gray-200">${{ formatNumber(stockHistorySummary.totalProceeds) }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Cost Basis Sold:</span>
+                                <span class="font-mono font-semibold text-gray-400">${{ formatNumber(stockHistorySummary.totalCostBasis) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Commissions & Regulatory Fees -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Commissions & Fees</div>
+                        <div class="text-xl font-bold font-mono mt-1 text-amber-400">
+                            ${{ formatNumber(stockHistorySummary.totalFees) }}
+                        </div>
+                        <div class="text-[11px] text-gray-400 mt-1">
+                            Schwab & SEC regulatory transaction fees
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs: Ledger vs Yearly Overview -->
+                <div class="flex items-center justify-between border-b border-gray-800 pt-1">
+                    <div class="flex gap-2">
+                        <button @click="stockHistoryActiveTab = 'trades'"
+                            :class="stockHistoryActiveTab === 'trades' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            Closed Stock Sells ({{ filteredStockRecords.length }})
+                        </button>
+                        <button @click="stockHistoryActiveTab = 'yearly'"
+                            :class="stockHistoryActiveTab === 'yearly' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                            Yearly Performance Breakdown
+                        </button>
+                    </div>
+
+                    <!-- Per Page Selector -->
+                    <div v-if="stockHistoryActiveTab === 'trades'" class="flex items-center gap-2 text-xs text-gray-400 pb-2">
+                        <span>Show:</span>
+                        <select v-model.number="stockHistoryPerPage" @change="stockHistoryPage = 1" class="bg-gray-800 border border-gray-700 text-gray-200 rounded px-2 py-0.5 text-xs">
+                            <option :value="15">15</option>
+                            <option :value="25">25</option>
+                            <option :value="50">50</option>
+                            <option :value="100">100</option>
+                            <option :value="-1">All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Content Area (Scrollable) -->
+                <div class="overflow-y-auto flex-1 pr-1 min-h-[300px]">
+                    <!-- TAB 1: Detailed Stock Sells Ledger -->
+                    <div v-if="stockHistoryActiveTab === 'trades'">
+                        <div v-if="filteredStockRecords.length === 0" class="text-center py-12 text-gray-400 text-xs">
+                            No stock sell records found matching the active filters.
+                            <button @click="resetStockHistoryFilters" class="block mx-auto mt-2 text-emerald-400 underline">Reset all filters</button>
+                        </div>
+                        <div v-else class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-700">
+                                    <tr>
+                                        <th @click="toggleStockHistorySort('date')" class="p-2.5 cursor-pointer hover:text-white transition">
+                                            Date {{ stockHistorySortKey === 'date' ? (stockHistorySortAsc ? '↑' : '↓') : '' }}
+                                        </th>
+                                        <th @click="toggleStockHistorySort('ticker')" class="p-2.5 cursor-pointer hover:text-white transition">
+                                            Symbol {{ stockHistorySortKey === 'ticker' ? (stockHistorySortAsc ? '↑' : '↓') : '' }}
+                                        </th>
+                                        <th class="p-2.5 text-center">Shares</th>
+                                        <th class="p-2.5 text-right">Avg Cost / Sh</th>
+                                        <th class="p-2.5 text-right">Sale Price / Sh</th>
+                                        <th class="p-2.5 text-right">Total Cost Basis</th>
+                                        <th class="p-2.5 text-right">Net Proceeds</th>
+                                        <th class="p-2.5 text-right">Fee</th>
+                                        <th @click="toggleStockHistorySort('profit')" class="p-2.5 text-right cursor-pointer hover:text-white transition">
+                                            Realized P/L {{ stockHistorySortKey === 'profit' ? (stockHistorySortAsc ? '↑' : '↓') : '' }}
+                                        </th>
+                                        <th class="p-2.5 text-right">Return %</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800 text-gray-200">
+                                    <tr v-for="rec in paginatedStockRecords" :key="rec.id" class="hover:bg-gray-800/50 transition">
+                                        <td class="p-2.5 font-mono text-gray-400 whitespace-nowrap">{{ rec.date }}</td>
+                                        <td class="p-2.5 font-bold text-white whitespace-nowrap">{{ rec.ticker }}</td>
+                                        <td class="p-2.5 text-center font-mono font-semibold text-gray-300">{{ rec.quantity }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-300">${{ rec.entryPrice.toFixed(2) }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-300">${{ rec.closePrice.toFixed(2) }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-400">${{ formatNumber(rec.costBasis) }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-200">${{ formatNumber(rec.proceeds) }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-400">${{ rec.fee.toFixed(2) }}</td>
+                                        <td class="p-2.5 text-right font-mono font-bold whitespace-nowrap"
+                                            :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ rec.profit >= 0 ? '+' : '' }}${{ formatNumber(rec.profit) }}
+                                        </td>
+                                        <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap"
+                                            :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ formatPercent(rec.returnPct) }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div v-if="stockHistoryPerPage !== -1 && stockHistoryTotalPages > 1"
+                            class="flex items-center justify-between border-t border-gray-800 pt-3 mt-2 text-xs text-gray-400">
+                            <div>
+                                Showing {{ (stockHistoryPage - 1) * stockHistoryPerPage + 1 }} - 
+                                {{ Math.min(stockHistoryPage * stockHistoryPerPage, filteredStockRecords.length) }}
+                                of {{ filteredStockRecords.length }} records
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="stockHistoryPage = Math.max(1, stockHistoryPage - 1)" :disabled="stockHistoryPage === 1"
+                                    class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 disabled:opacity-40 disabled:hover:bg-gray-800 border border-gray-700 transition">
+                                    Previous
+                                </button>
+                                <span class="px-2 font-mono text-gray-300">Page {{ stockHistoryPage }} of {{ stockHistoryTotalPages }}</span>
+                                <button @click="stockHistoryPage = Math.min(stockHistoryTotalPages, stockHistoryPage + 1)" :disabled="stockHistoryPage === stockHistoryTotalPages"
+                                    class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 disabled:opacity-40 disabled:hover:bg-gray-800 border border-gray-700 transition">
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Yearly Performance Breakdown Table -->
+                    <div v-if="stockHistoryActiveTab === 'yearly'" class="space-y-4">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold border-b border-gray-700">
+                                    <tr>
+                                        <th class="p-3">Year</th>
+                                        <th class="p-3 text-right">Realized P/L</th>
+                                        <th class="p-3 text-center">Win Rate</th>
+                                        <th class="p-3 text-center">Closed Sells</th>
+                                        <th class="p-3 text-right">Total Proceeds</th>
+                                        <th class="p-3">Top Profitable Stock</th>
+                                        <th class="p-3 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800 text-gray-200">
+                                    <tr v-for="y in stockYearlySummary" :key="y.year" class="hover:bg-gray-800/50 transition">
+                                        <td class="p-3 font-mono font-bold text-white text-sm">{{ y.year }}</td>
+                                        <td class="p-3 text-right font-mono font-bold text-sm"
+                                            :class="y.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ y.totalPL >= 0 ? '+' : '' }}${{ formatNumber(y.totalPL) }}
+                                        </td>
+                                        <td class="p-3 text-center font-mono font-semibold text-emerald-400">
+                                            {{ y.winRate.toFixed(1) }}%
+                                        </td>
+                                        <td class="p-3 text-center font-mono text-gray-300">
+                                            <span class="text-emerald-400">{{ y.wins }}W</span> / 
+                                            <span class="text-rose-400">{{ y.losses }}L</span>
+                                            <span class="text-gray-500 text-[11px] ml-1">({{ y.trades }})</span>
+                                        </td>
+                                        <td class="p-3 text-right font-mono text-gray-200">
+                                            ${{ formatNumber(y.totalProceeds) }}
+                                        </td>
+                                        <td class="p-3 font-semibold text-gray-200">
+                                            {{ y.topTicker }}
+                                        </td>
+                                        <td class="p-3 text-center">
+                                            <button @click="setStockHistoryYear(y.year); stockHistoryActiveTab = 'trades'"
+                                                class="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 hover:text-white transition text-xs font-semibold">
+                                                View {{ y.year }} Sells →
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-between items-center pt-3 border-t border-gray-800 text-xs text-gray-400">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        Uses chronological cost basis matching across all stock purchases and sales.
+                    </span>
+                    <button type="button" @click="closeStockHistoryModal"
+                        class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Application Script Logic -->
@@ -1480,6 +1824,45 @@
                     historyDateFrom.value = '';
                     historyDateTo.value = '';
                     historyPage.value = 1;
+                };
+
+                // Realized Stock History Modal State
+                const showStockHistoryModal = ref(false);
+                const stockHistoryActiveTab = ref('trades'); // 'trades' | 'yearly'
+                const stockHistoryYearFilter = ref('ALL');
+                const stockHistoryDateFrom = ref('');
+                const stockHistoryDateTo = ref('');
+                const stockHistoryTickerFilter = ref('');
+                const stockHistoryOutcomeFilter = ref('ALL');
+                const stockHistorySearchQuery = ref('');
+                const stockHistorySortKey = ref('date');
+                const stockHistorySortAsc = ref(false);
+                const stockHistoryPage = ref(1);
+                const stockHistoryPerPage = ref(25);
+
+                const openStockHistoryModal = () => {
+                    showStockHistoryModal.value = true;
+                };
+
+                const closeStockHistoryModal = () => {
+                    showStockHistoryModal.value = false;
+                };
+
+                const resetStockHistoryFilters = () => {
+                    stockHistoryYearFilter.value = 'ALL';
+                    stockHistoryDateFrom.value = '';
+                    stockHistoryDateTo.value = '';
+                    stockHistoryTickerFilter.value = '';
+                    stockHistoryOutcomeFilter.value = 'ALL';
+                    stockHistorySearchQuery.value = '';
+                    stockHistoryPage.value = 1;
+                };
+
+                const setStockHistoryYear = (year) => {
+                    stockHistoryYearFilter.value = year;
+                    stockHistoryDateFrom.value = '';
+                    stockHistoryDateTo.value = '';
+                    stockHistoryPage.value = 1;
                 };
 
                 // Toggle states for panels
@@ -2440,8 +2823,8 @@ No markdown fences or commentary outside the JSON.`;
                     return stockPortfolioValue.value - stockCostBasis.value;
                 });
 
-                const realizedStockPL = computed(() => {
-                    let totalRealized = 0;
+                const allRealizedStockRecords = computed(() => {
+                    const records = [];
                     const stockMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Stock')
@@ -2460,14 +2843,202 @@ No markdown fences or commentary outside the JSON.`;
                             stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
                         } else if (tx.action === 'Sell') {
                             const costBasisSold = tx.quantity * stock.avgCost;
-                            const profit = (tx.quantity * tx.price) - costBasisSold - (tx.fee || 0);
-                            totalRealized += profit;
+                            const proceeds = (tx.quantity * tx.price) - (tx.fee || 0);
+                            const profit = proceeds - costBasisSold;
+                            const entryCostPerShare = stock.avgCost;
+                            records.push({
+                                id: tx.id || `stock_rec_${records.length}`,
+                                date: tx.date,
+                                year: tx.date ? tx.date.substring(0, 4) : '',
+                                ticker: ticker,
+                                quantity: tx.quantity,
+                                entryPrice: entryCostPerShare,
+                                closePrice: tx.price,
+                                costBasis: costBasisSold,
+                                proceeds: proceeds,
+                                fee: tx.fee || 0,
+                                profit: profit,
+                                returnPct: costBasisSold > 0 ? (profit / costBasisSold) * 100 : 0
+                            });
                             stock.quantity -= tx.quantity;
                             stock.totalCost -= costBasisSold;
+                            if (stock.quantity <= 0.0001) {
+                                stock.quantity = 0;
+                                stock.totalCost = 0;
+                                stock.avgCost = 0;
+                            } else {
+                                stock.avgCost = stock.totalCost / stock.quantity;
+                            }
                         }
                     });
-                    return totalRealized;
+                    return records;
                 });
+
+                const realizedStockPL = computed(() => {
+                    return allRealizedStockRecords.value.reduce((sum, r) => sum + r.profit, 0);
+                });
+
+                const availableStockHistoryYears = computed(() => {
+                    const yearSet = new Set(allRealizedStockRecords.value.map(r => r.year).filter(Boolean));
+                    return Array.from(yearSet).sort().reverse();
+                });
+
+                const availableStockHistoryTickers = computed(() => {
+                    const tickerSet = new Set(allRealizedStockRecords.value.map(r => r.ticker).filter(Boolean));
+                    return Array.from(tickerSet).sort();
+                });
+
+                const filteredStockRecords = computed(() => {
+                    let list = [...allRealizedStockRecords.value];
+
+                    // Year Filter
+                    if (stockHistoryYearFilter.value !== 'ALL' && stockHistoryYearFilter.value !== 'CUSTOM') {
+                        list = list.filter(r => r.year === stockHistoryYearFilter.value);
+                    }
+
+                    // Date range filters
+                    if (stockHistoryDateFrom.value) {
+                        list = list.filter(r => r.date >= stockHistoryDateFrom.value);
+                    }
+                    if (stockHistoryDateTo.value) {
+                        list = list.filter(r => r.date <= stockHistoryDateTo.value);
+                    }
+
+                    // Ticker filter
+                    if (stockHistoryTickerFilter.value) {
+                        list = list.filter(r => r.ticker.toUpperCase() === stockHistoryTickerFilter.value.toUpperCase());
+                    }
+
+                    // Outcome filter
+                    if (stockHistoryOutcomeFilter.value === 'WIN') {
+                        list = list.filter(r => r.profit > 0.001);
+                    } else if (stockHistoryOutcomeFilter.value === 'LOSS') {
+                        list = list.filter(r => r.profit < -0.001);
+                    }
+
+                    // Search query
+                    if (stockHistorySearchQuery.value.trim()) {
+                        const q = stockHistorySearchQuery.value.trim().toLowerCase();
+                        list = list.filter(r => 
+                            r.ticker.toLowerCase().includes(q) ||
+                            (r.date && r.date.includes(q)) ||
+                            String(r.quantity).includes(q)
+                        );
+                    }
+
+                    // Sorting
+                    list.sort((a, b) => {
+                        let valA = a[stockHistorySortKey.value];
+                        let valB = b[stockHistorySortKey.value];
+                        if (stockHistorySortKey.value === 'date') {
+                            valA = new Date(valA).getTime();
+                            valB = new Date(valB).getTime();
+                        }
+                        if (valA < valB) return stockHistorySortAsc.value ? -1 : 1;
+                        if (valA > valB) return stockHistorySortAsc.value ? 1 : -1;
+                        return 0;
+                    });
+
+                    return list;
+                });
+
+                const stockHistorySummary = computed(() => {
+                    const list = filteredStockRecords.value;
+                    let totalPL = 0;
+                    let wins = 0;
+                    let losses = 0;
+                    let breakeven = 0;
+                    let totalProceeds = 0;
+                    let totalCostBasis = 0;
+                    let totalFees = 0;
+
+                    list.forEach(r => {
+                        totalPL += r.profit;
+                        totalProceeds += r.proceeds;
+                        totalCostBasis += r.costBasis;
+                        totalFees += (r.fee || 0);
+                        if (r.profit > 0.001) wins++;
+                        else if (r.profit < -0.001) losses++;
+                        else breakeven++;
+                    });
+
+                    const winRate = (wins + losses) > 0 ? (wins / (wins + losses)) * 100 : 0;
+
+                    return {
+                        totalPL,
+                        wins,
+                        losses,
+                        breakeven,
+                        winRate,
+                        totalTrades: list.length,
+                        totalProceeds,
+                        totalCostBasis,
+                        totalFees
+                    };
+                });
+
+                const stockYearlySummary = computed(() => {
+                    const byYear = {};
+                    allRealizedStockRecords.value.forEach(r => {
+                        const y = r.year || 'Unknown';
+                        if (!byYear[y]) {
+                            byYear[y] = {
+                                year: y,
+                                totalPL: 0,
+                                wins: 0,
+                                losses: 0,
+                                trades: 0,
+                                totalProceeds: 0,
+                                tickerPL: {}
+                            };
+                        }
+                        const o = byYear[y];
+                        o.totalPL += r.profit;
+                        o.trades++;
+                        o.totalProceeds += r.proceeds;
+                        if (r.profit > 0.001) o.wins++;
+                        else if (r.profit < -0.001) o.losses++;
+
+                        o.tickerPL[r.ticker] = (o.tickerPL[r.ticker] || 0) + r.profit;
+                    });
+
+                    return Object.values(byYear).map(yData => {
+                        let topTicker = '-';
+                        let topTickerVal = -Infinity;
+                        Object.entries(yData.tickerPL).forEach(([t, p]) => {
+                            if (p > topTickerVal) {
+                                topTickerVal = p;
+                                topTicker = t;
+                            }
+                        });
+                        const winRate = (yData.wins + yData.losses) > 0 ? (yData.wins / (yData.wins + yData.losses)) * 100 : 0;
+                        return {
+                            ...yData,
+                            winRate,
+                            topTicker: topTickerVal > 0 ? `${topTicker} (+$${topTickerVal.toFixed(0)})` : topTicker
+                        };
+                    }).sort((a, b) => b.year.localeCompare(a.year));
+                });
+
+                const paginatedStockRecords = computed(() => {
+                    if (stockHistoryPerPage.value === -1) return filteredStockRecords.value;
+                    const start = (stockHistoryPage.value - 1) * stockHistoryPerPage.value;
+                    return filteredStockRecords.value.slice(start, start + stockHistoryPerPage.value);
+                });
+
+                const stockHistoryTotalPages = computed(() => {
+                    if (stockHistoryPerPage.value === -1) return 1;
+                    return Math.max(1, Math.ceil(filteredStockRecords.value.length / stockHistoryPerPage.value));
+                });
+
+                const toggleStockHistorySort = (key) => {
+                    if (stockHistorySortKey.value === key) {
+                        stockHistorySortAsc.value = !stockHistorySortAsc.value;
+                    } else {
+                        stockHistorySortKey.value = key;
+                        stockHistorySortAsc.value = false;
+                    }
+                };
 
                 const allRealizedOptionsRecords = computed(() => {
                     const records = [];
@@ -3503,7 +4074,33 @@ No markdown fences or commentary outside the JSON.`;
                     optionsYearlySummary,
                     paginatedHistoryRecords,
                     historyTotalPages,
-                    toggleHistorySort
+                    toggleHistorySort,
+                    // Realized Stock History Modal
+                    showStockHistoryModal,
+                    stockHistoryActiveTab,
+                    stockHistoryYearFilter,
+                    stockHistoryDateFrom,
+                    stockHistoryDateTo,
+                    stockHistoryTickerFilter,
+                    stockHistoryOutcomeFilter,
+                    stockHistorySearchQuery,
+                    stockHistorySortKey,
+                    stockHistorySortAsc,
+                    stockHistoryPage,
+                    stockHistoryPerPage,
+                    openStockHistoryModal,
+                    closeStockHistoryModal,
+                    resetStockHistoryFilters,
+                    setStockHistoryYear,
+                    allRealizedStockRecords,
+                    availableStockHistoryYears,
+                    availableStockHistoryTickers,
+                    filteredStockRecords,
+                    stockHistorySummary,
+                    stockYearlySummary,
+                    paginatedStockRecords,
+                    stockHistoryTotalPages,
+                    toggleStockHistorySort
                 };
             }
         }).mount('#app');
