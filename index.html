@@ -111,52 +111,290 @@
         </header>
 
         <!-- Top Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="text-gray-400 text-xs uppercase font-semibold">Active Stocks Value</div>
-                <div class="text-2xl font-bold mt-1 text-white">${{ formatNumber(stockPortfolioValue) }}</div>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
-                <div class="text-gray-400 text-xs uppercase font-semibold font-mono">Stock Unrealized P/L</div>
-                <div class="text-2xl font-bold mt-1"
-                    :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    ${{ formatNumber(stockUnrealizedPL) }}
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <!-- 1. Total Portfolio Net Profit -->
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm relative overflow-hidden group">
+                <div class="flex items-center justify-between">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Total Net Profit</div>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border"
+                        :class="totalPortfolioNetPL >= 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-rose-950/70 border-rose-800 text-rose-300'">
+                        Realized + Unrealized
+                    </span>
+                </div>
+                <div class="text-2xl font-bold mt-1 font-mono"
+                    :class="totalPortfolioNetPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    {{ totalPortfolioNetPL >= 0 ? '+' : '' }}${{ formatNumber(totalPortfolioNetPL) }}
+                </div>
+                <div class="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
+                    <span>Realized: <strong :class="(realizedStockPL + realizedOptionsPL) >= 0 ? 'text-emerald-400' : 'text-rose-400'">${{ formatNumber(realizedStockPL + realizedOptionsPL) }}</strong></span>
+                    <span>Unreal: <strong :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">${{ formatNumber(stockUnrealizedPL) }}</strong></span>
                 </div>
             </div>
+
+            <!-- 2. Active Stocks Value -->
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Active Stocks Value</div>
+                    <span class="text-[10px] text-gray-400 bg-gray-700/60 border border-gray-600 px-1.5 py-0.5 rounded">
+                        {{ computedStockHoldings.length }} Holdings
+                    </span>
+                </div>
+                <div class="text-2xl font-bold mt-1 text-white font-mono">${{ formatNumber(stockPortfolioValue) }}</div>
+                <div class="text-[11px] text-gray-400 mt-0.5">
+                    Cost Basis: ${{ formatNumber(stockCostBasis) }}
+                </div>
+            </div>
+
+            <!-- 3. Stock Unrealized P/L -->
+            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div class="text-gray-400 text-xs uppercase font-semibold font-mono">Stock Unrealized</div>
+                    <span class="text-[10px] font-mono font-semibold" :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                        {{ formatPercent(stockCostBasis > 0 ? (stockUnrealizedPL / stockCostBasis * 100) : 0) }}
+                    </span>
+                </div>
+                <div class="text-2xl font-bold mt-1 font-mono"
+                    :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    {{ stockUnrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(stockUnrealizedPL) }}
+                </div>
+                <div class="text-[11px] text-gray-400 mt-0.5">
+                    Market value vs cost
+                </div>
+            </div>
+
+            <!-- 4. Realized Stock P/L -->
             <div @click="openStockHistoryModal"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to view full Stock Realized History & Filter by Year/Date">
                 <div class="flex items-center justify-between">
-                    <div class="text-gray-400 text-xs uppercase font-semibold">Realized Stock P/L</div>
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Realized Stocks</div>
                     <span class="text-[10px] text-emerald-400/90 bg-emerald-950/70 border border-emerald-800/70 px-1.5 py-0.5 rounded font-medium group-hover:border-emerald-500 group-hover:bg-emerald-900/60 transition flex items-center gap-1">
                         History ↗
                     </span>
                 </div>
-                <div class="text-2xl font-bold mt-1"
+                <div class="text-2xl font-bold mt-1 font-mono"
                     :class="realizedStockPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    ${{ formatNumber(realizedStockPL) }}
+                    {{ realizedStockPL >= 0 ? '+' : '' }}${{ formatNumber(realizedStockPL) }}
                 </div>
                 <div class="text-[11px] text-gray-500 group-hover:text-gray-300 transition mt-0.5 flex items-center justify-between">
                     <span>Click to view breakdown</span>
-                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by year/date</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by year</span>
                 </div>
             </div>
+
+            <!-- 5. Realized Options P/L -->
             <div @click="openOptionsHistoryModal"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to view full Options Realized History & Filter by Year/Date">
                 <div class="flex items-center justify-between">
-                    <div class="text-gray-400 text-xs uppercase font-semibold">Realized Options P/L</div>
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Realized Options</div>
                     <span class="text-[10px] text-emerald-400/90 bg-emerald-950/70 border border-emerald-800/70 px-1.5 py-0.5 rounded font-medium group-hover:border-emerald-500 group-hover:bg-emerald-900/60 transition flex items-center gap-1">
                         History ↗
                     </span>
                 </div>
-                <div class="text-2xl font-bold mt-1"
+                <div class="text-2xl font-bold mt-1 font-mono"
                     :class="realizedOptionsPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    ${{ formatNumber(realizedOptionsPL) }}
+                    {{ realizedOptionsPL >= 0 ? '+' : '' }}${{ formatNumber(realizedOptionsPL) }}
                 </div>
                 <div class="text-[11px] text-gray-500 group-hover:text-gray-300 transition mt-0.5 flex items-center justify-between">
                     <span>Click to view breakdown</span>
-                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by year/date</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by year</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analytics Hub -->
+        <div class="bg-gray-800 rounded-xl border border-gray-700 mb-8 shadow-sm overflow-hidden transition-all">
+            <!-- Card Header & Controls -->
+            <div class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-750 bg-gray-850">
+                <div class="flex items-center justify-between cursor-pointer select-none" @click="toggleAnalyticsHub">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 bg-emerald-950/70 border border-emerald-800/70 rounded-lg text-emerald-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-lg font-bold text-white">Performance Analytics</h2>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono">
+                                    {{ monthlyPerformanceData.stats.activeMonths }} Active Months
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">Historical cumulative equity growth & monthly returns matrix</p>
+                        </div>
+                    </div>
+                    <svg :class="{'rotate-180': showAnalyticsHub}" class="w-5 h-5 text-gray-400 transition-transform lg:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+
+                <!-- Right Toolbar (Tabs & Expand Icon) -->
+                <div v-show="showAnalyticsHub" class="flex flex-wrap items-center gap-2.5">
+                    <!-- Tab Switcher: Chart vs Matrix -->
+                    <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                        <button type="button" @click="analyticsActiveTab = 'chart'"
+                            :class="analyticsActiveTab === 'chart' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                            class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                            Chart View
+                        </button>
+                        <button type="button" @click="analyticsActiveTab = 'matrix'"
+                            :class="analyticsActiveTab === 'matrix' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                            class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            Monthly Heatmap
+                        </button>
+                    </div>
+
+                    <!-- Asset Filter: All / Stocks / Options -->
+                    <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                        <button type="button" @click="chartAssetFilter = 'all'"
+                            :class="chartAssetFilter === 'all' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                            class="px-2.5 py-1 rounded transition">All</button>
+                        <button type="button" @click="chartAssetFilter = 'stock'"
+                            :class="chartAssetFilter === 'stock' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                            class="px-2.5 py-1 rounded transition">Stocks</button>
+                        <button type="button" @click="chartAssetFilter = 'option'"
+                            :class="chartAssetFilter === 'option' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                            class="px-2.5 py-1 rounded transition">Options</button>
+                    </div>
+
+                    <button type="button" @click="toggleAnalyticsHub" class="hidden lg:flex p-1.5 rounded hover:bg-gray-750 text-gray-400 hover:text-white transition">
+                        <svg :class="{'rotate-180': showAnalyticsHub}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div v-show="showAnalyticsHub" class="p-4 sm:p-6 space-y-4">
+                <!-- Sub-toolbar for Chart Tab (View Mode & Year Filter) -->
+                <div v-if="analyticsActiveTab === 'chart'" class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-700/60">
+                    <!-- Mode: Cumulative Line vs Monthly Bars -->
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-gray-400 mr-1">Display:</span>
+                        <button type="button" @click="chartViewMode = 'cumulative'"
+                            :class="chartViewMode === 'cumulative' ? 'bg-emerald-950 border-emerald-700 text-emerald-300 font-semibold' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'"
+                            class="px-3 py-1 rounded-lg border text-xs transition flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            Cumulative P/L Curve
+                        </button>
+                        <button type="button" @click="chartViewMode = 'monthly'"
+                            :class="chartViewMode === 'monthly' ? 'bg-emerald-950 border-emerald-700 text-emerald-300 font-semibold' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'"
+                            class="px-3 py-1 rounded-lg border text-xs transition flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                            Monthly P/L Bars
+                        </button>
+                    </div>
+
+                    <!-- Year Selector Pills -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-xs text-gray-400 mr-1">Period:</span>
+                        <button type="button" @click="chartYearFilter = 'ALL'"
+                            :class="chartYearFilter === 'ALL' ? 'bg-emerald-600 text-white font-semibold shadow' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'"
+                            class="px-2.5 py-1 text-xs rounded-lg transition">All Time</button>
+                        <button v-for="y in availableChartYears" :key="y" type="button" @click="chartYearFilter = y"
+                            :class="chartYearFilter === y ? 'bg-emerald-600 text-white font-semibold shadow' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'"
+                            class="px-2.5 py-1 text-xs rounded-lg transition">{{ y }}</button>
+                    </div>
+                </div>
+
+                <!-- KPI Mini Stats Strip -->
+                <div v-if="analyticsActiveTab === 'chart'" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-750">
+                        <div class="text-[10px] uppercase font-semibold text-gray-400">Period Realized P/L</div>
+                        <div class="text-lg font-bold font-mono mt-0.5" :class="monthlyPerformanceData.stats.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                            {{ monthlyPerformanceData.stats.totalPL >= 0 ? '+' : '' }}${{ formatNumber(monthlyPerformanceData.stats.totalPL) }}
+                        </div>
+                    </div>
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-750">
+                        <div class="text-[10px] uppercase font-semibold text-gray-400">Profitable Months</div>
+                        <div class="text-lg font-bold font-mono mt-0.5 text-white">
+                            {{ monthlyPerformanceData.stats.winMonths }} <span class="text-xs text-gray-400 font-normal">/ {{ monthlyPerformanceData.stats.activeMonths }} ({{ monthlyPerformanceData.stats.winRate.toFixed(1) }}%)</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-750">
+                        <div class="text-[10px] uppercase font-semibold text-gray-400">Best Month</div>
+                        <div class="text-lg font-bold font-mono mt-0.5 text-emerald-400">
+                            <span v-if="monthlyPerformanceData.stats.bestMonth">+${{ formatNumber(monthlyPerformanceData.stats.bestMonth.profit) }}</span>
+                            <span v-else class="text-gray-500">—</span>
+                            <span v-if="monthlyPerformanceData.stats.bestMonth" class="text-[11px] text-gray-400 font-normal block">{{ monthlyPerformanceData.stats.bestMonth.label }}</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-750">
+                        <div class="text-[10px] uppercase font-semibold text-gray-400">Worst Month</div>
+                        <div class="text-lg font-bold font-mono mt-0.5 text-rose-400">
+                            <span v-if="monthlyPerformanceData.stats.worstMonth">${{ formatNumber(monthlyPerformanceData.stats.worstMonth.profit) }}</span>
+                            <span v-else class="text-gray-500">—</span>
+                            <span v-if="monthlyPerformanceData.stats.worstMonth" class="text-[11px] text-gray-400 font-normal block">{{ monthlyPerformanceData.stats.worstMonth.label }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Canvas Container -->
+                <div v-show="analyticsActiveTab === 'chart'" class="relative w-full h-72 sm:h-80 bg-gray-900/40 p-2 sm:p-4 rounded-xl border border-gray-750">
+                    <canvas id="performanceChart"></canvas>
+                    <div v-if="monthlyPerformanceData.months.length === 0" class="absolute inset-0 flex items-center justify-center text-gray-500 text-xs">
+                        No realized performance data found for the selected period.
+                    </div>
+                </div>
+
+                <!-- Heatmap Matrix Tab -->
+                <div v-show="analyticsActiveTab === 'matrix'" class="space-y-3">
+                    <div class="flex items-center justify-between text-xs text-gray-400">
+                        <span>Net realized return per calendar month across all active trading years.</span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500/80"></span> Profit</span>
+                            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-rose-500/80"></span> Loss</span>
+                            <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-gray-800"></span> No Trades</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-gray-700/80 rounded-xl bg-gray-900/60">
+                        <table class="w-full text-center text-xs whitespace-nowrap border-collapse">
+                            <thead class="bg-gray-850 text-gray-400 border-b border-gray-750 font-semibold uppercase text-[10px]">
+                                <tr>
+                                    <th class="p-2.5 text-left pl-3.5">Year</th>
+                                    <th class="p-2">Jan</th>
+                                    <th class="p-2">Feb</th>
+                                    <th class="p-2">Mar</th>
+                                    <th class="p-2">Apr</th>
+                                    <th class="p-2">May</th>
+                                    <th class="p-2">Jun</th>
+                                    <th class="p-2">Jul</th>
+                                    <th class="p-2">Aug</th>
+                                    <th class="p-2">Sep</th>
+                                    <th class="p-2">Oct</th>
+                                    <th class="p-2">Nov</th>
+                                    <th class="p-2">Dec</th>
+                                    <th class="p-2.5 text-right font-bold text-white pr-3">YTD Total</th>
+                                    <th class="p-2.5 text-right font-semibold text-gray-300 pr-3.5">Win Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-800 text-xs font-mono">
+                                <tr v-for="row in heatmapMatrixData" :key="row.year" class="hover:bg-gray-800/40 transition">
+                                    <td class="p-2.5 text-left font-bold text-white pl-3.5">{{ row.year }}</td>
+                                    <td v-for="m in row.months" :key="m.monthIndex" class="p-1.5">
+                                        <div v-if="m.hasActivity" class="py-1 px-1.5 rounded text-[11px] font-semibold"
+                                            :class="m.profit > 0 ? (m.profit >= 1000 ? 'bg-emerald-900/70 text-emerald-300 border border-emerald-700/60 font-bold' : 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/50') : (m.profit < 0 ? 'bg-rose-950/70 text-rose-300 border border-rose-800/50' : 'bg-gray-800 text-gray-400 border border-gray-700')">
+                                            {{ m.profit >= 0 ? '+' : '' }}${{ formatNumber(m.profit) }}
+                                        </div>
+                                        <div v-else class="text-gray-600 text-[11px] py-1">—</div>
+                                    </td>
+                                    <td class="p-2.5 text-right font-bold pr-3"
+                                        :class="row.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                        {{ row.totalPL >= 0 ? '+' : '' }}${{ formatNumber(row.totalPL) }}
+                                    </td>
+                                    <td class="p-2.5 text-right text-gray-300 font-semibold pr-3.5">
+                                        {{ row.winRate.toFixed(0) }}%
+                                    </td>
+                                </tr>
+                                <tr v-if="heatmapMatrixData.length === 0">
+                                    <td colspan="15" class="py-6 text-center text-gray-500 text-xs">
+                                        No historical closed trades found to generate heatmap.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -363,43 +601,96 @@
 
                 <!-- Stock Holdings Table -->
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 class="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
-                        <span>Current Stock Holdings</span>
-                        <span class="text-xs text-gray-400 font-normal">P/L fluctuates with current market price</span>
-                    </h2>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-lg font-semibold text-emerald-400">Current Stock Holdings</h2>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono">
+                                    {{ sortedAndFilteredStockHoldings.length }} <span v-if="sortedAndFilteredStockHoldings.length !== computedStockHoldings.length">of {{ computedStockHoldings.length }}</span> Positions
+                                </span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-normal">P/L fluctuates with current market price</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative w-full sm:w-44">
+                                <input type="text" v-model="stockHoldingsSearch" placeholder="Filter symbol..."
+                                    class="w-full bg-gray-700/80 border border-gray-600 rounded px-2.5 py-1 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 uppercase">
+                                <button v-if="stockHoldingsSearch" @click="stockHoldingsSearch = ''" class="absolute right-2 top-1 text-gray-400 hover:text-white text-xs">✕</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
-                                <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                    <th class="pb-3 font-semibold">Symbol</th>
-                                    <th class="pb-3 text-right font-semibold">Shares</th>
-                                    <th class="pb-3 text-right font-semibold">Avg Cost</th>
-                                    <th class="pb-3 text-right font-semibold">Current Price</th>
-                                    <th class="pb-3 text-right font-semibold">Market Value</th>
-                                    <th class="pb-3 text-right font-semibold">Unrealized P/L</th>
+                                <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase select-none">
+                                    <th @click="toggleStockSort('symbol')" class="pb-3 font-semibold cursor-pointer hover:text-white transition">
+                                        Symbol {{ stockHoldingsSortKey === 'symbol' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
+                                    <th @click="toggleStockSort('quantity')" class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        Shares {{ stockHoldingsSortKey === 'quantity' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
+                                    <th @click="toggleStockSort('avgCost')" class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        Avg Cost {{ stockHoldingsSortKey === 'avgCost' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
+                                    <th @click="toggleStockSort('currentPrice')" class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        Current Price {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
+                                    <th @click="toggleStockSort('marketValue')" class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        Market Value {{ stockHoldingsSortKey === 'marketValue' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
+                                    <th @click="toggleStockSort('weightPercent')" class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        Weight % {{ stockHoldingsSortKey === 'weightPercent' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
+                                    <th @click="toggleStockSort('unrealizedPL')" class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        Unrealized P/L {{ stockHoldingsSortKey === 'unrealizedPL' ? (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50 text-sm">
-                                <tr v-for="holding in computedStockHoldings" :key="holding.symbol"
-                                    class="hover:bg-gray-700/20">
+                                <tr v-for="holding in sortedAndFilteredStockHoldings" :key="holding.symbol"
+                                    class="hover:bg-gray-700/20 transition">
                                     <td class="py-3 font-bold text-white">{{ holding.symbol }}</td>
                                     <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
                                     <td class="py-3 text-right font-mono">${{ formatNumber(holding.currentPrice) }}</td>
                                     <td class="py-3 text-right font-mono text-white">${{
                                         formatNumber(holding.marketValue) }}</td>
+                                    <td class="py-3 text-right">
+                                        <div class="flex items-center justify-end gap-1.5 font-mono text-xs">
+                                            <span class="text-gray-300">{{ holding.weightPercent.toFixed(1) }}%</span>
+                                            <div class="w-12 bg-gray-700 rounded-full h-1.5 overflow-hidden hidden sm:block">
+                                                <div class="bg-emerald-500 h-full rounded-full" :style="{ width: Math.min(100, holding.weightPercent) + '%' }"></div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td class="py-3 text-right font-mono font-semibold"
                                         :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                        ${{ formatNumber(holding.unrealizedPL) }}
-                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent)
-                                            }})</div>
+                                        {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL) }}
+                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent) }})</div>
                                     </td>
                                 </tr>
-                                <tr v-if="computedStockHoldings.length === 0">
-                                    <td colspan="6" class="py-8 text-center text-gray-500 text-sm">No open stock
-                                        positions.</td>
+                                <tr v-if="sortedAndFilteredStockHoldings.length === 0">
+                                    <td colspan="7" class="py-8 text-center text-gray-500 text-sm">
+                                        <span v-if="stockHoldingsSearch">No open stock positions matching "{{ stockHoldingsSearch }}".</span>
+                                        <span v-else>No open stock positions.</span>
+                                    </td>
                                 </tr>
                             </tbody>
+                            <tfoot v-if="sortedAndFilteredStockHoldings.length > 0" class="border-t-2 border-gray-700 bg-gray-900/40 text-xs font-semibold text-gray-300">
+                                <tr>
+                                    <td class="py-3 px-1 font-bold text-white">Total ({{ sortedAndFilteredStockHoldings.length }})</td>
+                                    <td class="py-3 text-right font-mono">{{ formatNumber(holdingsTotals.shares) }}</td>
+                                    <td class="py-3 text-right font-mono text-gray-500">—</td>
+                                    <td class="py-3 text-right font-mono text-gray-500">—</td>
+                                    <td class="py-3 text-right font-mono text-white font-bold">${{ formatNumber(holdingsTotals.marketValue) }}</td>
+                                    <td class="py-3 text-right font-mono text-gray-400">{{ holdingsTotals.totalWeight.toFixed(1) }}%</td>
+                                    <td class="py-3 text-right font-mono font-bold" :class="holdingsTotals.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                        {{ holdingsTotals.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holdingsTotals.unrealizedPL) }}
+                                        <div class="text-[11px] font-normal">({{ formatPercent(holdingsTotals.unrealizedPercent) }})</div>
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -470,11 +761,66 @@
 
                 <!-- Transaction Ledger (History) -->
                 <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 @click="showHistory = !showHistory" class="text-lg font-semibold mb-4 text-emerald-400 cursor-pointer flex justify-between items-center select-none">
-                        <span>Transaction History</span>
-                        <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </h2>
-                    <div v-show="showHistory" class="overflow-x-auto max-h-96">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                        <h2 @click="showHistory = !showHistory" class="text-lg font-semibold text-emerald-400 cursor-pointer flex items-center gap-2 select-none">
+                            <span>Transaction History</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-750 border border-gray-600 text-gray-300 font-mono">
+                                {{ filteredTransactions.length }} <span v-if="filteredTransactions.length !== transactions.length">of {{ transactions.length }}</span> Records
+                            </span>
+                            <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </h2>
+
+                        <!-- Per Page & Reset if opened -->
+                        <div v-show="showHistory" class="flex items-center gap-2 text-xs">
+                            <span class="text-gray-400">Show:</span>
+                            <select v-model.number="ledgerPerPage" @change="ledgerPage = 1" class="bg-gray-700 border border-gray-600 text-gray-200 rounded px-2 py-1 text-xs">
+                                <option :value="15">15</option>
+                                <option :value="25">25</option>
+                                <option :value="50">50</option>
+                                <option :value="100">100</option>
+                                <option :value="-1">All</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Ledger Filter Bar -->
+                    <div v-show="showHistory" class="bg-gray-850 p-3 rounded-lg border border-gray-750 mb-4 space-y-2.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                            <!-- Search -->
+                            <div class="relative">
+                                <input type="text" v-model="ledgerSearchQuery" @input="ledgerPage = 1" placeholder="Search ticker, strategy, action..."
+                                    class="w-full bg-gray-750 border border-gray-600 rounded px-2.5 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500">
+                                <button v-if="ledgerSearchQuery" @click="ledgerSearchQuery = ''; ledgerPage = 1" class="absolute right-2 top-1.5 text-gray-400 hover:text-white text-xs">✕</button>
+                            </div>
+
+                            <!-- Asset Filter -->
+                            <select v-model="ledgerAssetFilter" @change="ledgerPage = 1" class="bg-gray-750 border border-gray-600 text-gray-200 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+                                <option value="ALL">All Asset Types</option>
+                                <option value="Stock">Stocks Only</option>
+                                <option value="Option">Options Only</option>
+                                <option value="Spread">Spreads / Multi-Leg</option>
+                            </select>
+
+                            <!-- Action Filter -->
+                            <div class="flex gap-2">
+                                <select v-model="ledgerActionFilter" @change="ledgerPage = 1" class="flex-1 bg-gray-750 border border-gray-600 text-gray-200 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
+                                    <option value="ALL">All Trade Actions</option>
+                                    <option value="Buy">Buys</option>
+                                    <option value="Sell">Sells</option>
+                                    <option value="Open">Opens (Buy/Sell to Open)</option>
+                                    <option value="Close">Closes (Buy/Sell to Close)</option>
+                                    <option value="Expire">Expires / Assigned / Exercised</option>
+                                </select>
+                                <button v-if="ledgerSearchQuery || ledgerAssetFilter !== 'ALL' || ledgerActionFilter !== 'ALL'"
+                                    @click="resetLedgerFilters"
+                                    class="px-2 py-1 bg-gray-700 hover:bg-gray-650 text-gray-300 hover:text-white rounded border border-gray-600 text-[11px] whitespace-nowrap transition">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-show="showHistory" class="overflow-x-auto">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
@@ -489,8 +835,8 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50 text-sm">
-                                <tr v-for="tx in sortedTransactions" :key="tx.id" class="hover:bg-gray-700/20">
-                                    <td class="py-3 text-xs text-gray-400">{{ tx.date }}</td>
+                                <tr v-for="tx in paginatedTransactions" :key="tx.id" class="hover:bg-gray-700/20 transition">
+                                    <td class="py-3 text-xs text-gray-400 font-mono">{{ tx.date }}</td>
                                     <td class="py-3">
                                         <span class="font-bold text-white">{{ tx.ticker }}</span>
                                         <span v-if="tx.assetType === 'Option'" class="text-xs text-gray-400 block">
@@ -525,12 +871,38 @@
                                         </button>
                                     </td>
                                 </tr>
-                                <tr v-if="transactions.length === 0">
-                                    <td colspan="7" class="py-8 text-center text-gray-500 text-sm">No transactions
-                                        entered yet.</td>
+                                <tr v-if="filteredTransactions.length === 0">
+                                    <td colspan="8" class="py-8 text-center text-gray-500 text-sm">
+                                        <span v-if="ledgerSearchQuery || ledgerAssetFilter !== 'ALL' || ledgerActionFilter !== 'ALL'">
+                                            No transactions match active filters.
+                                            <button @click="resetLedgerFilters" class="block mx-auto mt-2 text-emerald-400 underline text-xs">Reset filters</button>
+                                        </span>
+                                        <span v-else>No transactions entered yet.</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div v-show="showHistory && ledgerPerPage !== -1 && ledgerTotalPages > 1"
+                        class="flex items-center justify-between border-t border-gray-700/80 pt-3 mt-3 text-xs text-gray-400">
+                        <div>
+                            Showing {{ (ledgerPage - 1) * ledgerPerPage + 1 }} - 
+                            {{ Math.min(ledgerPage * ledgerPerPage, filteredTransactions.length) }}
+                            of {{ filteredTransactions.length }} transactions
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button @click="ledgerPage = Math.max(1, ledgerPage - 1)" :disabled="ledgerPage === 1"
+                                class="px-2.5 py-1 rounded bg-gray-700 hover:bg-gray-650 disabled:opacity-40 disabled:hover:bg-gray-700 border border-gray-600 transition">
+                                Previous
+                            </button>
+                            <span class="px-2 font-mono text-gray-300">Page {{ ledgerPage }} of {{ ledgerTotalPages }}</span>
+                            <button @click="ledgerPage = Math.min(ledgerTotalPages, ledgerPage + 1)" :disabled="ledgerPage === ledgerTotalPages"
+                                class="px-2.5 py-1 rounded bg-gray-700 hover:bg-gray-650 disabled:opacity-40 disabled:hover:bg-gray-700 border border-gray-600 transition">
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1871,6 +2243,33 @@
                 const showHistory = ref(false);
                 const showClearConfirm = ref(false);
 
+                // Performance Analytics Hub State (Enhancement 3)
+                const showAnalyticsHub = ref(localStorage.getItem('show_analytics_hub') !== 'false');
+                const analyticsActiveTab = ref('chart'); // 'chart' | 'matrix'
+                const chartViewMode = ref('cumulative'); // 'cumulative' | 'monthly'
+                const chartYearFilter = ref('ALL');
+                const chartAssetFilter = ref('all'); // 'all' | 'stock' | 'option'
+
+                const toggleAnalyticsHub = () => {
+                    showAnalyticsHub.value = !showAnalyticsHub.value;
+                    localStorage.setItem('show_analytics_hub', showAnalyticsHub.value);
+                    if (showAnalyticsHub.value && analyticsActiveTab.value === 'chart') {
+                        nextTick(() => updatePerformanceChart());
+                    }
+                };
+
+                // Stock Holdings Table State (Enhancement 4)
+                const stockHoldingsSortKey = ref('marketValue');
+                const stockHoldingsSortAsc = ref(false);
+                const stockHoldingsSearch = ref('');
+
+                // Main Transaction Ledger State (Enhancement 4)
+                const ledgerSearchQuery = ref('');
+                const ledgerAssetFilter = ref('ALL'); // 'ALL' | 'Stock' | 'Option' | 'Spread'
+                const ledgerActionFilter = ref('ALL');
+                const ledgerPage = ref(1);
+                const ledgerPerPage = ref(25);
+
                 // Schwab import state
                 const schwabFileInput = ref(null);
                 const showSchwabModal = ref(false);
@@ -1886,6 +2285,10 @@
                     'NVDA_2023-12-13': 480.00,
                     'ARKK_2023-12-13': 52.37,
                     'BABA_2023-12-13': 67.29,
+                    'COIN_2023-12-13': 149.00,
+                    'AMD_2023-12-13': 134.00,
+                    'LMND_2023-12-13': 18.00,
+                    'DKNG_2023-12-13': 37.00,
                     'SPYM_2023-12-12': 0.45,
                     'SPLG_2023-12-12': 0.45
                 };
@@ -1924,8 +2327,9 @@
                 const rollStep = ref(1);
                 const rollSourceHolding = ref(null);
 
-                // Chart Instance Reference
+                // Chart Instance References
                 let chartInstance = null;
+                let performanceChartInstance = null;
 
                 const form = ref({
                     id: null,
@@ -2137,6 +2541,9 @@
 
                     // Initial chart draw
                     updateAllocationChart();
+                    if (showAnalyticsHub.value && analyticsActiveTab.value === 'chart') {
+                        updatePerformanceChart();
+                    }
                 });
 
                 const savePrices = () => {
@@ -3351,6 +3758,420 @@ No markdown fences or commentary outside the JSON.`;
                     }
                 };
 
+                // Enhancement 3: All-Time Combined Portfolio Net Profit
+                const totalPortfolioNetPL = computed(() => {
+                    return (realizedStockPL.value || 0) + (realizedOptionsPL.value || 0) + (stockUnrealizedPL.value || 0);
+                });
+
+                // Enhancement 4: Current Stock Holdings Table (Sorting, Search, Weights, Totals)
+                const toggleStockSort = (key) => {
+                    if (stockHoldingsSortKey.value === key) {
+                        stockHoldingsSortAsc.value = !stockHoldingsSortAsc.value;
+                    } else {
+                        stockHoldingsSortKey.value = key;
+                        stockHoldingsSortAsc.value = (key === 'symbol');
+                    }
+                };
+
+                const sortedAndFilteredStockHoldings = computed(() => {
+                    let list = computedStockHoldings.value.map(h => {
+                        const weightPercent = stockPortfolioValue.value > 0 ? (h.marketValue / stockPortfolioValue.value) * 100 : 0;
+                        return {
+                            ...h,
+                            weightPercent
+                        };
+                    });
+
+                    if (stockHoldingsSearch.value && stockHoldingsSearch.value.trim()) {
+                        const q = stockHoldingsSearch.value.trim().toUpperCase();
+                        list = list.filter(h => h.symbol.includes(q));
+                    }
+
+                    const key = stockHoldingsSortKey.value;
+                    const asc = stockHoldingsSortAsc.value;
+
+                    list.sort((a, b) => {
+                        let valA = a[key];
+                        let valB = b[key];
+                        if (typeof valA === 'string') {
+                            return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                        }
+                        valA = Number(valA) || 0;
+                        valB = Number(valB) || 0;
+                        return asc ? (valA - valB) : (valB - valA);
+                    });
+
+                    return list;
+                });
+
+                const holdingsTotals = computed(() => {
+                    const list = sortedAndFilteredStockHoldings.value;
+                    const shares = list.reduce((acc, h) => acc + (h.quantity || 0), 0);
+                    const totalCost = list.reduce((acc, h) => acc + (h.totalCost || 0), 0);
+                    const marketValue = list.reduce((acc, h) => acc + (h.marketValue || 0), 0);
+                    const unrealizedPL = marketValue - totalCost;
+                    const unrealizedPercent = totalCost > 0 ? (unrealizedPL / totalCost) * 100 : 0;
+                    const totalWeight = list.reduce((acc, h) => acc + (h.weightPercent || 0), 0);
+                    return {
+                        count: list.length,
+                        shares,
+                        totalCost,
+                        marketValue,
+                        unrealizedPL,
+                        unrealizedPercent,
+                        totalWeight
+                    };
+                });
+
+                // Enhancement 4: Main Transaction Ledger (Search, Filters, Pagination)
+                const filteredTransactions = computed(() => {
+                    let list = sortedTransactions.value;
+
+                    // Asset Filter
+                    if (ledgerAssetFilter.value !== 'ALL') {
+                        list = list.filter(tx => tx.assetType === ledgerAssetFilter.value);
+                    }
+
+                    // Action Filter
+                    if (ledgerActionFilter.value !== 'ALL') {
+                        const act = ledgerActionFilter.value;
+                        if (act === 'Buy') {
+                            list = list.filter(tx => tx.action === 'Buy');
+                        } else if (act === 'Sell') {
+                            list = list.filter(tx => tx.action === 'Sell');
+                        } else if (act === 'Open') {
+                            list = list.filter(tx => tx.action && tx.action.includes('Open'));
+                        } else if (act === 'Close') {
+                            list = list.filter(tx => tx.action && tx.action.includes('Close'));
+                        } else if (act === 'Expire') {
+                            list = list.filter(tx => ['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action));
+                        }
+                    }
+
+                    // Search Query
+                    if (ledgerSearchQuery.value && ledgerSearchQuery.value.trim()) {
+                        const q = ledgerSearchQuery.value.trim().toLowerCase();
+                        list = list.filter(tx => {
+                            const sym = (tx.ticker || '').toLowerCase();
+                            const date = (tx.date || '').toLowerCase();
+                            const action = (tx.action || '').toLowerCase();
+                            const strat = (tx.strategyName || '').toLowerCase();
+                            const optType = (tx.optionType || '').toLowerCase();
+                            return sym.includes(q) || date.includes(q) || action.includes(q) || strat.includes(q) || optType.includes(q);
+                        });
+                    }
+
+                    return list;
+                });
+
+                const ledgerTotalPages = computed(() => {
+                    if (ledgerPerPage.value === -1) return 1;
+                    return Math.max(1, Math.ceil(filteredTransactions.value.length / ledgerPerPage.value));
+                });
+
+                const paginatedTransactions = computed(() => {
+                    if (ledgerPerPage.value === -1) return filteredTransactions.value;
+                    const start = (ledgerPage.value - 1) * ledgerPerPage.value;
+                    return filteredTransactions.value.slice(start, start + ledgerPerPage.value);
+                });
+
+                const resetLedgerFilters = () => {
+                    ledgerSearchQuery.value = '';
+                    ledgerAssetFilter.value = 'ALL';
+                    ledgerActionFilter.value = 'ALL';
+                    ledgerPage.value = 1;
+                };
+
+                // Enhancement 3: Performance Analytics Hub Computations & Visuals
+                const availableChartYears = computed(() => {
+                    const yearSet = new Set();
+                    allRealizedStockRecords.value.forEach(r => { if (r.year) yearSet.add(r.year); });
+                    allRealizedOptionsRecords.value.forEach(r => { if (r.year) yearSet.add(r.year); });
+                    return Array.from(yearSet).sort().reverse();
+                });
+
+                const combinedRealizedRecords = computed(() => {
+                    let records = [];
+                    if (chartAssetFilter.value === 'all' || chartAssetFilter.value === 'stock') {
+                        records = records.concat(allRealizedStockRecords.value.map(r => ({
+                            date: r.date,
+                            year: r.year,
+                            profit: r.profit,
+                            ticker: r.ticker,
+                            assetType: 'Stock'
+                        })));
+                    }
+                    if (chartAssetFilter.value === 'all' || chartAssetFilter.value === 'option') {
+                        records = records.concat(allRealizedOptionsRecords.value.map(r => ({
+                            date: r.date,
+                            year: r.year,
+                            profit: r.profit,
+                            ticker: r.ticker,
+                            assetType: 'Option'
+                        })));
+                    }
+                    return records.sort((a, b) => a.date.localeCompare(b.date));
+                });
+
+                const monthlyPerformanceData = computed(() => {
+                    const records = combinedRealizedRecords.value;
+                    if (records.length === 0) {
+                        return { months: [], stats: { totalPL: 0, bestMonth: null, worstMonth: null, winMonths: 0, activeMonths: 0, winRate: 0 } };
+                    }
+
+                    const filteredRecords = (chartYearFilter.value === 'ALL')
+                        ? records
+                        : records.filter(r => r.year === chartYearFilter.value);
+
+                    const monthMap = {};
+                    let startYear, endYear;
+                    if (chartYearFilter.value === 'ALL') {
+                        const years = availableChartYears.value;
+                        startYear = years.length > 0 ? parseInt(years[years.length - 1], 10) : new Date().getFullYear();
+                        endYear = years.length > 0 ? parseInt(years[0], 10) : new Date().getFullYear();
+                    } else {
+                        startYear = parseInt(chartYearFilter.value, 10);
+                        endYear = parseInt(chartYearFilter.value, 10);
+                    }
+
+                    for (let y = startYear; y <= endYear; y++) {
+                        const maxM = (y === new Date().getFullYear()) ? (new Date().getMonth() + 1) : 12;
+                        for (let m = 1; m <= maxM; m++) {
+                            const key = `${y}-${String(m).padStart(2, '0')}`;
+                            monthMap[key] = {
+                                key,
+                                year: String(y),
+                                monthIndex: m - 1,
+                                label: new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'short', year: '2-digit' }),
+                                shortMonth: new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'short' }),
+                                profit: 0,
+                                trades: 0,
+                                cumulative: 0
+                            };
+                        }
+                    }
+
+                    filteredRecords.forEach(r => {
+                        if (!r.date) return;
+                        const key = r.date.substring(0, 7);
+                        if (!monthMap[key]) {
+                            const [yStr, mStr] = key.split('-');
+                            const y = parseInt(yStr, 10);
+                            const m = parseInt(mStr, 10);
+                            monthMap[key] = {
+                                key,
+                                year: yStr,
+                                monthIndex: m - 1,
+                                label: new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'short', year: '2-digit' }),
+                                shortMonth: new Date(y, m - 1, 1).toLocaleDateString(undefined, { month: 'short' }),
+                                profit: 0,
+                                trades: 0,
+                                cumulative: 0
+                            };
+                        }
+                        monthMap[key].profit += r.profit;
+                        monthMap[key].trades += 1;
+                    });
+
+                    const monthList = Object.values(monthMap).sort((a, b) => a.key.localeCompare(b.key));
+
+                    let runningTotal = 0;
+                    let bestMonth = null;
+                    let worstMonth = null;
+                    let winMonths = 0;
+                    let activeMonths = 0;
+
+                    monthList.forEach(m => {
+                        runningTotal += m.profit;
+                        m.cumulative = runningTotal;
+
+                        if (m.trades > 0) {
+                            activeMonths++;
+                            if (m.profit > 0) winMonths++;
+                            if (!bestMonth || m.profit > bestMonth.profit) bestMonth = m;
+                            if (!worstMonth || m.profit < worstMonth.profit) worstMonth = m;
+                        }
+                    });
+
+                    return {
+                        months: monthList,
+                        stats: {
+                            totalPL: runningTotal,
+                            bestMonth,
+                            worstMonth,
+                            winMonths,
+                            activeMonths,
+                            winRate: activeMonths > 0 ? (winMonths / activeMonths) * 100 : 0
+                        }
+                    };
+                });
+
+                const heatmapMatrixData = computed(() => {
+                    const years = availableChartYears.value;
+                    const records = combinedRealizedRecords.value;
+                    const matrix = [];
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+                    years.forEach(y => {
+                        const yearRecords = records.filter(r => r.year === y);
+                        const months = [];
+                        let yearTotal = 0;
+                        let yearWins = 0;
+                        let activeMonthsCount = 0;
+                        let yearTrades = 0;
+
+                        for (let m = 0; m < 12; m++) {
+                            const mKey = `${y}-${String(m + 1).padStart(2, '0')}`;
+                            const mRecords = yearRecords.filter(r => r.date && r.date.startsWith(mKey));
+                            const mProfit = mRecords.reduce((sum, r) => sum + r.profit, 0);
+                            const mTrades = mRecords.length;
+
+                            if (mTrades > 0) {
+                                yearTrades += mTrades;
+                                activeMonthsCount++;
+                                if (mProfit > 0) yearWins++;
+                            }
+                            yearTotal += mProfit;
+
+                            months.push({
+                                monthIndex: m,
+                                monthName: monthNames[m],
+                                profit: mProfit,
+                                trades: mTrades,
+                                hasActivity: mTrades > 0
+                            });
+                        }
+
+                        matrix.push({
+                            year: y,
+                            months,
+                            totalPL: yearTotal,
+                            trades: yearTrades,
+                            winRate: activeMonthsCount > 0 ? (yearWins / activeMonthsCount) * 100 : 0
+                        });
+                    });
+
+                    return matrix;
+                });
+
+                const updatePerformanceChart = () => {
+                    nextTick(() => {
+                        const canvas = document.getElementById('performanceChart');
+                        if (!canvas) return;
+
+                        const dataObj = monthlyPerformanceData.value;
+                        const months = dataObj.months;
+
+                        if (months.length === 0) {
+                            if (performanceChartInstance) {
+                                performanceChartInstance.destroy();
+                                performanceChartInstance = null;
+                            }
+                            return;
+                        }
+
+                        const labels = months.map(m => (chartYearFilter.value === 'ALL' ? m.label : m.shortMonth));
+                        const values = chartViewMode.value === 'cumulative'
+                            ? months.map(m => m.cumulative)
+                            : months.map(m => m.profit);
+
+                        const ctx = canvas.getContext('2d');
+                        let gradient = null;
+                        if (ctx) {
+                            gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
+                            gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+                        }
+
+                        const isBar = chartViewMode.value === 'monthly';
+                        const barColors = months.map(m => m.profit >= 0 ? '#10b981' : '#f43f5e');
+
+                        if (performanceChartInstance) {
+                            performanceChartInstance.destroy();
+                        }
+
+                        performanceChartInstance = new Chart(canvas, {
+                            type: isBar ? 'bar' : 'line',
+                            data: {
+                                labels,
+                                datasets: [{
+                                    label: isBar ? 'Monthly Net P/L ($)' : 'Cumulative Net P/L ($)',
+                                    data: values,
+                                    borderColor: isBar ? undefined : '#10b981',
+                                    backgroundColor: isBar ? barColors : (gradient || 'rgba(16, 185, 129, 0.15)'),
+                                    fill: !isBar,
+                                    tension: 0.35,
+                                    borderWidth: 2,
+                                    pointRadius: months.length > 24 ? (isBar ? 0 : 2) : 4,
+                                    pointHoverRadius: 6,
+                                    pointBackgroundColor: '#10b981',
+                                    borderRadius: isBar ? 4 : 0
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                interaction: {
+                                    intersect: false,
+                                    mode: 'index'
+                                },
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: {
+                                        backgroundColor: '#1f2937',
+                                        borderColor: '#374151',
+                                        borderWidth: 1,
+                                        titleColor: '#f9fafb',
+                                        bodyColor: '#e5e7eb',
+                                        padding: 10,
+                                        callbacks: {
+                                            label: (context) => {
+                                                const val = context.raw || 0;
+                                                const monthItem = months[context.dataIndex];
+                                                const lines = [
+                                                    `${isBar ? 'Monthly P/L' : 'Cumulative P/L'}: ${val >= 0 ? '+' : ''}$${formatNumber(val)}`
+                                                ];
+                                                if (!isBar && monthItem) {
+                                                    lines.push(`Month Net: ${monthItem.profit >= 0 ? '+' : ''}$${formatNumber(monthItem.profit)} (${monthItem.trades} trades)`);
+                                                } else if (monthItem) {
+                                                    lines.push(`Closed Trades: ${monthItem.trades}`);
+                                                }
+                                                return lines;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        grid: { color: 'rgba(55, 65, 81, 0.3)' },
+                                        ticks: { color: '#9ca3af', font: { size: 10 }, maxRotation: 45 }
+                                    },
+                                    y: {
+                                        grid: { color: 'rgba(55, 65, 81, 0.4)' },
+                                        ticks: {
+                                            color: '#9ca3af',
+                                            font: { size: 10 },
+                                            callback: (value) => '$' + formatNumber(value)
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                };
+
+                watch([chartViewMode, chartYearFilter, chartAssetFilter, monthlyPerformanceData], () => {
+                    if (showAnalyticsHub.value && analyticsActiveTab.value === 'chart') {
+                        updatePerformanceChart();
+                    }
+                }, { deep: true });
+
+                watch(analyticsActiveTab, (newTab) => {
+                    if (newTab === 'chart' && showAnalyticsHub.value) {
+                        updatePerformanceChart();
+                    }
+                });
+
                 const formatNumber = (num) => {
                     if (num === undefined || isNaN(num)) return '0.00';
                     return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -4100,7 +4921,34 @@ No markdown fences or commentary outside the JSON.`;
                     stockYearlySummary,
                     paginatedStockRecords,
                     stockHistoryTotalPages,
-                    toggleStockHistorySort
+                    toggleStockHistorySort,
+                    // Enhancement 3 & 4 Returns
+                    totalPortfolioNetPL,
+                    stockHoldingsSortKey,
+                    stockHoldingsSortAsc,
+                    stockHoldingsSearch,
+                    toggleStockSort,
+                    sortedAndFilteredStockHoldings,
+                    holdingsTotals,
+                    ledgerSearchQuery,
+                    ledgerAssetFilter,
+                    ledgerActionFilter,
+                    ledgerPage,
+                    ledgerPerPage,
+                    filteredTransactions,
+                    ledgerTotalPages,
+                    paginatedTransactions,
+                    resetLedgerFilters,
+                    showAnalyticsHub,
+                    toggleAnalyticsHub,
+                    analyticsActiveTab,
+                    chartViewMode,
+                    chartYearFilter,
+                    chartAssetFilter,
+                    availableChartYears,
+                    monthlyPerformanceData,
+                    heatmapMatrixData,
+                    updatePerformanceChart
                 };
             }
         }).mount('#app');

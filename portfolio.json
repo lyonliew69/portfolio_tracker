@@ -42,13 +42,13 @@
     "action": "Buy",
     "originalAction": "Security Transfer",
     "quantity": 3,
-    "price": 48,
+    "price": 480,
     "fee": 0,
     "optionType": "Call",
     "strike": null,
     "expiration": "",
     "strategyName": "",
-    "totalValue": 144
+    "totalValue": 1440
   },
   {
     "rawIndex": 911,
