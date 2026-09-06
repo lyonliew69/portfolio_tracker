@@ -1,22 +1,5 @@
 [
   {
-    "rawIndex": 915,
-    "id": "schwab_20231212_915",
-    "date": "2023-12-12",
-    "assetType": "Option",
-    "ticker": "SPYM",
-    "action": "Buy to Open",
-    "originalAction": "Security Transfer",
-    "quantity": 1,
-    "price": 0.45,
-    "fee": 0,
-    "optionType": "Call",
-    "strike": 58,
-    "expiration": "2024-03-15",
-    "strategyName": "",
-    "totalValue": 45
-  },
-  {
     "rawIndex": 913,
     "id": "schwab_20231213_913",
     "date": "2023-12-13",
@@ -134,23 +117,6 @@
     "expiration": "",
     "strategyName": "",
     "totalValue": 1787
-  },
-  {
-    "rawIndex": 906,
-    "id": "schwab_20231218_906",
-    "date": "2023-12-18",
-    "assetType": "Option",
-    "ticker": "SPYM",
-    "action": "Sell to Close",
-    "originalAction": "Sell to Close",
-    "quantity": 1,
-    "price": 0.47,
-    "fee": 0.66,
-    "optionType": "Call",
-    "strike": 58,
-    "expiration": "2024-03-15",
-    "strategyName": "",
-    "totalValue": 46.34
   },
   {
     "rawIndex": 889,

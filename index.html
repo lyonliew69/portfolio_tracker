@@ -7,6 +7,19 @@
     <title>Portfolio Ledger: Stocks & Options</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gray-650': '#374151',
+                        'gray-750': '#242e3d',
+                        'gray-850': '#151d2a',
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Vue 3 CDN -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- Chart.js CDN -->
@@ -14,6 +27,22 @@
     <style>
         [v-cloak] {
             display: none;
+        }
+
+        input[type="date"] {
+            color-scheme: dark;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.75;
+            padding: 0;
+            margin: 0;
+            transition: opacity 0.15s;
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -764,7 +793,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <h2 @click="showHistory = !showHistory" class="text-lg font-semibold text-emerald-400 cursor-pointer flex items-center gap-2 select-none">
                             <span>Transaction History</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-750 border border-gray-600 text-gray-300 font-mono">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-800 border border-gray-700 text-gray-300 font-mono">
                                 {{ filteredTransactions.length }} <span v-if="filteredTransactions.length !== transactions.length">of {{ transactions.length }}</span> Records
                             </span>
                             <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -773,50 +802,93 @@
                         <!-- Per Page & Reset if opened -->
                         <div v-show="showHistory" class="flex items-center gap-2 text-xs">
                             <span class="text-gray-400">Show:</span>
-                            <select v-model.number="ledgerPerPage" @change="ledgerPage = 1" class="bg-gray-700 border border-gray-600 text-gray-200 rounded px-2 py-1 text-xs">
-                                <option :value="15">15</option>
-                                <option :value="25">25</option>
-                                <option :value="50">50</option>
-                                <option :value="100">100</option>
-                                <option :value="-1">All</option>
+                            <select v-model.number="ledgerPerPage" @change="ledgerPage = 1" class="bg-gray-700 border border-gray-600 text-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
+                                <option :value="15" class="bg-gray-800 text-gray-200">15</option>
+                                <option :value="25" class="bg-gray-800 text-gray-200">25</option>
+                                <option :value="50" class="bg-gray-800 text-gray-200">50</option>
+                                <option :value="100" class="bg-gray-800 text-gray-200">100</option>
+                                <option :value="-1" class="bg-gray-800 text-gray-200">All</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Ledger Filter Bar -->
-                    <div v-show="showHistory" class="bg-gray-850 p-3 rounded-lg border border-gray-750 mb-4 space-y-2.5">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                            <!-- Search -->
-                            <div class="relative">
-                                <input type="text" v-model="ledgerSearchQuery" @input="ledgerPage = 1" placeholder="Search ticker, strategy, action..."
-                                    class="w-full bg-gray-750 border border-gray-600 rounded px-2.5 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500">
-                                <button v-if="ledgerSearchQuery" @click="ledgerSearchQuery = ''; ledgerPage = 1" class="absolute right-2 top-1.5 text-gray-400 hover:text-white text-xs">✕</button>
+                    <!-- Multi-Dimensional Ledger Filter Controls Bar -->
+                    <div v-show="showHistory" class="bg-gray-850 border border-gray-750 rounded-xl p-3.5 space-y-3 mb-4">
+                        <!-- Top Row: Year Selector Pills & Reset Button -->
+                        <div class="flex flex-wrap items-center justify-between gap-2.5">
+                            <!-- Year Pills -->
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    Year:
+                                </span>
+                                <button type="button" @click="setLedgerYear('ALL')"
+                                    :class="ledgerYearFilter === 'ALL' && !ledgerDateFrom && !ledgerDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'"
+                                    class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                    All Years
+                                </button>
+                                <button v-for="y in availableLedgerYears" :key="y" type="button" @click="setLedgerYear(y)"
+                                    :class="ledgerYearFilter === y && !ledgerDateFrom && !ledgerDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'"
+                                    class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                    {{ y }}
+                                </button>
+                            </div>
+
+                            <!-- Reset / Clear Button -->
+                            <button v-if="hasActiveLedgerFilters" @click="resetLedgerFilters"
+                                class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 border border-gray-700">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                Reset Filters
+                            </button>
+                        </div>
+
+                        <!-- Bottom Row: Date Range, Asset, Action, and Search -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2.5 pt-1 text-xs">
+                            <!-- Date From -->
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500 transition overflow-hidden">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
+                                <input type="date" v-model="ledgerDateFrom" @change="ledgerYearFilter = 'CUSTOM'; ledgerPage = 1"
+                                    class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                            </div>
+
+                            <!-- Date To -->
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500 transition overflow-hidden">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
+                                <input type="date" v-model="ledgerDateTo" @change="ledgerYearFilter = 'CUSTOM'; ledgerPage = 1"
+                                    class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
                             </div>
 
                             <!-- Asset Filter -->
-                            <select v-model="ledgerAssetFilter" @change="ledgerPage = 1" class="bg-gray-750 border border-gray-600 text-gray-200 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
-                                <option value="ALL">All Asset Types</option>
-                                <option value="Stock">Stocks Only</option>
-                                <option value="Option">Options Only</option>
-                                <option value="Spread">Spreads / Multi-Leg</option>
-                            </select>
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500 transition">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">Asset:</span>
+                                <select v-model="ledgerAssetFilter" @change="ledgerPage = 1" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs cursor-pointer">
+                                    <option value="ALL" class="bg-gray-800 text-gray-200">All Asset Types</option>
+                                    <option value="Stock" class="bg-gray-800 text-gray-200">Stocks Only</option>
+                                    <option value="Option" class="bg-gray-800 text-gray-200">Options Only</option>
+                                    <option value="Spread" class="bg-gray-800 text-gray-200">Spreads / Multi-Leg</option>
+                                </select>
+                            </div>
 
                             <!-- Action Filter -->
-                            <div class="flex gap-2">
-                                <select v-model="ledgerActionFilter" @change="ledgerPage = 1" class="flex-1 bg-gray-750 border border-gray-600 text-gray-200 rounded px-2.5 py-1.5 text-xs focus:outline-none focus:border-emerald-500">
-                                    <option value="ALL">All Trade Actions</option>
-                                    <option value="Buy">Buys</option>
-                                    <option value="Sell">Sells</option>
-                                    <option value="Open">Opens (Buy/Sell to Open)</option>
-                                    <option value="Close">Closes (Buy/Sell to Close)</option>
-                                    <option value="Expire">Expires / Assigned / Exercised</option>
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500 transition">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">Action:</span>
+                                <select v-model="ledgerActionFilter" @change="ledgerPage = 1" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs cursor-pointer">
+                                    <option value="ALL" class="bg-gray-800 text-gray-200">All Trade Actions</option>
+                                    <option value="Buy" class="bg-gray-800 text-gray-200">Buys</option>
+                                    <option value="Sell" class="bg-gray-800 text-gray-200">Sells</option>
+                                    <option value="Open" class="bg-gray-800 text-gray-200">Opens (Buy/Sell to Open)</option>
+                                    <option value="Close" class="bg-gray-800 text-gray-200">Closes (Buy/Sell to Close)</option>
+                                    <option value="Expire" class="bg-gray-800 text-gray-200">Expires / Assigned / Exercised</option>
                                 </select>
-                                <button v-if="ledgerSearchQuery || ledgerAssetFilter !== 'ALL' || ledgerActionFilter !== 'ALL'"
-                                    @click="resetLedgerFilters"
-                                    class="px-2 py-1 bg-gray-700 hover:bg-gray-650 text-gray-300 hover:text-white rounded border border-gray-600 text-[11px] whitespace-nowrap transition">
-                                    Reset
-                                </button>
                             </div>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="flex items-center gap-2 bg-gray-800/90 border border-gray-700 rounded-lg px-3 py-1.5 focus-within:border-emerald-500 transition">
+                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" v-model="ledgerSearchQuery" @input="ledgerPage = 1" placeholder="Search ticker symbol, trade action, strategy name, or date..."
+                                class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
+                            <button v-if="ledgerSearchQuery" @click="ledgerSearchQuery = ''; ledgerPage = 1" class="text-gray-400 hover:text-white text-xs">✕</button>
                         </div>
                     </div>
 
@@ -873,7 +945,7 @@
                                 </tr>
                                 <tr v-if="filteredTransactions.length === 0">
                                     <td colspan="8" class="py-8 text-center text-gray-500 text-sm">
-                                        <span v-if="ledgerSearchQuery || ledgerAssetFilter !== 'ALL' || ledgerActionFilter !== 'ALL'">
+                                        <span v-if="hasActiveLedgerFilters">
                                             No transactions match active filters.
                                             <button @click="resetLedgerFilters" class="block mx-auto mt-2 text-emerald-400 underline text-xs">Reset filters</button>
                                         </span>
@@ -1506,17 +1578,17 @@
                     <!-- Date Range, Ticker, Action Type, and Search -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
                         <!-- Date From -->
-                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">From:</span>
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
                             <input type="date" v-model="historyDateFrom" @change="historyYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
                         </div>
 
                         <!-- Date To -->
-                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">To:</span>
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
                             <input type="date" v-model="historyDateTo" @change="historyYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
                         </div>
 
                         <!-- Ticker Filter -->
@@ -1873,17 +1945,17 @@
                     <!-- Date Range, Ticker, Outcome, and Search -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
                         <!-- Date From -->
-                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">From:</span>
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
                             <input type="date" v-model="stockHistoryDateFrom" @change="stockHistoryYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
                         </div>
 
                         <!-- Date To -->
-                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">To:</span>
+                        <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
                             <input type="date" v-model="stockHistoryDateTo" @change="stockHistoryYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs [color-scheme:dark]">
+                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
                         </div>
 
                         <!-- Ticker Filter -->
@@ -2160,9 +2232,12 @@
                 const notification = ref({ message: '', type: 'success' });
 
                 // Realized Options History Modal State
+                const currentYear = new Date().getFullYear().toString();
+
+                // Realized Options History Modal State
                 const showOptionsHistoryModal = ref(false);
                 const historyActiveTab = ref('trades'); // 'trades' | 'yearly'
-                const historyYearFilter = ref('ALL');
+                const historyYearFilter = ref(currentYear);
                 const historyDateFrom = ref('');
                 const historyDateTo = ref('');
                 const historyTickerFilter = ref('');
@@ -2182,7 +2257,7 @@
                 };
 
                 const resetHistoryFilters = () => {
-                    historyYearFilter.value = 'ALL';
+                    historyYearFilter.value = currentYear;
                     historyDateFrom.value = '';
                     historyDateTo.value = '';
                     historyTickerFilter.value = '';
@@ -2201,7 +2276,7 @@
                 // Realized Stock History Modal State
                 const showStockHistoryModal = ref(false);
                 const stockHistoryActiveTab = ref('trades'); // 'trades' | 'yearly'
-                const stockHistoryYearFilter = ref('ALL');
+                const stockHistoryYearFilter = ref(currentYear);
                 const stockHistoryDateFrom = ref('');
                 const stockHistoryDateTo = ref('');
                 const stockHistoryTickerFilter = ref('');
@@ -2221,7 +2296,7 @@
                 };
 
                 const resetStockHistoryFilters = () => {
-                    stockHistoryYearFilter.value = 'ALL';
+                    stockHistoryYearFilter.value = currentYear;
                     stockHistoryDateFrom.value = '';
                     stockHistoryDateTo.value = '';
                     stockHistoryTickerFilter.value = '';
@@ -2247,7 +2322,7 @@
                 const showAnalyticsHub = ref(localStorage.getItem('show_analytics_hub') !== 'false');
                 const analyticsActiveTab = ref('chart'); // 'chart' | 'matrix'
                 const chartViewMode = ref('cumulative'); // 'cumulative' | 'monthly'
-                const chartYearFilter = ref('ALL');
+                const chartYearFilter = ref(currentYear);
                 const chartAssetFilter = ref('all'); // 'all' | 'stock' | 'option'
 
                 const toggleAnalyticsHub = () => {
@@ -2267,6 +2342,9 @@
                 const ledgerSearchQuery = ref('');
                 const ledgerAssetFilter = ref('ALL'); // 'ALL' | 'Stock' | 'Option' | 'Spread'
                 const ledgerActionFilter = ref('ALL');
+                const ledgerYearFilter = ref(currentYear);
+                const ledgerDateFrom = ref('');
+                const ledgerDateTo = ref('');
                 const ledgerPage = ref(1);
                 const ledgerPerPage = ref(25);
 
@@ -3287,6 +3365,7 @@ No markdown fences or commentary outside the JSON.`;
 
                 const availableStockHistoryYears = computed(() => {
                     const yearSet = new Set(allRealizedStockRecords.value.map(r => r.year).filter(Boolean));
+                    yearSet.add(currentYear);
                     return Array.from(yearSet).sort().reverse();
                 });
 
@@ -3571,6 +3650,7 @@ No markdown fences or commentary outside the JSON.`;
 
                 const availableHistoryYears = computed(() => {
                     const yearSet = new Set(allRealizedOptionsRecords.value.map(r => r.year).filter(Boolean));
+                    yearSet.add(currentYear);
                     return Array.from(yearSet).sort().reverse();
                 });
 
@@ -3824,8 +3904,63 @@ No markdown fences or commentary outside the JSON.`;
                 });
 
                 // Enhancement 4: Main Transaction Ledger (Search, Filters, Pagination)
+                const availableLedgerYears = computed(() => {
+                    const yearSet = new Set();
+                    yearSet.add(currentYear);
+                    transactions.value.forEach(tx => {
+                        if (tx.date && tx.date.length >= 4) {
+                            const yr = tx.date.substring(0, 4);
+                            if (/^\d{4}$/.test(yr)) {
+                                yearSet.add(yr);
+                            }
+                        }
+                    });
+                    return Array.from(yearSet).sort().reverse();
+                });
+
+                const setLedgerYear = (year) => {
+                    ledgerYearFilter.value = year;
+                    ledgerDateFrom.value = '';
+                    ledgerDateTo.value = '';
+                    ledgerPage.value = 1;
+                };
+
+                const resetLedgerFilters = () => {
+                    ledgerYearFilter.value = currentYear;
+                    ledgerDateFrom.value = '';
+                    ledgerDateTo.value = '';
+                    ledgerSearchQuery.value = '';
+                    ledgerAssetFilter.value = 'ALL';
+                    ledgerActionFilter.value = 'ALL';
+                    ledgerPage.value = 1;
+                };
+
+                const hasActiveLedgerFilters = computed(() => {
+                    return !!(
+                        ledgerSearchQuery.value ||
+                        ledgerAssetFilter.value !== 'ALL' ||
+                        ledgerActionFilter.value !== 'ALL' ||
+                        ledgerYearFilter.value !== currentYear ||
+                        ledgerDateFrom.value ||
+                        ledgerDateTo.value
+                    );
+                });
+
                 const filteredTransactions = computed(() => {
                     let list = sortedTransactions.value;
+
+                    // Year Filter
+                    if (ledgerYearFilter.value !== 'ALL' && ledgerYearFilter.value !== 'CUSTOM') {
+                        list = list.filter(tx => tx.date && tx.date.startsWith(ledgerYearFilter.value));
+                    }
+
+                    // Date range filters
+                    if (ledgerDateFrom.value) {
+                        list = list.filter(tx => tx.date && tx.date >= ledgerDateFrom.value);
+                    }
+                    if (ledgerDateTo.value) {
+                        list = list.filter(tx => tx.date && tx.date <= ledgerDateTo.value);
+                    }
 
                     // Asset Filter
                     if (ledgerAssetFilter.value !== 'ALL') {
@@ -3875,16 +4010,10 @@ No markdown fences or commentary outside the JSON.`;
                     return filteredTransactions.value.slice(start, start + ledgerPerPage.value);
                 });
 
-                const resetLedgerFilters = () => {
-                    ledgerSearchQuery.value = '';
-                    ledgerAssetFilter.value = 'ALL';
-                    ledgerActionFilter.value = 'ALL';
-                    ledgerPage.value = 1;
-                };
-
                 // Enhancement 3: Performance Analytics Hub Computations & Visuals
                 const availableChartYears = computed(() => {
                     const yearSet = new Set();
+                    yearSet.add(currentYear);
                     allRealizedStockRecords.value.forEach(r => { if (r.year) yearSet.add(r.year); });
                     allRealizedOptionsRecords.value.forEach(r => { if (r.year) yearSet.add(r.year); });
                     return Array.from(yearSet).sort().reverse();
@@ -4930,9 +5059,16 @@ No markdown fences or commentary outside the JSON.`;
                     toggleStockSort,
                     sortedAndFilteredStockHoldings,
                     holdingsTotals,
+                    currentYear,
                     ledgerSearchQuery,
                     ledgerAssetFilter,
                     ledgerActionFilter,
+                    ledgerYearFilter,
+                    ledgerDateFrom,
+                    ledgerDateTo,
+                    availableLedgerYears,
+                    setLedgerYear,
+                    hasActiveLedgerFilters,
                     ledgerPage,
                     ledgerPerPage,
                     filteredTransactions,
