@@ -518,12 +518,14 @@
             </div>
         </div>
 
-        <!-- Notification Banner -->
+        <!-- Floating Notification Toast -->
         <div v-if="notification.message"
-            :class="notification.type === 'error' ? 'bg-rose-950 border-rose-800 text-rose-300' : 'bg-emerald-950 border-emerald-800 text-emerald-300'"
-            class="p-3 mb-6 rounded border text-sm flex justify-between items-center transition">
-            <span>{{ notification.message }}</span>
-            <button @click="notification.message = ''" class="text-xs font-bold hover:text-white">✕</button>
+            :class="notification.type === 'error' ? 'bg-rose-950/95 border-rose-700 text-rose-200 shadow-rose-950/50' : (notification.type === 'warning' ? 'bg-amber-950/95 border-amber-700 text-amber-200 shadow-amber-950/50' : 'bg-emerald-950/95 border-emerald-700 text-emerald-200 shadow-emerald-950/50')"
+            class="fixed bottom-6 right-6 z-[9999] max-w-md p-3.5 rounded-xl border text-xs sm:text-sm shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 transition-all">
+            <div class="flex items-center gap-2">
+                <span>{{ notification.message }}</span>
+            </div>
+            <button @click="notification.message = ''" class="text-xs font-bold text-gray-400 hover:text-white p-1">✕</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1938,6 +1940,47 @@
                     </button>
                 </div>
 
+                <!-- Error Notice Banner (Inside Modal) -->
+                <div v-if="deepResearchError"
+                    class="p-3.5 bg-rose-950/80 border border-rose-800 rounded-xl text-xs text-rose-200 flex items-start justify-between gap-3 shadow-lg">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <div class="font-bold text-rose-300">AI Research Notice</div>
+                            <div class="mt-0.5 text-gray-200 leading-relaxed">{{ deepResearchError }}</div>
+                            <div v-if="deepResearchError.includes('429') || deepResearchError.includes('demand') || deepResearchError.includes('rate') || deepResearchError.includes('quota') || deepResearchError.includes('busy')" class="mt-2 flex items-center gap-2 flex-wrap">
+                                <button @click="enableSearchGrounding = false; deepResearchError = ''; deepResearchTab === 'portfolio' ? generateDailyPortfolioResearch() : generateSingleTickerResearch(singleTickerQuery)"
+                                    class="px-2.5 py-1 bg-rose-800 hover:bg-rose-700 text-white rounded text-[11px] font-semibold transition">
+                                    ⚡ Retry with Standard AI (Bypass Search Quota)
+                                </button>
+                                <button v-if="deepResearchError.includes('429') || deepResearchError.includes('quota')"
+                                    @click="deepResearchError = ''; deepResearchTab === 'portfolio' ? generateDailyPortfolioResearch() : generateSingleTickerResearch(singleTickerQuery)"
+                                    class="px-2.5 py-1 bg-gray-800 hover:bg-gray-750 text-gray-200 border border-gray-700 rounded text-[11px] font-medium transition">
+                                    🔄 Retry Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button @click="deepResearchError = ''" class="text-gray-400 hover:text-white font-bold p-1">✕</button>
+                </div>
+
+                <!-- Search Grounding Mode Toggle Bar -->
+                <div class="flex items-center justify-between px-1 text-xs text-gray-400">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" v-model="enableSearchGrounding" @change="saveSearchGroundingPref"
+                            class="rounded bg-gray-800 border-gray-700 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                        <span class="flex items-center gap-1.5 text-gray-300 font-medium">
+                            <span>Live Google Search Grounding</span>
+                            <span v-if="enableSearchGrounding" class="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-bold">ACTIVE</span>
+                            <span v-else class="px-1.5 py-0.2 rounded text-[10px] bg-gray-800 border border-gray-700 text-gray-400 font-mono font-normal">OFF (Standard AI)</span>
+                        </span>
+                    </label>
+                    <span class="text-[11px] text-gray-500 hidden sm:inline">Turn OFF if your Gemini key hits search rate limits.</span>
+                </div>
+
                 <!-- Navigation Tabs & Action Bar -->
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-850/80 p-2.5 rounded-xl border border-gray-800">
                     <!-- Tab Buttons -->
@@ -2051,6 +2094,11 @@
                                     </a>
                                 </div>
                             </div>
+                            <div v-else-if="deepResearchReport && enableSearchGrounding"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-3 text-xs text-gray-400 flex items-center gap-2">
+                                <span class="text-amber-400">⚡</span>
+                                <span>Note: Google Search Grounding was busy; analysis was completed successfully using standard Gemini analytical models.</span>
+                            </div>
                         </div>
 
                         <!-- Empty State -->
@@ -2138,7 +2186,7 @@
                                 </svg>
                             </div>
                             <h4 class="text-sm font-bold text-white">
-                                Analyzing {{ singleTickerQuery }} with Live Google Finance...
+                                {{ singleTickerProgress || ('Analyzing ' + singleTickerQuery + ' with Live Google Finance...') }}
                             </h4>
                             <p class="text-xs text-gray-400 max-w-sm mx-auto">
                                 Retrieving valuation multiples, Wall Street price targets, Bull/Bear thesis, and options implied volatility.
@@ -2169,6 +2217,11 @@
                                         </svg>
                                     </a>
                                 </div>
+                            </div>
+                            <div v-else-if="singleTickerReport && enableSearchGrounding"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-3 text-xs text-gray-400 flex items-center gap-2">
+                                <span class="text-amber-400">⚡</span>
+                                <span>Note: Google Search Grounding was busy; analysis generated using standard Gemini models.</span>
                             </div>
                         </div>
 
@@ -3418,8 +3471,16 @@
                 const singleTickerReport = ref('');
                 const singleTickerSources = ref([]);
                 const isGeneratingTickerResearch = ref(false);
+                const singleTickerProgress = ref('');
+                const enableSearchGrounding = ref(localStorage.getItem('gemini_search_grounding') !== 'false');
+                const deepResearchError = ref('');
+
+                const saveSearchGroundingPref = () => {
+                    localStorage.setItem('gemini_search_grounding', enableSearchGrounding.value);
+                };
 
                 const openDeepResearchModal = () => {
+                    deepResearchError.value = '';
                     showDeepResearchModal.value = true;
                 };
 
@@ -3894,7 +3955,7 @@ function doPost(e) {
                 const callGeminiAPI = async (prompt, useSearchGrounding = false) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) return null;
                     const key = geminiApiKey.value.trim();
-                    const model = 'gemini-flash-latest';
+                    const model = 'gemini-3.5-flash';
 
                     const reqBody = {
                         contents: [{ parts: [{ text: prompt }] }]
@@ -3907,13 +3968,9 @@ function doPost(e) {
                         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(reqBody)
+                            body: JSON.stringify(reqBody),
+                            signal: AbortSignal.timeout(300000) // 300s timeout
                         });
-
-                        // If search grounding was rejected (e.g. 429 quota), gracefully retry without grounding tool
-                        if (!res.ok && useSearchGrounding) {
-                            return await callGeminiAPI(prompt, false);
-                        }
 
                         if (!res.ok) {
                             const err = await res.json().catch(() => ({}));
@@ -3922,7 +3979,8 @@ function doPost(e) {
                         }
 
                         const data = await res.json();
-                        return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+                        const candidate = data.candidates?.[0];
+                        return candidate?.content?.parts?.map(p => p.text || '').filter(Boolean).join('\n') || null;
                     } catch (e) {
                         console.error('Gemini request failed:', e);
                         return null;
@@ -4042,48 +4100,87 @@ function doPost(e) {
                     return html;
                 };
 
-                const callGeminiResearchAPI = async (prompt) => {
+                const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+
+                const callGeminiResearchAPI = async (prompt, onStatusUpdate) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
                         throw new Error('Google Gemini API Key is missing. Please enter your key in API & AI Settings.');
                     }
                     const key = geminiApiKey.value.trim();
-                    const model = 'gemini-flash-latest';
+                    // Fast and stable models: gemini-3.5-flash priority, followed by flash-latest/3.8/3.7
+                    const candidateModels = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
 
-                    const reqBody = {
-                        contents: [{ parts: [{ text: prompt }] }],
-                        tools: [{ google_search: {} }]
+                    const tryGenerate = async (modelName, withSearch) => {
+                        const payload = {
+                            contents: [{ parts: [{ text: prompt }] }]
+                        };
+                        if (withSearch) {
+                            payload.tools = [{ google_search: {} }];
+                        }
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
+                        let res;
+                        try {
+                            res = await fetch(url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload),
+                                signal: AbortSignal.timeout(300000) // 300s timeout for Deep Research
+                            });
+                        } catch (netErr) {
+                            if (netErr.name === 'TimeoutError' || netErr.name === 'AbortError') {
+                                const timeoutErr = new Error(`Request to ${modelName} timed out (exceeded 300s limit).`);
+                                timeoutErr.status = 504;
+                                throw timeoutErr;
+                            }
+                            throw netErr;
+                        }
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            const msg = data.error?.message || `API error ${res.status}`;
+                            const err = new Error(msg);
+                            err.status = res.status;
+                            err.data = data;
+                            throw err;
+                        }
+                        return data;
                     };
 
-                    let res;
-                    try {
-                        res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(reqBody)
-                        });
-                    } catch (netErr) {
-                        throw new Error(`Network error connecting to Gemini API: ${netErr.message}`);
-                    }
+                    let responseData = null;
+                    let usedSearch = false;
+                    let lastError = null;
 
-                    // Fallback without search tool if grounding error or quota limitation
-                    if (!res.ok) {
-                        const errJson = await res.json().catch(() => ({}));
-                        console.warn('Gemini research with search tool failed, retrying standard analysis:', res.status, errJson);
-                        const fallbackBody = { contents: [{ parts: [{ text: prompt }] }] };
-                        res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(fallbackBody)
-                        });
-                        if (!res.ok) {
-                            const err2 = await res.json().catch(() => ({}));
-                            throw new Error(err2.error?.message || `Gemini API error ${res.status}`);
+                    const withSearch = enableSearchGrounding.value;
+
+                    for (const model of candidateModels) {
+                        try {
+                            if (onStatusUpdate) {
+                                onStatusUpdate(withSearch 
+                                    ? `Connecting to Google Finance & Market Data (${model})...` 
+                                    : `Analyzing portfolio with ${model}...`);
+                            }
+                            responseData = await tryGenerate(model, withSearch);
+                            usedSearch = withSearch;
+                            break;
+                        } catch (err) {
+                            lastError = err;
+                            console.warn(`Gemini generation with ${model} failed (${err.status || ''}):`, err.message);
+                            // Only try next candidate model if current endpoint is not found (404)
+                            if (err.status === 404) {
+                                continue;
+                            }
+                            // No auto-retry on 429, 400, 500, etc. Fail immediately.
+                            break;
                         }
                     }
 
-                    const data = await res.json();
-                    const candidate = data.candidates?.[0];
-                    const text = candidate?.content?.parts?.[0]?.text || '';
+                    if (!responseData) {
+                        throw new Error(lastError?.message || 'Failed to generate analysis. Please try again.');
+                    }
+
+                    const candidate = responseData.candidates?.[0];
+                    const text = candidate?.content?.parts?.map(p => p.text || '').filter(Boolean).join('\n') || '';
                     if (!text) {
                         throw new Error('Gemini returned an empty response. Please try again.');
                     }
@@ -4101,7 +4198,12 @@ function doPost(e) {
                         });
                     }
 
-                    return { text, sources, searchQueries: metadata?.webSearchQueries || [] };
+                    return { 
+                        text, 
+                        sources, 
+                        searchQueries: metadata?.webSearchQueries || [],
+                        usedSearch
+                    };
                 };
 
                 const generateDailyPortfolioResearch = async () => {
@@ -4111,71 +4213,53 @@ function doPost(e) {
                         return;
                     }
 
+                    deepResearchError.value = '';
                     isGeneratingResearch.value = true;
                     deepResearchProgress.value = 'Gathering portfolio stocks and options...';
 
                     const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
                     
                     const stocksList = (computedStockHoldings.value || []).map(s => 
-                        `- ${s.symbol}: ${s.quantity} shares | Avg Cost: $${formatNumber(s.avgCost)} | Current Price: $${formatNumber(s.currentPrice)} | Market Val: $${formatNumber(s.marketValue)} | P/L: ${s.unrealizedPL >= 0 ? '+' : ''}$${formatNumber(s.unrealizedPL)} (${s.unrealizedPercent.toFixed(1)}%)`
-                    ).join('\n') || 'No open stock holdings.';
+                        `- ${s.symbol}: ${s.quantity} shs @ $${formatNumber(s.avgCost)} (Now $${formatNumber(s.currentPrice)}, P/L ${s.unrealizedPercent.toFixed(1)}%)`
+                    ).join('\n') || 'None';
 
                     const optionsList = (computedOptionHoldings.value || []).map(o => 
-                        `- ${o.symbol}: ${o.quantity} contracts | ${o.positionType} ${o.optionType || o.strategyName || 'Option'} | Strike: $${o.strike || 'N/A'} | Exp: ${o.expiration || 'N/A'} | Total Cost: $${formatNumber(o.totalCost)}`
-                    ).join('\n') || 'No active options or spread positions.';
+                        `- ${o.symbol}: ${o.quantity}x ${o.positionType} ${o.optionType || o.strategyName || 'Option'} $${o.strike || 'N/A'} exp ${o.expiration || 'N/A'}`
+                    ).join('\n') || 'None';
 
-                    const prompt = `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
-Conduct a comprehensive, institutional-grade daily market analysis for today (${todayDate}) based on the investor's exact portfolio below.
-USE GOOGLE SEARCH GROUNDING TO RETRIEVE LIVE GOOGLE FINANCE DATA, CURRENT INDEX/VIX LEVELS, UPCOMING EARNINGS DATES, AND BREAKING MARKET NEWS.
+                    const prompt = `Provide a daily market & portfolio briefing for ${todayDate}.
 
-=== INVESTOR PORTFOLIO HOLDINGS ===
-STOCKS HELD:
+PORTFOLIO:
+Stocks:
 ${stocksList}
-
-ACTIVE OPTIONS & SPREADS:
+Options:
 ${optionsList}
 
-PORTFOLIO TOTAL STOCK MARKET VALUE: $${formatNumber(holdingsTotals.value.marketValue)}
-REALIZED NET PROFIT TO DATE: $${formatNumber(totalPortfolioNetPL.value)}
-=== END PORTFOLIO ===
+Output in Markdown:
+## 1. 🌐 Market Overview
+- S&P 500, Nasdaq, VIX status, and macro trends today.
 
-Please generate a high-conviction, professional report structured in Markdown with these exact sections:
+## 2. 📈 Held Stocks & Catalysts
+- Key price action, earnings dates, and news for held tickers.
 
-## 1. 🌐 Daily Macro Pulse & Market Sentiment
-- Current status of S&P 500, Nasdaq, 10-Year Treasury Yield, and CBOE VIX today.
-- Today's top market drivers (Fed policy expectations, economic data, major sector rotations).
-- How today's broader market environment directly influences the user's specific assets.
+## 3. ⚡ Options & Risk Radar
+- Upcoming expirations, moneyness, and assignment risks.
 
-## 2. 📈 Held Stocks: Catalyst, News & Valuation Radar
-- For each stock held in the portfolio:
-  - Explain today's price action and recent catalyst.
-  - Upcoming earnings announcement date and major expected events.
-  - Wall Street consensus view, price target range, and key technical support/resistance levels.
-
-## 3. ⚡ Active Options & Greeks Expiration Radar
-- Expiration clock: Flag any options contracts with fewer than 14–21 Days to Expiration (DTE).
-- Moneyness & early assignment risk (especially for short covered calls or short puts).
-- Strategic guidance: Whether to hold for remaining theta decay, roll out and up/down, or close position to lock in capital.
-
-## 4. 🎯 Strategic Portfolio Health & Tactical Action Items
-- Concentration and diversification check (sector risk assessment).
-- Hedging opportunities or covered call writing ideas on 100+ share lots.
-- 3 clear, prioritized tactical action items for the investor today.
-
-Maintain an objective, analytical, and highly actionable tone. Ground all insights with today's real market prices and verified corporate news.`;
+## 4. 🎯 Tactical Action Items
+- 3 prioritized action items for the portfolio today.`;
 
                     const progressTimer = setInterval(() => {
                         if (deepResearchProgress.value.includes('Gathering')) {
                             deepResearchProgress.value = 'Searching Google Finance & live market news...';
-                        } else if (deepResearchProgress.value.includes('Searching')) {
+                        } else if (deepResearchProgress.value.includes('Searching') && !deepResearchProgress.value.includes('(') && !deepResearchProgress.value.includes('retrying') && !deepResearchProgress.value.includes('quota')) {
                             deepResearchProgress.value = 'Analyzing stock catalysts & options risk...';
-                        } else if (deepResearchProgress.value.includes('Analyzing')) {
-                            deepResearchProgress.value = 'Synthesizing institutional report...';
                         }
-                    }, 2800);
+                    }, 3000);
 
                     try {
-                        const res = await callGeminiResearchAPI(prompt);
+                        const res = await callGeminiResearchAPI(prompt, (status) => {
+                            deepResearchProgress.value = status;
+                        });
                         deepResearchReport.value = res.text;
                         deepResearchSources.value = res.sources;
                         deepResearchTimestamp.value = new Date().toLocaleString();
@@ -4184,9 +4268,14 @@ Maintain an objective, analytical, and highly actionable tone. Ground all insigh
                         localStorage.setItem('deep_research_sources', JSON.stringify(res.sources));
                         localStorage.setItem('deep_research_timestamp', deepResearchTimestamp.value);
                         
-                        showNotification('Daily AI Market Research generated successfully!', 'success');
+                        if (res.usedSearch) {
+                            showNotification('Daily AI Market Research generated with Live Google Finance!', 'success');
+                        } else {
+                            showNotification('Daily AI Market Research generated (Standard Gemini fallback)!', 'success');
+                        }
                     } catch (e) {
                         console.error('Deep Research Error:', e);
+                        deepResearchError.value = e.message;
                         showNotification(`Analysis generation failed: ${e.message}`, 'error');
                     } finally {
                         clearInterval(progressTimer);
@@ -4207,45 +4296,46 @@ Maintain an objective, analytical, and highly actionable tone. Ground all insigh
                         return;
                     }
 
+                    deepResearchError.value = '';
                     singleTickerQuery.value = sym;
                     isGeneratingTickerResearch.value = true;
 
                     const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-                    const prompt = `You are an equity research analyst.
-Conduct an in-depth, institutional-grade research analysis on ticker symbol: ${sym} for today (${todayDate}).
-USE GOOGLE SEARCH GROUNDING TO CHECK LIVE GOOGLE FINANCE QUOTES, RECENT EARNINGS REPORTS, WALL STREET PRICE TARGETS, AND BREAKING NEWS.
+                    const prompt = `Provide a concise equity research briefing for ${sym} (${todayDate}).
 
-Format your output in clean Markdown:
-## 1. 📊 Executive Summary & Today's Performance
-- Current real-time price, intraday % change, 52-week high/low, and market capitalization.
-- Brief overview of business model and core revenue drivers.
+Format in Markdown:
+## 1. 📊 Overview & Price
+- Current price, intraday % change, 52-week range, and P/E ratio.
 
-## 2. 🐂 Bull Case vs 🐻 Bear Case
-- Top 3 Bullish catalysts and long-term tailwinds.
-- Top 3 Bearish headwinds, competitive threats, or valuation risks.
+## 2. 🐂 Bull vs 🐻 Bear Case
+- Top 2 catalysts (Bull) and top 2 risks (Bear).
 
-## 3. 🎯 Fundamentals, Valuation & Earnings Calendar
-- Key financial metrics: P/E, Forward P/E, Revenue Growth (YoY), Free Cash Flow.
-- Next scheduled earnings date and Wall Street average analyst price target (% upside/downside).
+## 3. 🎯 Valuation & Earnings
+- Next earnings date and Wall Street average price target.
 
-## 4. ⚡ Technical Levels & Options Volatility
-- Key support and resistance price levels, moving average trends.
-- Implied Volatility (IV) regime and options playbook (e.g. Covered Call, Cash-Secured Put, Long Stock, or Wait).
+## 4. ⚡ Technicals & Verdict
+- Key support/resistance levels and bottom-line verdict (Buy/Hold/Sell) with reasoning.`;
 
-## 5. 💡 Strategic Verdict & Rating
-- Bottom-line investment verdict (Strong Buy / Buy / Hold / Trim / Sell) with clear justification.`;
-
+                    singleTickerProgress.value = `Analyzing ${sym} with Live Google Finance...`;
                     try {
-                        const res = await callGeminiResearchAPI(prompt);
+                        const res = await callGeminiResearchAPI(prompt, (status) => {
+                            singleTickerProgress.value = status;
+                        });
                         singleTickerReport.value = res.text;
                         singleTickerSources.value = res.sources;
-                        showNotification(`Deep Research completed for ${sym}!`, 'success');
+                        if (res.usedSearch) {
+                            showNotification(`Deep Research completed for ${sym} with Live Search!`, 'success');
+                        } else {
+                            showNotification(`Deep Research completed for ${sym} (Standard Gemini)!`, 'success');
+                        }
                     } catch (e) {
                         console.error('Ticker Research Error:', e);
+                        deepResearchError.value = e.message;
                         showNotification(`Failed to research ${sym}: ${e.message}`, 'error');
                     } finally {
                         isGeneratingTickerResearch.value = false;
+                        singleTickerProgress.value = '';
                     }
                 };
 
@@ -6670,7 +6760,11 @@ No markdown fences or commentary outside the JSON.`;
                     generateSingleTickerResearch,
                     copyResearchReport,
                     formatResearchMarkdown,
-                    allHeldTickers
+                    allHeldTickers,
+                    enableSearchGrounding,
+                    saveSearchGroundingPref,
+                    deepResearchError,
+                    singleTickerProgress
                 };
             }
         }).mount('#app');
