@@ -454,7 +454,7 @@
                     </div>
 
                     <div class="overflow-x-auto border border-gray-700/80 rounded-xl bg-gray-900/60">
-                        <table class="w-full text-center text-xs whitespace-nowrap border-collapse">
+                        <table class="w-full text-center text-xs whitespace-nowrap border-collapse min-w-[620px]">
                             <thead
                                 class="bg-gray-850 text-gray-400 border-b border-gray-750 font-semibold uppercase text-[10px]">
                                 <tr>
@@ -741,7 +741,7 @@
             <div class="lg:col-span-2 space-y-6">
 
                 <!-- Stock Holdings Table -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <div>
                             <div class="flex items-center gap-2">
@@ -771,38 +771,42 @@
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase select-none">
                                     <th @click="toggleStockSort('symbol')"
-                                        class="pb-3 font-semibold cursor-pointer hover:text-white transition">
+                                        class="pb-3 px-3 sm:px-4 font-semibold cursor-pointer hover:text-white transition">
                                         Symbol {{ stockHoldingsSortKey === 'symbol' ? (stockHoldingsSortAsc ? '↑' : '↓')
                                         : '' }}
                                     </th>
                                     <th @click="toggleStockSort('quantity')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Shares {{ stockHoldingsSortKey === 'quantity' ? (stockHoldingsSortAsc ? '↑' :
                                         '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('avgCost')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Avg Cost {{ stockHoldingsSortKey === 'avgCost' ? (stockHoldingsSortAsc ? '↑' :
                                         '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('currentPrice')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        Current Price {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc
+                                        class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        <span class="hidden sm:inline">Current Price</span>
+                                        <span class="sm:hidden">Price / Val</span>
+                                        {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc
                                         ? '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('marketValue')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Market Value {{ stockHoldingsSortKey === 'marketValue' ? (stockHoldingsSortAsc ?
                                         '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('weightPercent')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Weight % {{ stockHoldingsSortKey === 'weightPercent' ? (stockHoldingsSortAsc ?
                                         '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('unrealizedPL')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        Unrealized P/L {{ stockHoldingsSortKey === 'unrealizedPL' ?
+                                        class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        <span class="hidden sm:inline">Unrealized P/L</span>
+                                        <span class="sm:hidden">P/L</span>
+                                        {{ stockHoldingsSortKey === 'unrealizedPL' ?
                                         (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
                                     </th>
                                 </tr>
@@ -810,13 +814,23 @@
                             <tbody class="divide-y divide-gray-700/50 text-sm">
                                 <tr v-for="holding in sortedAndFilteredStockHoldings" :key="holding.symbol"
                                     class="hover:bg-gray-700/20 transition">
-                                    <td class="py-3 font-bold text-white">{{ holding.symbol }}</td>
-                                    <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.currentPrice) }}</td>
-                                    <td class="py-3 text-right font-mono text-white">${{
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="font-bold text-white">{{ holding.symbol }}</div>
+                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                            {{ holding.quantity }} shs @ ${{ formatNumber(holding.avgCost) }}
+                                            <span class="text-gray-500">•</span>
+                                            <span class="text-emerald-400/80">{{ holding.weightPercent.toFixed(1) }}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ holding.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono">
+                                        <div class="text-gray-200">${{ formatNumber(holding.currentPrice) }}</div>
+                                        <div class="sm:hidden text-xs text-gray-400 mt-0.5">${{ formatNumber(holding.marketValue) }}</div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white">${{
                                         formatNumber(holding.marketValue) }}</td>
-                                    <td class="py-3 text-right">
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right">
                                         <div class="flex items-center justify-end gap-1.5 font-mono text-xs">
                                             <span class="text-gray-300">{{ holding.weightPercent.toFixed(1) }}%</span>
                                             <div
@@ -827,12 +841,10 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="py-3 text-right font-mono font-semibold"
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-semibold"
                                         :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                        {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL)
-                                        }}
-                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent)
-                                            }})</div>
+                                        {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL) }}
+                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent) }})</div>
                                     </td>
                                 </tr>
                                 <tr v-if="sortedAndFilteredStockHoldings.length === 0">
@@ -846,16 +858,23 @@
                             <tfoot v-if="sortedAndFilteredStockHoldings.length > 0"
                                 class="border-t-2 border-gray-700 bg-gray-900/40 text-xs font-semibold text-gray-300">
                                 <tr>
-                                    <td class="py-3 px-1 font-bold text-white">Total ({{
-                                        sortedAndFilteredStockHoldings.length }})</td>
-                                    <td class="py-3 text-right font-mono">{{ formatNumber(holdingsTotals.shares) }}</td>
-                                    <td class="py-3 text-right font-mono text-gray-500">—</td>
-                                    <td class="py-3 text-right font-mono text-gray-500">—</td>
-                                    <td class="py-3 text-right font-mono text-white font-bold">${{
+                                    <td class="py-3 px-3 sm:px-4 font-bold text-white">
+                                        <div>Total ({{ sortedAndFilteredStockHoldings.length }})</div>
+                                        <div class="sm:hidden text-[11px] font-mono text-gray-400 font-normal mt-0.5">
+                                            {{ formatNumber(holdingsTotals.shares) }} shs • {{ holdingsTotals.totalWeight.toFixed(1) }}%
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ formatNumber(holdingsTotals.shares) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-500">—</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold text-white">
+                                        <span class="hidden sm:inline text-gray-500 font-normal">—</span>
+                                        <span class="sm:hidden">${{ formatNumber(holdingsTotals.marketValue) }}</span>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">${{
                                         formatNumber(holdingsTotals.marketValue) }}</td>
-                                    <td class="py-3 text-right font-mono text-gray-400">{{
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-400">{{
                                         holdingsTotals.totalWeight.toFixed(1) }}%</td>
-                                    <td class="py-3 text-right font-mono font-bold"
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold"
                                         :class="holdingsTotals.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                                         {{ holdingsTotals.unrealizedPL >= 0 ? '+' : '' }}${{
                                         formatNumber(holdingsTotals.unrealizedPL) }}
@@ -869,7 +888,7 @@
                 </div>
 
                 <!-- Active Option & Spread Positions Table -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
                     <h2 class="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
                         <span>Active Options & Spreads</span>
                         <span class="text-xs text-gray-400 font-normal">Close or expire position to realize ledger
@@ -879,48 +898,64 @@
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                    <th class="pb-3 font-semibold">Underlying / Structure</th>
-                                    <th class="pb-3 font-semibold">Type</th>
-                                    <th class="pb-3 text-right font-semibold">Contracts</th>
-                                    <th class="pb-3 text-right font-semibold">Avg Entry Premium</th>
-                                    <th class="pb-3 text-right font-semibold">Net Cost / Credit</th>
-                                    <th class="pb-3 text-center font-semibold">Actions</th>
+                                    <th class="pb-3 px-3 sm:px-4 font-semibold">
+                                        <span class="hidden sm:inline">Underlying / Structure</span>
+                                        <span class="sm:hidden">Position / Contracts</span>
+                                    </th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 font-semibold">Type</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Contracts</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Avg Entry Premium</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-right font-semibold">Cost / Credit</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-center font-semibold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50 text-sm">
                                 <tr v-for="holding in computedOptionHoldings" :key="holding.key"
-                                    class="hover:bg-gray-700/20">
-                                    <td class="py-3">
-                                        <span class="font-bold text-white">{{ holding.symbol }}</span>
-                                        <span v-if="holding.assetType === 'Option'" class="text-xs text-gray-400 block">
+                                    class="hover:bg-gray-700/20 transition">
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-bold text-white">{{ holding.symbol }}</span>
+                                            <!-- Mobile-only Type badge -->
+                                            <span class="sm:hidden px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                                                :class="holding.positionType === 'Long' ? 'text-emerald-400 bg-emerald-950/40 border border-emerald-900/50' : 'text-amber-400 bg-amber-950/40 border border-amber-900/50'">
+                                                {{ holding.positionType }}
+                                            </span>
+                                        </div>
+                                        <div v-if="holding.assetType === 'Option'" class="text-xs text-gray-400 mt-0.5">
                                             {{ holding.optionType }} ${{ holding.strike }} Exp: {{ holding.expiration }}
-                                        </span>
-                                        <span v-else class="text-xs text-amber-400 block font-medium">
+                                        </div>
+                                        <div v-else class="text-xs text-amber-400 mt-0.5 font-medium">
                                             {{ holding.strategyName }}
-                                        </span>
+                                        </div>
+                                        <!-- Mobile-only Contracts & Avg Premium -->
+                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                            {{ holding.quantity }} contract{{ holding.quantity > 1 ? 's' : '' }} @ ${{ formatNumber(holding.avgCost) }}
+                                        </div>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
                                         <span
                                             :class="holding.positionType === 'Long' ? 'text-emerald-400 bg-emerald-950/40 border border-emerald-900/50' : 'text-amber-400 bg-amber-950/40 border border-amber-900/50'"
                                             class="px-2 py-0.5 rounded text-xs font-semibold">
                                             {{ holding.positionType }}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
-                                    <td class="py-3 text-right font-mono text-white">
-                                        {{ holding.positionType === 'Long' ? 'Debit:' : 'Credit:' }} ${{
-                                        formatNumber(holding.totalCost) }}
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ holding.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono text-white">
+                                        <div class="text-xs text-gray-400 font-sans">{{ holding.positionType === 'Long' ? 'Debit:' : 'Credit:' }}</div>
+                                        <div class="font-semibold">${{ formatNumber(holding.totalCost) }}</div>
                                     </td>
-                                    <td class="py-3 text-center flex items-center justify-center gap-1.5">
-                                        <button @click="quickCloseOption(holding)"
-                                            class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-emerald-400 transition">
-                                            Close / Expire
-                                        </button>
-                                        <button @click="startRollOption(holding)"
-                                            class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-amber-400 transition">
-                                            Roll
-                                        </button>
+                                    <td class="py-3 px-3 sm:px-4 text-center">
+                                        <div class="flex items-center justify-center gap-1.5 flex-wrap sm:flex-nowrap">
+                                            <button @click="quickCloseOption(holding)"
+                                                class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-emerald-400 transition whitespace-nowrap">
+                                                Close
+                                            </button>
+                                            <button @click="startRollOption(holding)"
+                                                class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-amber-400 transition whitespace-nowrap">
+                                                Roll
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr v-if="computedOptionHoldings.length === 0">
@@ -933,7 +968,7 @@
                 </div>
 
                 <!-- Transaction Ledger (History) -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
                     <div class="flex items-center justify-between gap-3 mb-4">
                         <h2 @click="showHistory = !showHistory"
                             class="text-lg font-semibold text-emerald-400 cursor-pointer flex items-center gap-2 select-none">
@@ -1086,49 +1121,70 @@
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                    <th class="pb-3 font-semibold">Date</th>
-                                    <th class="pb-3 font-semibold">Asset</th>
-                                    <th class="pb-3 font-semibold">Action</th>
-                                    <th class="pb-3 text-right font-semibold">Qty</th>
-                                    <th class="pb-3 text-right font-semibold">Price</th>
-                                    <th class="pb-3 text-right font-semibold">Fee</th>
-                                    <th class="pb-3 text-right font-semibold">Net Amount</th>
-                                    <th class="pb-3 text-center font-semibold">Actions</th>
+                                    <th class="pb-3 px-3 sm:px-4 font-semibold">
+                                        <span class="hidden sm:inline">Date</span>
+                                        <span class="sm:hidden">Date / Action</span>
+                                    </th>
+                                    <th class="pb-3 px-3 sm:px-4 font-semibold">
+                                        <span class="hidden sm:inline">Asset</span>
+                                        <span class="sm:hidden">Asset / Trade</span>
+                                    </th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 font-semibold">Action</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Qty</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Price</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Fee</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-right font-semibold">Net Amount</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-center font-semibold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50 text-sm">
                                 <tr v-for="tx in paginatedTransactions" :key="tx.id"
                                     class="hover:bg-gray-700/20 transition">
-                                    <td class="py-3 text-xs text-gray-400 font-mono">{{ tx.date }}</td>
-                                    <td class="py-3">
-                                        <span class="font-bold text-white">{{ tx.ticker }}</span>
-                                        <span v-if="tx.assetType === 'Option'" class="text-xs text-gray-400 block">
-                                            {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
-                                        </span>
-                                        <span v-else-if="tx.assetType === 'Spread'"
-                                            class="text-xs text-amber-400 block">
-                                            {{ tx.strategyName }}
-                                        </span>
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="text-xs text-gray-400 font-mono">{{ tx.date }}</div>
+                                        <!-- Mobile-only Action badge -->
+                                        <div class="sm:hidden mt-1">
+                                            <span
+                                                :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
+                                                class="px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap">
+                                                {{ tx.action }}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="font-bold text-white">{{ tx.ticker }}</div>
+                                        <div v-if="tx.assetType === 'Option'" class="text-xs text-gray-400">
+                                            {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
+                                        </div>
+                                        <div v-else-if="tx.assetType === 'Spread'"
+                                            class="text-xs text-amber-400">
+                                            {{ tx.strategyName }}
+                                        </div>
+                                        <!-- Mobile-only Qty @ Price & Fee -->
+                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                            {{ tx.quantity }} @ ${{ formatNumber(tx.price) }}
+                                            <span v-if="tx.fee > 0" class="text-gray-500">• fee ${{ formatNumber(tx.fee) }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
                                         <span
                                             :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
                                             class="px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap">
                                             {{ tx.action }}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-right font-mono">{{ tx.quantity }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(tx.price) }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
-                                    <td class="py-3 text-right font-mono text-white"
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ tx.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(tx.price) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono text-white font-semibold"
                                         :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
                                         {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned',
                                         'Exchange or Exercise'].includes(tx.action) ? '-' : '+' }}${{
                                         formatNumber(tx.totalValue) }}
                                     </td>
-                                    <td class="py-3 text-center whitespace-nowrap">
+                                    <td class="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
                                         <button @click="openEditModal(tx)"
-                                            class="text-indigo-400 hover:text-indigo-300 text-xs font-medium transition mr-2.5">
+                                            class="text-indigo-400 hover:text-indigo-300 text-xs font-medium transition mr-2 sm:mr-2.5">
                                             Edit
                                         </button>
                                         <button @click="deleteTransaction(tx.id)"
