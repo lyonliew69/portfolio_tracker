@@ -533,113 +533,124 @@
                             class="text-xs underline hover:text-white ml-2">Cancel</button>
                     </div>
 
-                    <h2 class="text-lg font-semibold mb-4 text-emerald-400">Record Transaction</h2>
+                    <h2 @click="toggleRecordTransaction"
+                        class="text-lg font-semibold text-emerald-400 cursor-pointer flex justify-between items-center select-none"
+                        :class="showRecordTransaction ? 'mb-4' : 'mb-0'">
+                        <span>Record Transaction</span>
+                        <svg :class="{'rotate-180': showRecordTransaction}" class="w-5 h-5 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </h2>
 
-                    <form @submit.prevent="addTransaction" class="space-y-4">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Asset Type</label>
-                            <div class="flex space-x-2">
-                                <button type="button" :disabled="isRolling" @click="setAssetType('Stock')"
-                                    :class="[form.assetType === 'Stock' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
-                                    class="flex-1 py-1.5 rounded text-sm font-semibold transition">Stock</button>
-                                <button type="button" :disabled="isRolling" @click="setAssetType('Option')"
-                                    :class="[form.assetType === 'Option' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
-                                    class="flex-1 py-1.5 rounded text-sm font-semibold transition">Option</button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div v-show="showRecordTransaction">
+                        <form @submit.prevent="addTransaction" class="space-y-4">
                             <div>
-                                <label class="block text-xs text-gray-400 mb-1">Action</label>
-                                <select v-model="form.action" :disabled="isRolling && rollStep === 1"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-                                    <option v-for="action in availableActions" :value="action.value">{{ action.label }}
-                                    </option>
-                                </select>
+                                <label class="block text-xs text-gray-400 mb-1">Asset Type</label>
+                                <div class="flex space-x-2">
+                                    <button type="button" :disabled="isRolling" @click="setAssetType('Stock')"
+                                        :class="[form.assetType === 'Stock' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
+                                        class="flex-1 py-1.5 rounded text-sm font-semibold transition">Stock</button>
+                                    <button type="button" :disabled="isRolling" @click="setAssetType('Option')"
+                                        :class="[form.assetType === 'Option' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
+                                        class="flex-1 py-1.5 rounded text-sm font-semibold transition">Option</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Ticker Symbol</label>
-                                <input type="text" v-model="form.ticker" :disabled="isRolling" placeholder="e.g. AAPL"
-                                    required
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-500 uppercase focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-                            </div>
-                        </div>
 
-                        <!-- Option Specific Fields -->
-                        <div v-if="form.assetType === 'Option'"
-                            class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Option Type</label>
-                                    <select v-model="form.optionType" :disabled="isRolling && rollStep === 1"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white disabled:opacity-50">
-                                        <option value="Call">Call</option>
-                                        <option value="Put">Put</option>
+                                    <label class="block text-xs text-gray-400 mb-1">Action</label>
+                                    <select v-model="form.action" :disabled="isRolling && rollStep === 1"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                        <option v-for="action in availableActions" :value="action.value">{{ action.label }}
+                                        </option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Strike Price ($)</label>
-                                    <input type="number" step="any" v-model.number="form.strike" placeholder="Strike"
+                                    <label class="block text-xs text-gray-400 mb-1">Ticker Symbol</label>
+                                    <input type="text" v-model="form.ticker" :disabled="isRolling" placeholder="e.g. AAPL"
+                                        required
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-500 uppercase focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                </div>
+                            </div>
+
+                            <!-- Option Specific Fields -->
+                            <div v-if="form.assetType === 'Option'"
+                                class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Option Type</label>
+                                        <select v-model="form.optionType" :disabled="isRolling && rollStep === 1"
+                                            class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white disabled:opacity-50">
+                                            <option value="Call">Call</option>
+                                            <option value="Put">Put</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Strike Price ($)</label>
+                                        <input type="number" step="any" v-model.number="form.strike" placeholder="Strike"
+                                            class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Expiration Date</label>
+                                    <input type="date" v-model="form.expiration"
                                         class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Expiration Date</label>
-                                <input type="date" v-model="form.expiration"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
-                            </div>
-                        </div>
 
-                        <!-- Spread / Roll Specific Fields (Only displays dynamically if user clicked "Roll" on an active spread position) -->
-                        <div v-if="form.assetType === 'Spread' && isRolling"
-                            class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Spread Strategy Description</label>
-                                <input type="text" v-model="form.strategyName"
-                                    placeholder="Calendar 12 JUN 26/5 JUN 26 60 PUT" required
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Spread / Roll Specific Fields (Only displays dynamically if user clicked "Roll" on an active spread position) -->
+                            <div v-if="form.assetType === 'Spread' && isRolling"
+                                class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Spread Strategy Description</label>
+                                    <input type="text" v-model="form.strategyName"
+                                        placeholder="Calendar 12 JUN 26/5 JUN 26 60 PUT" required
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Quantities, Cost & Fee -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
-                                    {{ form.assetType === 'Stock' ? 'Shares' : 'Contracts' }}
-                                </label>
-                                <input type="number" step="any" v-model.number="form.quantity" :disabled="isRolling"
-                                    required min="0.0001"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                            <!-- Quantities, Cost & Fee -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                        {{ form.assetType === 'Stock' ? 'Shares' : 'Contracts' }}
+                                    </label>
+                                    <input type="number" step="any" v-model.number="form.quantity" :disabled="isRolling"
+                                        required min="0.0001"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                        Price per {{ form.assetType === 'Stock' ? 'Share ($)' : 'Contract ($)' }}
+                                    </label>
+                                    <input type="number" step="any" v-model.number="form.price" required min="0.00"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                        Fee ($)
+                                    </label>
+                                    <input type="number" step="any" v-model.number="form.fee" required min="0.00"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                </div>
                             </div>
+
                             <div>
-                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
-                                    Price per {{ form.assetType === 'Stock' ? 'Share ($)' : 'Contract ($)' }}
-                                </label>
-                                <input type="number" step="any" v-model.number="form.price" required min="0.00"
+                                <label class="block text-xs text-gray-400 mb-1">Transaction Date</label>
+                                <input type="date" v-model="form.date" required
                                     class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                             </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
-                                    Fee ($)
-                                </label>
-                                <input type="number" step="any" v-model.number="form.fee" required min="0.00"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            </div>
-                        </div>
 
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Transaction Date</label>
-                            <input type="date" v-model="form.date" required
-                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-
-                        <button type="submit"
-                            class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded transition">
-                            <span v-if="isRolling && rollStep === 1">Save Close Leg (Step 1)</span>
-                            <span v-else-if="isRolling && rollStep === 2">Save Open Leg (Step 2)</span>
-                            <span v-else>Save Transaction</span>
-                        </button>
-                    </form>
+                            <button type="submit"
+                                class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded transition">
+                                <span v-if="isRolling && rollStep === 1">Save Close Leg (Step 1)</span>
+                                <span v-else-if="isRolling && rollStep === 2">Save Open Leg (Step 2)</span>
+                                <span v-else>Save Transaction</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Portfolio Allocation Chart Card -->
@@ -2992,6 +3003,11 @@
                 };
 
                 // Toggle states for panels
+                const showRecordTransaction = ref(localStorage.getItem('show_record_transaction') !== 'false');
+                const toggleRecordTransaction = () => {
+                    showRecordTransaction.value = !showRecordTransaction.value;
+                    localStorage.setItem('show_record_transaction', showRecordTransaction.value);
+                };
                 const showAllocation = ref(false);
                 const showManualPrices = ref(false);
                 const showHistory = ref(false);
@@ -3784,6 +3800,7 @@ No markdown fences or commentary outside the JSON.`;
                     isRolling.value = true;
                     rollStep.value = 1;
                     rollSourceHolding.value = holding;
+                    showRecordTransaction.value = true;
 
                     form.value.assetType = holding.assetType;
                     form.value.ticker = holding.symbol;
@@ -5737,6 +5754,8 @@ No markdown fences or commentary outside the JSON.`;
                     fileName,
                     isRolling,
                     rollStep,
+                    showRecordTransaction,
+                    toggleRecordTransaction,
                     showAllocation,
                     showManualPrices,
                     showHistory,
