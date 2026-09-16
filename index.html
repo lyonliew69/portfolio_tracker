@@ -149,6 +149,18 @@
                     <span v-if="apiKey" class="w-2 h-2 rounded-full bg-emerald-400" title="Finnhub Active"></span>
                 </button>
 
+                <button @click="openDeepResearchModal"
+                    class="px-2.5 py-2 bg-gradient-to-r from-indigo-900/60 to-purple-900/60 hover:from-indigo-800/80 hover:to-purple-800/80 text-indigo-200 hover:text-white text-xs font-semibold rounded border border-indigo-500/50 transition flex items-center gap-1.5 shadow-sm"
+                    title="Daily Market & Portfolio Deep Research powered by Google Gemini & Live Google Finance">
+                    <svg class="w-3.5 h-3.5 text-indigo-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>AI Deep Research</span>
+                    <span v-if="deepResearchReport" class="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                        title="Daily Report Available"></span>
+                </button>
+
                 <button @click="syncPrices" :disabled="isSyncing || (!apiKey && !geminiApiKey)"
                     :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white'"
                     class="px-3 py-2 rounded text-xs font-semibold transition flex items-center gap-1 shadow-sm">
@@ -1877,6 +1889,317 @@
             </div>
         </div>
 
+        <!-- AI Market & Portfolio Deep Research Modal -->
+        <div v-if="showDeepResearchModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+            <div
+                class="bg-gray-900 border border-indigo-500/40 rounded-2xl p-5 sm:p-6 max-w-4xl w-full shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-start border-b border-gray-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2.5 bg-gradient-to-br from-indigo-950/80 to-purple-950/80 border border-indigo-700/60 rounded-xl text-indigo-400 shadow-md shadow-indigo-950/50">
+                            <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    AI Market & Portfolio Deep Research
+                                </h3>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950 border border-indigo-800 text-indigo-300 font-mono flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    Google Finance Grounded
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                Institutional-grade daily market briefings, earnings radars, and options risk analysis powered by Gemini AI.
+                            </p>
+                        </div>
+                    </div>
+                    <button @click="closeDeepResearchModal"
+                        class="text-gray-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-gray-800 transition">✕</button>
+                </div>
+
+                <!-- Missing Key Warning Banner (if no Gemini API key) -->
+                <div v-if="!geminiApiKey"
+                    class="p-3 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-200">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>A free Google Gemini API Key is required to run live Google Finance search analysis.</span>
+                    </div>
+                    <button @click="showApiModal = true"
+                        class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition whitespace-nowrap">
+                        Configure Key ↗
+                    </button>
+                </div>
+
+                <!-- Navigation Tabs & Action Bar -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-850/80 p-2.5 rounded-xl border border-gray-800">
+                    <!-- Tab Buttons -->
+                    <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-750">
+                        <button @click="deepResearchTab = 'portfolio'"
+                            :class="deepResearchTab === 'portfolio' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-950/50' : 'text-gray-400 hover:text-white'"
+                            class="px-3 py-1 text-xs rounded-md transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            <span>Daily Portfolio Briefing</span>
+                        </button>
+                        <button @click="deepResearchTab = 'ticker'"
+                            :class="deepResearchTab === 'ticker' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-950/50' : 'text-gray-400 hover:text-white'"
+                            class="px-3 py-1 text-xs rounded-md transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <span>Single Ticker Deep Dive</span>
+                        </button>
+                    </div>
+
+                    <!-- Right Controls -->
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <span v-if="deepResearchTab === 'portfolio' && deepResearchTimestamp"
+                            class="text-[11px] text-gray-400 font-mono">
+                            Updated: {{ deepResearchTimestamp }}
+                        </span>
+
+                        <button v-if="deepResearchTab === 'portfolio'"
+                            @click="generateDailyPortfolioResearch"
+                            :disabled="isGeneratingResearch || !geminiApiKey"
+                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                            <svg v-if="isGeneratingResearch" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span v-else>✨</span>
+                            <span>{{ deepResearchReport ? 'Refresh Daily Analysis' : 'Generate Daily Analysis' }}</span>
+                        </button>
+
+                        <button v-if="(deepResearchTab === 'portfolio' && deepResearchReport) || (deepResearchTab === 'ticker' && singleTickerReport)"
+                            @click="copyResearchReport"
+                            class="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg text-xs font-medium border border-gray-700 transition flex items-center gap-1"
+                            title="Copy analysis report to clipboard">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Body Content -->
+                <div class="overflow-y-auto pr-1 space-y-4 max-h-[65vh]">
+
+                    <!-- TAB 1: Daily Portfolio Briefing -->
+                    <div v-show="deepResearchTab === 'portfolio'">
+                        <!-- Generating Progress State -->
+                        <div v-if="isGeneratingResearch"
+                            class="p-8 rounded-2xl bg-gray-950/60 border border-indigo-500/30 text-center space-y-4 my-2">
+                            <div class="relative w-16 h-16 mx-auto">
+                                <div class="absolute inset-0 rounded-full bg-indigo-500/20 animate-ping"></div>
+                                <div class="relative w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-950">
+                                    ✨
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-white animate-pulse">
+                                    {{ deepResearchProgress || 'Connecting to Google Gemini...' }}
+                                </h4>
+                                <p class="text-xs text-gray-400 mt-1 max-w-md mx-auto">
+                                    Scanning real-time Google Finance data, today's macro catalysts, and calculating options moneyness across your positions.
+                                </p>
+                            </div>
+                            <div class="w-48 h-1.5 bg-gray-800 rounded-full mx-auto overflow-hidden">
+                                <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-full rounded-full animate-pulse w-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- Rendered Report -->
+                        <div v-else-if="deepResearchReport" class="space-y-4">
+                            <!-- Report Document Card -->
+                            <div class="bg-gray-950/60 border border-gray-800 rounded-2xl p-5 sm:p-7 shadow-inner">
+                                <div class="text-sm leading-relaxed text-gray-200"
+                                    v-html="formatResearchMarkdown(deepResearchReport)"></div>
+                            </div>
+
+                            <!-- Grounding Citations Section -->
+                            <div v-if="deepResearchSources.length > 0"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-4">
+                                <div class="text-xs font-semibold text-gray-400 uppercase mb-2.5 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                    <span>Grounded Financial Sources & Live Citations</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a v-for="(src, idx) in deepResearchSources" :key="idx" :href="src.uri"
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="text-xs px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition flex items-center gap-1">
+                                        <span>{{ src.title || src.uri }}</span>
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div v-else
+                            class="p-8 rounded-2xl bg-gray-950/40 border border-dashed border-gray-800 text-center space-y-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-950/60 border border-indigo-800/80 text-indigo-400 flex items-center justify-center mx-auto text-xl shadow-lg">
+                                📊
+                            </div>
+                            <div class="max-w-md mx-auto">
+                                <h4 class="text-base font-bold text-white">Daily Market & Portfolio Intelligence</h4>
+                                <p class="text-xs text-gray-400 mt-1.5">
+                                    Generate a real-time, comprehensive briefing analyzing today's macro environment, held stock earnings catalysts, and options expiration risk.
+                                </p>
+                            </div>
+
+                            <!-- Portfolio Scan Highlights -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left pt-2">
+                                <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Held Stocks</div>
+                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedStockHoldings.length }}</div>
+                                    <div class="text-[10px] text-gray-500">Earnings & catalysts radar</div>
+                                </div>
+                                <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Active Options</div>
+                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedOptionHoldings.length }}</div>
+                                    <div class="text-[10px] text-gray-500">Moneyness & DTE alerts</div>
+                                </div>
+                                <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Grounding Engine</div>
+                                    <div class="text-lg font-bold text-emerald-400 mt-0.5">Google</div>
+                                    <div class="text-[10px] text-gray-500">Live web & news data</div>
+                                </div>
+                            </div>
+
+                            <button @click="generateDailyPortfolioResearch"
+                                :disabled="!geminiApiKey"
+                                class="mt-4 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-950/50">
+                                🚀 Run Today's Market & Portfolio Scan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Single Ticker Deep Dive -->
+                    <div v-show="deepResearchTab === 'ticker'" class="space-y-4">
+                        <!-- Ticker Search Bar & Quick Ticker Pills -->
+                        <div class="bg-gray-850/70 border border-gray-800 rounded-xl p-4 space-y-3">
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <input type="text" v-model="singleTickerQuery"
+                                        placeholder="Enter any stock symbol (e.g. NVDA, AAPL, TSLA)..."
+                                        @keyup.enter="generateSingleTickerResearch(singleTickerQuery)"
+                                        class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 rounded-lg px-3.5 py-2 text-xs text-white uppercase placeholder-gray-500 focus:outline-none font-mono">
+                                    <button v-if="singleTickerQuery" @click="singleTickerQuery = ''"
+                                        class="absolute right-2.5 top-2 text-gray-400 hover:text-white text-xs">✕</button>
+                                </div>
+                                <button @click="generateSingleTickerResearch(singleTickerQuery)"
+                                    :disabled="isGeneratingTickerResearch || !singleTickerQuery.trim() || !geminiApiKey"
+                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition whitespace-nowrap flex items-center gap-1.5 shadow-sm">
+                                    <svg v-if="isGeneratingTickerResearch" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                    <span>Deep Research</span>
+                                </button>
+                            </div>
+
+                            <!-- Quick Select from Active Portfolio Positions -->
+                            <div v-if="allHeldTickers.length > 0" class="flex items-center gap-1.5 flex-wrap pt-1 border-t border-gray-800/80 text-xs">
+                                <span class="text-gray-400 text-[11px]">Your Portfolio Positions:</span>
+                                <button v-for="t in allHeldTickers" :key="t"
+                                    @click="singleTickerQuery = t; generateSingleTickerResearch(t)"
+                                    class="px-2 py-0.5 rounded bg-gray-800 hover:bg-indigo-900/60 hover:text-indigo-200 border border-gray-700 hover:border-indigo-600 text-[11px] font-mono font-semibold text-gray-300 transition">
+                                    {{ t }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Single Ticker Loading State -->
+                        <div v-if="isGeneratingTickerResearch"
+                            class="p-8 rounded-2xl bg-gray-950/60 border border-indigo-500/30 text-center space-y-3 my-2">
+                            <div class="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500 flex items-center justify-center mx-auto text-indigo-400 animate-spin">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">
+                                Analyzing {{ singleTickerQuery }} with Live Google Finance...
+                            </h4>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                Retrieving valuation multiples, Wall Street price targets, Bull/Bear thesis, and options implied volatility.
+                            </p>
+                        </div>
+
+                        <!-- Single Ticker Report -->
+                        <div v-else-if="singleTickerReport" class="space-y-4">
+                            <div class="bg-gray-950/60 border border-gray-800 rounded-2xl p-5 sm:p-7 shadow-inner">
+                                <div class="text-sm leading-relaxed text-gray-200"
+                                    v-html="formatResearchMarkdown(singleTickerReport)"></div>
+                            </div>
+
+                            <!-- Citations -->
+                            <div v-if="singleTickerSources.length > 0"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-4">
+                                <div class="text-xs font-semibold text-gray-400 uppercase mb-2 flex items-center gap-1.5">
+                                    <span>Grounded Web Sources</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a v-for="(src, idx) in singleTickerSources" :key="idx" :href="src.uri"
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="text-xs px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition flex items-center gap-1">
+                                        <span>{{ src.title || src.uri }}</span>
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Single Ticker Empty State -->
+                        <div v-else
+                            class="p-8 rounded-2xl bg-gray-950/40 border border-dashed border-gray-800 text-center space-y-2">
+                            <div class="text-2xl">🔍</div>
+                            <h4 class="text-sm font-bold text-white">Institutional Single-Stock Research</h4>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                Type any ticker above or click one of your portfolio positions to run an on-demand deep dive grounded with Google Finance.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-between items-center pt-3 border-t border-gray-800 text-xs text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full"
+                            :class="geminiApiKey ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+                        <span>{{ geminiApiKey ? 'Gemini AI Ready' : 'API Key Not Set' }}</span>
+                    </div>
+                    <button type="button" @click="closeDeepResearchModal"
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-xs font-semibold transition">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Storage & Cloud Hub Modal -->
         <div v-if="showStorageHubModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
@@ -3077,6 +3400,33 @@
                 const showHistory = ref(false);
                 const showClearConfirm = ref(false);
 
+                // AI Market & Portfolio Deep Research State
+                const showDeepResearchModal = ref(false);
+                const deepResearchTab = ref('portfolio'); // 'portfolio' | 'ticker'
+                const isGeneratingResearch = ref(false);
+                const deepResearchProgress = ref('');
+                const deepResearchReport = ref(localStorage.getItem('deep_research_report') || '');
+                const deepResearchTimestamp = ref(localStorage.getItem('deep_research_timestamp') || '');
+                let savedResearchSources = [];
+                try {
+                    savedResearchSources = JSON.parse(localStorage.getItem('deep_research_sources') || '[]');
+                } catch (e) {
+                    savedResearchSources = [];
+                }
+                const deepResearchSources = ref(savedResearchSources);
+                const singleTickerQuery = ref('');
+                const singleTickerReport = ref('');
+                const singleTickerSources = ref([]);
+                const isGeneratingTickerResearch = ref(false);
+
+                const openDeepResearchModal = () => {
+                    showDeepResearchModal.value = true;
+                };
+
+                const closeDeepResearchModal = () => {
+                    showDeepResearchModal.value = false;
+                };
+
                 // Performance Analytics Hub State (Enhancement 3)
                 const showAnalyticsHub = ref(localStorage.getItem('show_analytics_hub') !== 'false');
                 const analyticsActiveTab = ref('chart'); // 'chart' | 'matrix'
@@ -3598,6 +3948,315 @@ function doPost(e) {
                     } finally {
                         isTestingGemini.value = false;
                     }
+                };
+
+                // AI Market & Portfolio Deep Research Methods
+                const allHeldTickers = computed(() => {
+                    const set = new Set();
+                    if (computedStockHoldings.value) {
+                        computedStockHoldings.value.forEach(s => {
+                            if (s.symbol) set.add(s.symbol);
+                        });
+                    }
+                    if (computedOptionHoldings.value) {
+                        computedOptionHoldings.value.forEach(o => {
+                            if (o.symbol) set.add(o.symbol);
+                        });
+                    }
+                    return Array.from(set).sort();
+                });
+
+                const renderHtmlTable = (rows) => {
+                    if (!rows || rows.length === 0) return '';
+                    let html = '<div class="overflow-x-auto my-3"><table class="w-full text-left text-xs border border-gray-700/80 rounded-lg border-collapse min-w-[480px] bg-gray-900/60">';
+                    rows.forEach((row, rIdx) => {
+                        const cells = row.split('|').slice(1, -1).map(c => c.trim());
+                        const isHeader = rIdx === 0;
+                        html += `<tr class="${isHeader ? 'bg-gray-800 text-gray-300 font-semibold border-b border-gray-700' : 'border-b border-gray-800/80 hover:bg-gray-800/40 text-gray-200'}">`;
+                        cells.forEach(cell => {
+                            if (isHeader) {
+                                html += `<th class="p-2.5">${cell}</th>`;
+                            } else {
+                                html += `<td class="p-2.5">${cell}</td>`;
+                            }
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</table></div>';
+                    return html;
+                };
+
+                const formatResearchMarkdown = (md) => {
+                    if (!md) return '';
+                    let text = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    const lines = text.split('\n');
+                    const outputLines = [];
+                    let inTable = false;
+                    let tableRows = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line.startsWith('|') && line.endsWith('|')) {
+                            if (!inTable) inTable = true;
+                            if (/^\|(\s*:?-+:?\s*\|)+$/.test(line)) {
+                                continue;
+                            }
+                            tableRows.push(line);
+                        } else {
+                            if (inTable) {
+                                outputLines.push(renderHtmlTable(tableRows));
+                                tableRows = [];
+                                inTable = false;
+                            }
+                            outputLines.push(line);
+                        }
+                    }
+                    if (inTable) {
+                        outputLines.push(renderHtmlTable(tableRows));
+                    }
+
+                    let html = outputLines.join('\n');
+
+                    // Headings
+                    html = html.replace(/^### (.*$)/gim, '<h4 class="text-sm sm:text-base font-bold text-emerald-400 mt-5 mb-2 pb-1 border-b border-gray-700/70 flex items-center gap-1.5">$1</h4>');
+                    html = html.replace(/^## (.*$)/gim, '<h3 class="text-base sm:text-lg font-bold text-white mt-6 mb-3 pb-1.5 border-b border-indigo-500/40 flex items-center gap-2">$1</h3>');
+                    html = html.replace(/^# (.*$)/gim, '<h2 class="text-lg sm:text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-sky-300 to-indigo-400 mt-6 mb-4">$1</h2>');
+
+                    // Bold & Italic
+                    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+                    html = html.replace(/\*(.*?)\*/g, '<em class="text-gray-300 italic">$1</em>');
+
+                    // Blockquotes
+                    html = html.replace(/^\s*&gt;\s+(.*$)/gim, '<div class="border-l-4 border-indigo-500 bg-indigo-950/40 px-3 py-1.5 rounded-r my-2 text-xs text-indigo-200 italic">$1</div>');
+
+                    // Lists: bullet points
+                    html = html.replace(/^\s*[-*]\s+(.*$)/gim, '<div class="flex items-start gap-2 text-gray-300 text-xs sm:text-sm my-1 leading-relaxed pl-1"><span class="text-emerald-400 font-bold select-none">•</span><span>$1</span></div>');
+
+                    // Lists: numbered
+                    html = html.replace(/^\s*(\d+)\.\s+(.*$)/gim, '<div class="flex items-start gap-2 text-gray-300 text-xs sm:text-sm my-1 leading-relaxed pl-1"><span class="text-indigo-400 font-bold select-none text-xs">$1.</span><span>$2</span></div>');
+
+                    // Paragraph spacing
+                    html = html.replace(/\n\n+/g, '<div class="h-2.5"></div>');
+
+                    return html;
+                };
+
+                const callGeminiResearchAPI = async (prompt) => {
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        throw new Error('Google Gemini API Key is missing. Please enter your key in API & AI Settings.');
+                    }
+                    const key = geminiApiKey.value.trim();
+                    const model = 'gemini-flash-latest';
+
+                    const reqBody = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                        tools: [{ google_search: {} }]
+                    };
+
+                    let res;
+                    try {
+                        res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(reqBody)
+                        });
+                    } catch (netErr) {
+                        throw new Error(`Network error connecting to Gemini API: ${netErr.message}`);
+                    }
+
+                    // Fallback without search tool if grounding error or quota limitation
+                    if (!res.ok) {
+                        const errJson = await res.json().catch(() => ({}));
+                        console.warn('Gemini research with search tool failed, retrying standard analysis:', res.status, errJson);
+                        const fallbackBody = { contents: [{ parts: [{ text: prompt }] }] };
+                        res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(fallbackBody)
+                        });
+                        if (!res.ok) {
+                            const err2 = await res.json().catch(() => ({}));
+                            throw new Error(err2.error?.message || `Gemini API error ${res.status}`);
+                        }
+                    }
+
+                    const data = await res.json();
+                    const candidate = data.candidates?.[0];
+                    const text = candidate?.content?.parts?.[0]?.text || '';
+                    if (!text) {
+                        throw new Error('Gemini returned an empty response. Please try again.');
+                    }
+
+                    const sources = [];
+                    const metadata = candidate?.groundingMetadata;
+                    if (metadata?.groundingChunks) {
+                        metadata.groundingChunks.forEach(chunk => {
+                            if (chunk.web?.uri) {
+                                sources.push({
+                                    title: chunk.web.title || chunk.web.uri.replace(/^https?:\/\//, '').split('/')[0],
+                                    uri: chunk.web.uri
+                                });
+                            }
+                        });
+                    }
+
+                    return { text, sources, searchQueries: metadata?.webSearchQueries || [] };
+                };
+
+                const generateDailyPortfolioResearch = async () => {
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
+                        showApiModal.value = true;
+                        return;
+                    }
+
+                    isGeneratingResearch.value = true;
+                    deepResearchProgress.value = 'Gathering portfolio stocks and options...';
+
+                    const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                    
+                    const stocksList = (computedStockHoldings.value || []).map(s => 
+                        `- ${s.symbol}: ${s.quantity} shares | Avg Cost: $${formatNumber(s.avgCost)} | Current Price: $${formatNumber(s.currentPrice)} | Market Val: $${formatNumber(s.marketValue)} | P/L: ${s.unrealizedPL >= 0 ? '+' : ''}$${formatNumber(s.unrealizedPL)} (${s.unrealizedPercent.toFixed(1)}%)`
+                    ).join('\n') || 'No open stock holdings.';
+
+                    const optionsList = (computedOptionHoldings.value || []).map(o => 
+                        `- ${o.symbol}: ${o.quantity} contracts | ${o.positionType} ${o.optionType || o.strategyName || 'Option'} | Strike: $${o.strike || 'N/A'} | Exp: ${o.expiration || 'N/A'} | Total Cost: $${formatNumber(o.totalCost)}`
+                    ).join('\n') || 'No active options or spread positions.';
+
+                    const prompt = `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
+Conduct a comprehensive, institutional-grade daily market analysis for today (${todayDate}) based on the investor's exact portfolio below.
+USE GOOGLE SEARCH GROUNDING TO RETRIEVE LIVE GOOGLE FINANCE DATA, CURRENT INDEX/VIX LEVELS, UPCOMING EARNINGS DATES, AND BREAKING MARKET NEWS.
+
+=== INVESTOR PORTFOLIO HOLDINGS ===
+STOCKS HELD:
+${stocksList}
+
+ACTIVE OPTIONS & SPREADS:
+${optionsList}
+
+PORTFOLIO TOTAL STOCK MARKET VALUE: $${formatNumber(holdingsTotals.value.marketValue)}
+REALIZED NET PROFIT TO DATE: $${formatNumber(totalPortfolioNetPL.value)}
+=== END PORTFOLIO ===
+
+Please generate a high-conviction, professional report structured in Markdown with these exact sections:
+
+## 1. 🌐 Daily Macro Pulse & Market Sentiment
+- Current status of S&P 500, Nasdaq, 10-Year Treasury Yield, and CBOE VIX today.
+- Today's top market drivers (Fed policy expectations, economic data, major sector rotations).
+- How today's broader market environment directly influences the user's specific assets.
+
+## 2. 📈 Held Stocks: Catalyst, News & Valuation Radar
+- For each stock held in the portfolio:
+  - Explain today's price action and recent catalyst.
+  - Upcoming earnings announcement date and major expected events.
+  - Wall Street consensus view, price target range, and key technical support/resistance levels.
+
+## 3. ⚡ Active Options & Greeks Expiration Radar
+- Expiration clock: Flag any options contracts with fewer than 14–21 Days to Expiration (DTE).
+- Moneyness & early assignment risk (especially for short covered calls or short puts).
+- Strategic guidance: Whether to hold for remaining theta decay, roll out and up/down, or close position to lock in capital.
+
+## 4. 🎯 Strategic Portfolio Health & Tactical Action Items
+- Concentration and diversification check (sector risk assessment).
+- Hedging opportunities or covered call writing ideas on 100+ share lots.
+- 3 clear, prioritized tactical action items for the investor today.
+
+Maintain an objective, analytical, and highly actionable tone. Ground all insights with today's real market prices and verified corporate news.`;
+
+                    const progressTimer = setInterval(() => {
+                        if (deepResearchProgress.value.includes('Gathering')) {
+                            deepResearchProgress.value = 'Searching Google Finance & live market news...';
+                        } else if (deepResearchProgress.value.includes('Searching')) {
+                            deepResearchProgress.value = 'Analyzing stock catalysts & options risk...';
+                        } else if (deepResearchProgress.value.includes('Analyzing')) {
+                            deepResearchProgress.value = 'Synthesizing institutional report...';
+                        }
+                    }, 2800);
+
+                    try {
+                        const res = await callGeminiResearchAPI(prompt);
+                        deepResearchReport.value = res.text;
+                        deepResearchSources.value = res.sources;
+                        deepResearchTimestamp.value = new Date().toLocaleString();
+                        
+                        localStorage.setItem('deep_research_report', res.text);
+                        localStorage.setItem('deep_research_sources', JSON.stringify(res.sources));
+                        localStorage.setItem('deep_research_timestamp', deepResearchTimestamp.value);
+                        
+                        showNotification('Daily AI Market Research generated successfully!', 'success');
+                    } catch (e) {
+                        console.error('Deep Research Error:', e);
+                        showNotification(`Analysis generation failed: ${e.message}`, 'error');
+                    } finally {
+                        clearInterval(progressTimer);
+                        isGeneratingResearch.value = false;
+                        deepResearchProgress.value = '';
+                    }
+                };
+
+                const generateSingleTickerResearch = async (tickerOverride) => {
+                    const sym = (tickerOverride || singleTickerQuery.value || '').trim().toUpperCase();
+                    if (!sym) {
+                        showNotification('Please enter a stock ticker symbol.', 'warning');
+                        return;
+                    }
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
+                        showApiModal.value = true;
+                        return;
+                    }
+
+                    singleTickerQuery.value = sym;
+                    isGeneratingTickerResearch.value = true;
+
+                    const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                    const prompt = `You are an equity research analyst.
+Conduct an in-depth, institutional-grade research analysis on ticker symbol: ${sym} for today (${todayDate}).
+USE GOOGLE SEARCH GROUNDING TO CHECK LIVE GOOGLE FINANCE QUOTES, RECENT EARNINGS REPORTS, WALL STREET PRICE TARGETS, AND BREAKING NEWS.
+
+Format your output in clean Markdown:
+## 1. 📊 Executive Summary & Today's Performance
+- Current real-time price, intraday % change, 52-week high/low, and market capitalization.
+- Brief overview of business model and core revenue drivers.
+
+## 2. 🐂 Bull Case vs 🐻 Bear Case
+- Top 3 Bullish catalysts and long-term tailwinds.
+- Top 3 Bearish headwinds, competitive threats, or valuation risks.
+
+## 3. 🎯 Fundamentals, Valuation & Earnings Calendar
+- Key financial metrics: P/E, Forward P/E, Revenue Growth (YoY), Free Cash Flow.
+- Next scheduled earnings date and Wall Street average analyst price target (% upside/downside).
+
+## 4. ⚡ Technical Levels & Options Volatility
+- Key support and resistance price levels, moving average trends.
+- Implied Volatility (IV) regime and options playbook (e.g. Covered Call, Cash-Secured Put, Long Stock, or Wait).
+
+## 5. 💡 Strategic Verdict & Rating
+- Bottom-line investment verdict (Strong Buy / Buy / Hold / Trim / Sell) with clear justification.`;
+
+                    try {
+                        const res = await callGeminiResearchAPI(prompt);
+                        singleTickerReport.value = res.text;
+                        singleTickerSources.value = res.sources;
+                        showNotification(`Deep Research completed for ${sym}!`, 'success');
+                    } catch (e) {
+                        console.error('Ticker Research Error:', e);
+                        showNotification(`Failed to research ${sym}: ${e.message}`, 'error');
+                    } finally {
+                        isGeneratingTickerResearch.value = false;
+                    }
+                };
+
+                const copyResearchReport = () => {
+                    const text = deepResearchTab.value === 'portfolio' ? deepResearchReport.value : singleTickerReport.value;
+                    if (!text) return;
+                    navigator.clipboard.writeText(text).then(() => {
+                        showNotification('Research report copied to clipboard!', 'success');
+                    }).catch(() => {
+                        showNotification('Failed to copy to clipboard.', 'error');
+                    });
                 };
 
                 const testFinnhubKey = async () => {
@@ -5992,7 +6651,26 @@ No markdown fences or commentary outside the JSON.`;
                     triggerJsonFileInput,
                     handleJsonFileRestore,
                     copyAppsScriptCode,
-                    loadFromFile
+                    loadFromFile,
+                    // AI Market & Portfolio Deep Research
+                    showDeepResearchModal,
+                    deepResearchTab,
+                    isGeneratingResearch,
+                    deepResearchProgress,
+                    deepResearchReport,
+                    deepResearchTimestamp,
+                    deepResearchSources,
+                    singleTickerQuery,
+                    singleTickerReport,
+                    singleTickerSources,
+                    isGeneratingTickerResearch,
+                    openDeepResearchModal,
+                    closeDeepResearchModal,
+                    generateDailyPortfolioResearch,
+                    generateSingleTickerResearch,
+                    copyResearchReport,
+                    formatResearchMarkdown,
+                    allHeldTickers
                 };
             }
         }).mount('#app');
