@@ -276,7 +276,7 @@
             <!-- Card Header & Controls -->
             <div
                 class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-750 bg-gray-850">
-                <div class="flex items-center justify-between cursor-pointer select-none" @click="toggleAnalyticsHub">
+                <div class="flex items-center justify-between cursor-pointer select-none flex-1" @click="toggleAnalyticsHub">
                     <div class="flex items-center gap-3">
                         <span class="p-2 bg-emerald-950/70 border border-emerald-800/70 rounded-lg text-emerald-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,59 +297,59 @@
                                 returns matrix</p>
                         </div>
                     </div>
-                    <svg :class="{'rotate-180': showAnalyticsHub}"
-                        class="w-5 h-5 text-gray-400 transition-transform lg:hidden" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
                 </div>
 
-                <!-- Right Toolbar (Tabs & Expand Icon) -->
-                <div v-show="showAnalyticsHub" class="flex flex-wrap items-center gap-2.5">
-                    <!-- Tab Switcher: Chart vs Matrix -->
-                    <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
-                        <button type="button" @click="analyticsActiveTab = 'chart'"
-                            :class="analyticsActiveTab === 'chart' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
-                            class="px-3 py-1 rounded transition flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
-                            Chart View
-                        </button>
-                        <button type="button" @click="analyticsActiveTab = 'matrix'"
-                            :class="analyticsActiveTab === 'matrix' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
-                            class="px-3 py-1 rounded transition flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                                </path>
-                            </svg>
-                            Monthly Heatmap
-                        </button>
+                <!-- Right Controls & Dropdown Arrow -->
+                <div class="flex items-center justify-between lg:justify-end gap-3">
+                    <!-- Right Toolbar (Tabs & Filters) -->
+                    <div v-show="showAnalyticsHub" class="flex flex-wrap items-center gap-2.5">
+                        <!-- Tab Switcher: Chart vs Matrix -->
+                        <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                            <button type="button" @click="analyticsActiveTab = 'chart'"
+                                :class="analyticsActiveTab === 'chart' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                                class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                                Chart View
+                            </button>
+                            <button type="button" @click="analyticsActiveTab = 'matrix'"
+                                :class="analyticsActiveTab === 'matrix' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                                class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                    </path>
+                                </svg>
+                                Monthly Heatmap
+                            </button>
+                        </div>
+
+                        <!-- Asset Filter: All / Stocks / Options -->
+                        <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                            <button type="button" @click="chartAssetFilter = 'all'"
+                                :class="chartAssetFilter === 'all' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded transition">All</button>
+                            <button type="button" @click="chartAssetFilter = 'stock'"
+                                :class="chartAssetFilter === 'stock' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded transition">Stocks</button>
+                            <button type="button" @click="chartAssetFilter = 'option'"
+                                :class="chartAssetFilter === 'option' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded transition">Options</button>
+                        </div>
                     </div>
 
-                    <!-- Asset Filter: All / Stocks / Options -->
-                    <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
-                        <button type="button" @click="chartAssetFilter = 'all'"
-                            :class="chartAssetFilter === 'all' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
-                            class="px-2.5 py-1 rounded transition">All</button>
-                        <button type="button" @click="chartAssetFilter = 'stock'"
-                            :class="chartAssetFilter === 'stock' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
-                            class="px-2.5 py-1 rounded transition">Stocks</button>
-                        <button type="button" @click="chartAssetFilter = 'option'"
-                            :class="chartAssetFilter === 'option' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
-                            class="px-2.5 py-1 rounded transition">Options</button>
-                    </div>
-
-                    <button type="button" @click="toggleAnalyticsHub"
-                        class="hidden lg:flex p-1.5 rounded hover:bg-gray-750 text-gray-400 hover:text-white transition">
+                    <!-- Standardized Dropdown Arrow (Identical to Stock Allocation & Stock Price Manual Updates) -->
+                    <div @click="toggleAnalyticsHub"
+                        class="text-emerald-400 hover:text-emerald-300 cursor-pointer select-none p-1 transition"
+                        title="Toggle Performance Analytics">
                         <svg :class="{'rotate-180': showAnalyticsHub}" class="w-5 h-5 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                             </path>
                         </svg>
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -659,6 +659,12 @@
                             by Ticker.</p>
                         <div class="relative flex items-center justify-center min-h-[260px]">
                             <canvas id="allocationChart" class="max-w-[250px] max-h-[250px]"></canvas>
+                            <!-- Center Total Display for Doughnut -->
+                            <div v-if="!hasNoStockHoldings && computedStockHoldings.length > 0"
+                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-7">
+                                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Total Value</span>
+                                <span class="text-sm font-extrabold text-white font-mono">${{ formatNumber(stockPortfolioValue) }}</span>
+                            </div>
                             <div v-if="hasNoStockHoldings"
                                 class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
                                 No active stock positions to display allocation.
@@ -4046,40 +4052,71 @@ No markdown fences or commentary outside the JSON.`;
                             return;
                         }
 
-                        const backgroundColors = [
-                            '#10b981', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e',
-                            '#f59e0b', '#14b8a6', '#f97316', '#6366f1', '#ec4899'
+                        // Curated Cool Financial Palette (Avoids Profit-Green and Loss-Red to prevent confusion)
+                        const coolFinancialColors = [
+                            '#38bdf8', // Sky Blue
+                            '#6366f1', // Indigo
+                            '#a855f7', // Purple
+                            '#06b6d4', // Cyan
+                            '#f59e0b', // Warm Amber
+                            '#3b82f6', // Cobalt Blue
+                            '#c084fc', // Violet
+                            '#0ea5e9', // Ocean Blue
+                            '#818cf8', // Periwinkle
+                            '#14b8a6', // Deep Teal
+                            '#fbbf24', // Sun Gold
+                            '#93c5fd', // Soft Blue
+                            '#e879f9', // Orchid
+                            '#64748b'  // Slate Steel
                         ];
+
+                        const backgroundColors = labels.map((_, i) => coolFinancialColors[i % coolFinancialColors.length]);
 
                         if (chartInstance) {
                             chartInstance.data.labels = labels;
                             chartInstance.data.datasets[0].data = values;
+                            chartInstance.data.datasets[0].backgroundColor = backgroundColors;
                             chartInstance.update();
                         } else {
                             chartInstance = new Chart(canvas, {
-                                type: 'pie',
+                                type: 'doughnut',
                                 data: {
                                     labels: labels,
                                     datasets: [{
                                         data: values,
-                                        backgroundColor: backgroundColors.slice(0, labels.length),
+                                        backgroundColor: backgroundColors,
                                         borderWidth: 2,
-                                        borderColor: '#1f2937' // gray-800 background
+                                        borderColor: '#1f2937', // gray-800 card background
+                                        borderRadius: 4,
+                                        spacing: 2
                                     }]
                                 },
                                 options: {
                                     responsive: true,
                                     maintainAspectRatio: false,
+                                    cutout: '72%',
                                     plugins: {
                                         legend: {
                                             position: 'bottom',
                                             labels: {
                                                 color: '#9ca3af', // gray-400
-                                                font: { size: 10 },
-                                                boxWidth: 10
+                                                font: { size: 10, weight: '500' },
+                                                boxWidth: 8,
+                                                boxHeight: 8,
+                                                usePointStyle: true,
+                                                pointStyle: 'circle',
+                                                padding: 12
                                             }
                                         },
                                         tooltip: {
+                                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                                            titleColor: '#f3f4f6',
+                                            bodyColor: '#e5e7eb',
+                                            borderColor: '#374151',
+                                            borderWidth: 1,
+                                            padding: 10,
+                                            boxPadding: 4,
+                                            usePointStyle: true,
                                             callbacks: {
                                                 label: (context) => {
                                                     const val = context.raw || 0;
