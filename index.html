@@ -4082,7 +4082,7 @@ function doPost(e) {
                 const callGeminiAPI = async (prompt, useSearchGrounding = false) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) return null;
                     const key = geminiApiKey.value.trim();
-                    const model = useSearchGrounding ? 'gemini-flash-latest' : 'gemini-3.5-flash';
+                    const model = useSearchGrounding ? 'gemini-3.8-flash' : 'gemini-3.5-flash';
 
                     const reqBody = {
                         contents: [{ parts: [{ text: prompt }] }]
@@ -4239,7 +4239,7 @@ function doPost(e) {
                     const withSearch = enableSearchGrounding.value;
                     // When Live Google Search is ON, prioritize the latest model alias; otherwise keep 3.5 as main
                     const candidateModels = withSearch
-                        ? ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
+                        ? ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
                         : ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
 
                     const tryGenerate = async (modelName, withSearch) => {
