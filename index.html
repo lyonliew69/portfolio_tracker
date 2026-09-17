@@ -64,10 +64,12 @@
                     class="flex items-center gap-2 bg-gray-800 hover:bg-gray-750 px-3 py-2 rounded border border-gray-700 hover:border-sky-500/50 text-xs transition cursor-pointer shadow-sm group"
                     title="Click to open Storage & Cloud Sync Hub">
                     <span class="text-gray-400 group-hover:text-sky-300 transition">Storage:</span>
-                    <span v-if="fileStatus === 'unlinked' && !cloudWebhookUrl" class="flex items-center gap-1.5 text-blue-400 font-medium">
+                    <span v-if="fileStatus === 'unlinked' && !cloudWebhookUrl"
+                        class="flex items-center gap-1.5 text-blue-400 font-medium">
                         <span class="w-2 h-2 rounded-full bg-blue-500"></span> Browser Memory
                     </span>
-                    <span v-else-if="fileStatus === 'unlinked' && cloudWebhookUrl" class="flex items-center gap-1.5 text-sky-400 font-medium">
+                    <span v-else-if="fileStatus === 'unlinked' && cloudWebhookUrl"
+                        class="flex items-center gap-1.5 text-sky-400 font-medium">
                         <span class="w-2 h-2 rounded-full bg-sky-500"></span> Cloud Sync Active
                     </span>
                     <span v-else-if="fileStatus === 'locked'"
@@ -89,7 +91,9 @@
                                 d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
                         </svg>
                         <span>Cloud & Storage</span>
-                        <span v-if="fileStatus === 'active' || cloudWebhookUrl" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Cloud / File Connected"></span>
+                        <span v-if="fileStatus === 'active' || cloudWebhookUrl"
+                            class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+                            title="Cloud / File Connected"></span>
                     </button>
                     <button v-if="isSupported && fileStatus === 'unlinked'" @click="linkLocalFile"
                         class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded transition flex items-center gap-1.5 shadow-sm"
@@ -152,7 +156,8 @@
                 <button @click="openDeepResearchModal"
                     class="px-2.5 py-2 bg-gradient-to-r from-indigo-900/60 to-purple-900/60 hover:from-indigo-800/80 hover:to-purple-800/80 text-indigo-200 hover:text-white text-xs font-semibold rounded border border-indigo-500/50 transition flex items-center gap-1.5 shadow-sm"
                     title="Daily Market & Portfolio Deep Research powered by Google Gemini & Live Google Finance">
-                    <svg class="w-3.5 h-3.5 text-indigo-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5 text-indigo-300 animate-pulse" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
@@ -288,7 +293,8 @@
             <!-- Card Header & Controls -->
             <div
                 class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-750 bg-gray-850">
-                <div class="flex items-center justify-between cursor-pointer select-none flex-1" @click="toggleAnalyticsHub">
+                <div class="flex items-center justify-between cursor-pointer select-none flex-1"
+                    @click="toggleAnalyticsHub">
                     <div class="flex items-center gap-3">
                         <span class="p-2 bg-emerald-950/70 border border-emerald-800/70 rounded-lg text-emerald-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -525,7 +531,8 @@
             <div class="flex items-center gap-2">
                 <span>{{ notification.message }}</span>
             </div>
-            <button @click="notification.message = ''" class="text-xs font-bold text-gray-400 hover:text-white p-1">✕</button>
+            <button @click="notification.message = ''"
+                class="text-xs font-bold text-gray-400 hover:text-white p-1">✕</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -551,8 +558,8 @@
                         class="text-lg font-semibold text-emerald-400 cursor-pointer flex justify-between items-center select-none"
                         :class="showRecordTransaction ? 'mb-4' : 'mb-0'">
                         <span>Record Transaction</span>
-                        <svg :class="{'rotate-180': showRecordTransaction}" class="w-5 h-5 transition-transform" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
+                        <svg :class="{'rotate-180': showRecordTransaction}" class="w-5 h-5 transition-transform"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                             </path>
                         </svg>
@@ -577,14 +584,15 @@
                                     <label class="block text-xs text-gray-400 mb-1">Action</label>
                                     <select v-model="form.action" :disabled="isRolling && rollStep === 1"
                                         class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-                                        <option v-for="action in availableActions" :value="action.value">{{ action.label }}
+                                        <option v-for="action in availableActions" :value="action.value">{{ action.label
+                                            }}
                                         </option>
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-xs text-gray-400 mb-1">Ticker Symbol</label>
-                                    <input type="text" v-model="form.ticker" :disabled="isRolling" placeholder="e.g. AAPL"
-                                        required
+                                    <input type="text" v-model="form.ticker" :disabled="isRolling"
+                                        placeholder="e.g. AAPL" required
                                         class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-500 uppercase focus:outline-none focus:border-emerald-500 disabled:opacity-50">
                                 </div>
                             </div>
@@ -603,7 +611,8 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-400 mb-1">Strike Price ($)</label>
-                                        <input type="number" step="any" v-model.number="form.strike" placeholder="Strike"
+                                        <input type="number" step="any" v-model.number="form.strike"
+                                            placeholder="Strike"
                                             class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
                                     </div>
                                 </div>
@@ -687,8 +696,10 @@
                             <!-- Center Total Display for Doughnut -->
                             <div v-if="!hasNoStockHoldings && computedStockHoldings.length > 0"
                                 class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-7">
-                                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Total Value</span>
-                                <span class="text-sm font-extrabold text-white font-mono">${{ formatNumber(stockPortfolioValue) }}</span>
+                                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Total
+                                    Value</span>
+                                <span class="text-sm font-extrabold text-white font-mono">${{
+                                    formatNumber(stockPortfolioValue) }}</span>
                             </div>
                             <div v-if="hasNoStockHoldings"
                                 class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
@@ -833,16 +844,21 @@
                                         <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
                                             {{ holding.quantity }} shs @ ${{ formatNumber(holding.avgCost) }}
                                             <span class="text-gray-500">•</span>
-                                            <span class="text-emerald-400/80">{{ holding.weightPercent.toFixed(1) }}%</span>
+                                            <span class="text-emerald-400/80">{{ holding.weightPercent.toFixed(1)
+                                                }}%</span>
                                         </div>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ holding.quantity }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        holding.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(holding.avgCost) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono">
                                         <div class="text-gray-200">${{ formatNumber(holding.currentPrice) }}</div>
-                                        <div class="sm:hidden text-xs text-gray-400 mt-0.5">${{ formatNumber(holding.marketValue) }}</div>
+                                        <div class="sm:hidden text-xs text-gray-400 mt-0.5">${{
+                                            formatNumber(holding.marketValue) }}</div>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white">${{
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white">
+                                        ${{
                                         formatNumber(holding.marketValue) }}</td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right">
                                         <div class="flex items-center justify-end gap-1.5 font-mono text-xs">
@@ -857,8 +873,10 @@
                                     </td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-semibold"
                                         :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                        {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL) }}
-                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent) }})</div>
+                                        {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL)
+                                        }}
+                                        <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent)
+                                            }})</div>
                                     </td>
                                 </tr>
                                 <tr v-if="sortedAndFilteredStockHoldings.length === 0">
@@ -875,18 +893,26 @@
                                     <td class="py-3 px-3 sm:px-4 font-bold text-white">
                                         <div>Total ({{ sortedAndFilteredStockHoldings.length }})</div>
                                         <div class="sm:hidden text-[11px] font-mono text-gray-400 font-normal mt-0.5">
-                                            {{ formatNumber(holdingsTotals.shares) }} shs • {{ holdingsTotals.totalWeight.toFixed(1) }}%
+                                            {{ formatNumber(holdingsTotals.shares) }} shs • {{
+                                            holdingsTotals.totalWeight.toFixed(1) }}%
                                         </div>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ formatNumber(holdingsTotals.shares) }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-500">—</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        formatNumber(holdingsTotals.shares) }}</td>
+                                    <td
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-500">
+                                        —</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold text-white">
                                         <span class="hidden sm:inline text-gray-500 font-normal">—</span>
                                         <span class="sm:hidden">${{ formatNumber(holdingsTotals.marketValue) }}</span>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">${{
+                                    <td
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">
+                                        ${{
                                         formatNumber(holdingsTotals.marketValue) }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-400">{{
+                                    <td
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-400">
+                                        {{
                                         holdingsTotals.totalWeight.toFixed(1) }}%</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold"
                                         :class="holdingsTotals.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
@@ -917,8 +943,10 @@
                                         <span class="sm:hidden">Position / Contracts</span>
                                     </th>
                                     <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 font-semibold">Type</th>
-                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Contracts</th>
-                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Avg Entry Premium</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">
+                                        Contracts</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Avg
+                                        Entry Premium</th>
                                     <th class="pb-3 px-3 sm:px-4 text-right font-semibold">Cost / Credit</th>
                                     <th class="pb-3 px-3 sm:px-4 text-center font-semibold">Actions</th>
                                 </tr>
@@ -943,7 +971,8 @@
                                         </div>
                                         <!-- Mobile-only Contracts & Avg Premium -->
                                         <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
-                                            {{ holding.quantity }} contract{{ holding.quantity > 1 ? 's' : '' }} @ ${{ formatNumber(holding.avgCost) }}
+                                            {{ holding.quantity }} contract{{ holding.quantity > 1 ? 's' : '' }} @ ${{
+                                            formatNumber(holding.avgCost) }}
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
@@ -953,10 +982,13 @@
                                             {{ holding.positionType }}
                                         </span>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ holding.quantity }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        holding.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(holding.avgCost) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono text-white">
-                                        <div class="text-xs text-gray-400 font-sans">{{ holding.positionType === 'Long' ? 'Debit:' : 'Credit:' }}</div>
+                                        <div class="text-xs text-gray-400 font-sans">{{ holding.positionType === 'Long'
+                                            ? 'Debit:' : 'Credit:' }}</div>
                                         <div class="font-semibold">${{ formatNumber(holding.totalCost) }}</div>
                                     </td>
                                     <td class="py-3 px-3 sm:px-4 text-center">
@@ -1014,9 +1046,10 @@
                             <div @click="showHistory = !showHistory"
                                 class="text-emerald-400 hover:text-emerald-300 cursor-pointer select-none p-1 transition"
                                 title="Toggle Transaction History">
-                                <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                                <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7">
                                     </path>
                                 </svg>
                             </div>
@@ -1145,7 +1178,8 @@
                                     </th>
                                     <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 font-semibold">Action</th>
                                     <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Qty</th>
-                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Price</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Price
+                                    </th>
                                     <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Fee</th>
                                     <th class="pb-3 px-3 sm:px-4 text-right font-semibold">Net Amount</th>
                                     <th class="pb-3 px-3 sm:px-4 text-center font-semibold">Actions</th>
@@ -1170,14 +1204,14 @@
                                         <div v-if="tx.assetType === 'Option'" class="text-xs text-gray-400">
                                             {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
                                         </div>
-                                        <div v-else-if="tx.assetType === 'Spread'"
-                                            class="text-xs text-amber-400">
+                                        <div v-else-if="tx.assetType === 'Spread'" class="text-xs text-amber-400">
                                             {{ tx.strategyName }}
                                         </div>
                                         <!-- Mobile-only Qty @ Price & Fee -->
                                         <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
                                             {{ tx.quantity }} @ ${{ formatNumber(tx.price) }}
-                                            <span v-if="tx.fee > 0" class="text-gray-500">• fee ${{ formatNumber(tx.fee) }}</span>
+                                            <span v-if="tx.fee > 0" class="text-gray-500">• fee ${{ formatNumber(tx.fee)
+                                                }}</span>
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
@@ -1187,9 +1221,12 @@
                                             {{ tx.action }}
                                         </span>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ tx.quantity }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(tx.price) }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        tx.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(tx.price) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(tx.fee) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono text-white font-semibold"
                                         :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
                                         {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned',
@@ -1592,11 +1629,13 @@
         <!-- Ticker Aliases Management Modal -->
         <div v-if="showAliasesModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-            <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 my-auto">
+            <div
+                class="bg-gray-800 border border-gray-700 rounded-xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 my-auto">
                 <div class="flex justify-between items-start border-b border-gray-700 pb-3">
                     <div>
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                             </svg>
@@ -1627,7 +1666,8 @@
                         <button type="submit"
                             class="px-4 py-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold rounded-lg transition shrink-0 shadow-sm flex items-center justify-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             <span>Add</span>
                         </button>
@@ -1663,7 +1703,8 @@
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-gray-700">
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-gray-700">
                     <button @click="applyTickerAliasesToLedger(true)"
                         class="px-3.5 py-2 bg-gray-700 hover:bg-gray-600 text-xs font-semibold text-gray-200 hover:text-white rounded-lg border border-gray-600 transition text-center"
                         title="Update all existing ledger transactions to their new symbols">
@@ -1899,7 +1940,8 @@
                 <!-- Modal Header -->
                 <div class="flex justify-between items-start border-b border-gray-800 pb-3.5">
                     <div class="flex items-center gap-3">
-                        <span class="p-2.5 bg-gradient-to-br from-indigo-950/80 to-purple-950/80 border border-indigo-700/60 rounded-xl text-indigo-400 shadow-md shadow-indigo-950/50">
+                        <span
+                            class="p-2.5 bg-gradient-to-br from-indigo-950/80 to-purple-950/80 border border-indigo-700/60 rounded-xl text-indigo-400 shadow-md shadow-indigo-950/50">
                             <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -1910,13 +1952,15 @@
                                 <h3 class="text-xl font-bold text-white flex items-center gap-2">
                                     AI Market & Portfolio Deep Research
                                 </h3>
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950 border border-indigo-800 text-indigo-300 font-mono flex items-center gap-1">
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950 border border-indigo-800 text-indigo-300 font-mono flex items-center gap-1">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                                     Google Finance Grounded
                                 </span>
                             </div>
                             <p class="text-xs text-gray-400 mt-0.5">
-                                Institutional-grade daily market briefings, earnings radars, and options risk analysis powered by Gemini AI.
+                                Institutional-grade daily market briefings, earnings radars, and options risk analysis
+                                powered by Gemini AI.
                             </p>
                         </div>
                     </div>
@@ -1928,11 +1972,13 @@
                 <div v-if="!geminiApiKey"
                     class="p-3 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-200">
                     <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        <span>A free Google Gemini API Key is required to run live Google Finance search analysis.</span>
+                        <span>A free Google Gemini API Key is required to run live Google Finance search
+                            analysis.</span>
                     </div>
                     <button @click="showApiModal = true"
                         class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition whitespace-nowrap">
@@ -1944,15 +1990,18 @@
                 <div v-if="deepResearchError"
                     class="p-3.5 bg-rose-950/80 border border-rose-800 rounded-xl text-xs text-rose-200 flex items-start justify-between gap-3 shadow-lg">
                     <div class="flex items-start gap-2.5">
-                        <svg class="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                         <div>
                             <div class="font-bold text-rose-300">AI Research Notice</div>
                             <div class="mt-0.5 text-gray-200 leading-relaxed">{{ deepResearchError }}</div>
-                            <div v-if="deepResearchError.includes('429') || deepResearchError.includes('demand') || deepResearchError.includes('rate') || deepResearchError.includes('quota') || deepResearchError.includes('busy')" class="mt-2 flex items-center gap-2 flex-wrap">
-                                <button @click="enableSearchGrounding = false; deepResearchError = ''; deepResearchTab === 'portfolio' ? generateDailyPortfolioResearch() : generateSingleTickerResearch(singleTickerQuery)"
+                            <div v-if="deepResearchError.includes('429') || deepResearchError.includes('demand') || deepResearchError.includes('rate') || deepResearchError.includes('quota') || deepResearchError.includes('busy')"
+                                class="mt-2 flex items-center gap-2 flex-wrap">
+                                <button
+                                    @click="enableSearchGrounding = false; deepResearchError = ''; deepResearchTab === 'portfolio' ? generateDailyPortfolioResearch() : generateSingleTickerResearch(singleTickerQuery)"
                                     class="px-2.5 py-1 bg-rose-800 hover:bg-rose-700 text-white rounded text-[11px] font-semibold transition">
                                     ⚡ Retry with Standard AI (Bypass Search Quota)
                                 </button>
@@ -1964,7 +2013,8 @@
                             </div>
                         </div>
                     </div>
-                    <button @click="deepResearchError = ''" class="text-gray-400 hover:text-white font-bold p-1">✕</button>
+                    <button @click="deepResearchError = ''"
+                        class="text-gray-400 hover:text-white font-bold p-1">✕</button>
                 </div>
 
                 <!-- Search Grounding Mode Toggle Bar -->
@@ -1974,15 +2024,20 @@
                             class="rounded bg-gray-800 border-gray-700 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer">
                         <span class="flex items-center gap-1.5 text-gray-300 font-medium">
                             <span>Live Google Search Grounding</span>
-                            <span v-if="enableSearchGrounding" class="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-bold">ACTIVE</span>
-                            <span v-else class="px-1.5 py-0.2 rounded text-[10px] bg-gray-800 border border-gray-700 text-gray-400 font-mono font-normal">OFF (Standard AI)</span>
+                            <span v-if="enableSearchGrounding"
+                                class="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-bold">ACTIVE</span>
+                            <span v-else
+                                class="px-1.5 py-0.2 rounded text-[10px] bg-gray-800 border border-gray-700 text-gray-400 font-mono font-normal">OFF
+                                (Standard AI)</span>
                         </span>
                     </label>
-                    <span class="text-[11px] text-gray-500 hidden sm:inline">Turn OFF if your Gemini key hits search rate limits.</span>
+                    <span class="text-[11px] text-gray-500 hidden sm:inline">Turn OFF if your Gemini key hits search
+                        rate limits.</span>
                 </div>
 
                 <!-- Navigation Tabs & Action Bar -->
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-850/80 p-2.5 rounded-xl border border-gray-800">
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-850/80 p-2.5 rounded-xl border border-gray-800">
                     <!-- Tab Buttons -->
                     <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-750">
                         <button @click="deepResearchTab = 'portfolio'"
@@ -2012,23 +2067,26 @@
                             Updated: {{ deepResearchTimestamp }}
                         </span>
 
-                        <button v-if="deepResearchTab === 'portfolio'"
-                            @click="generateDailyPortfolioResearch"
+                        <button v-if="deepResearchTab === 'portfolio'" @click="generateDailyPortfolioResearch"
                             :disabled="isGeneratingResearch || !geminiApiKey"
                             class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
-                            <svg v-if="isGeneratingResearch" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <svg v-if="isGeneratingResearch" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                             </svg>
                             <span v-else>✨</span>
                             <span>{{ deepResearchReport ? 'Refresh Daily Analysis' : 'Generate Daily Analysis' }}</span>
                         </button>
 
-                        <button v-if="(deepResearchTab === 'portfolio' && deepResearchReport) || (deepResearchTab === 'ticker' && singleTickerReport)"
+                        <button
+                            v-if="(deepResearchTab === 'portfolio' && deepResearchReport) || (deepResearchTab === 'ticker' && singleTickerReport)"
                             @click="copyResearchReport"
                             class="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg text-xs font-medium border border-gray-700 transition flex items-center gap-1"
                             title="Copy analysis report to clipboard">
-                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                             </svg>
@@ -2047,7 +2105,8 @@
                             class="p-8 rounded-2xl bg-gray-950/60 border border-indigo-500/30 text-center space-y-4 my-2">
                             <div class="relative w-16 h-16 mx-auto">
                                 <div class="absolute inset-0 rounded-full bg-indigo-500/20 animate-ping"></div>
-                                <div class="relative w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-950">
+                                <div
+                                    class="relative w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-950">
                                     ✨
                                 </div>
                             </div>
@@ -2056,11 +2115,14 @@
                                     {{ deepResearchProgress || 'Connecting to Google Gemini...' }}
                                 </h4>
                                 <p class="text-xs text-gray-400 mt-1 max-w-md mx-auto">
-                                    Scanning real-time Google Finance data, today's macro catalysts, and calculating options moneyness across your positions.
+                                    Scanning real-time Google Finance data, today's macro catalysts, and calculating
+                                    options moneyness across your positions.
                                 </p>
                             </div>
                             <div class="w-48 h-1.5 bg-gray-800 rounded-full mx-auto overflow-hidden">
-                                <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-full rounded-full animate-pulse w-full"></div>
+                                <div
+                                    class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-full rounded-full animate-pulse w-full">
+                                </div>
                             </div>
                         </div>
 
@@ -2075,8 +2137,10 @@
                             <!-- Grounding Citations Section -->
                             <div v-if="deepResearchSources.length > 0"
                                 class="bg-gray-855 border border-gray-800 rounded-xl p-4">
-                                <div class="text-xs font-semibold text-gray-400 uppercase mb-2.5 flex items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div
+                                    class="text-xs font-semibold text-gray-400 uppercase mb-2.5 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                     </svg>
@@ -2087,7 +2151,8 @@
                                         target="_blank" rel="noopener noreferrer"
                                         class="text-xs px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition flex items-center gap-1">
                                         <span>{{ src.title || src.uri }}</span>
-                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                         </svg>
@@ -2097,20 +2162,23 @@
                             <div v-else-if="deepResearchReport && enableSearchGrounding"
                                 class="bg-gray-855 border border-gray-800 rounded-xl p-3 text-xs text-gray-400 flex items-center gap-2">
                                 <span class="text-amber-400">⚡</span>
-                                <span>Note: Google Search Grounding was busy; analysis was completed successfully using standard Gemini analytical models.</span>
+                                <span>Note: Google Search Grounding was busy; analysis was completed successfully using
+                                    standard Gemini analytical models.</span>
                             </div>
                         </div>
 
                         <!-- Empty State -->
                         <div v-else
                             class="p-8 rounded-2xl bg-gray-950/40 border border-dashed border-gray-800 text-center space-y-4">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-950/60 border border-indigo-800/80 text-indigo-400 flex items-center justify-center mx-auto text-xl shadow-lg">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-indigo-950/60 border border-indigo-800/80 text-indigo-400 flex items-center justify-center mx-auto text-xl shadow-lg">
                                 📊
                             </div>
                             <div class="max-w-md mx-auto">
                                 <h4 class="text-base font-bold text-white">Daily Market & Portfolio Intelligence</h4>
                                 <p class="text-xs text-gray-400 mt-1.5">
-                                    Generate a real-time, comprehensive briefing analyzing today's macro environment, held stock earnings catalysts, and options expiration risk.
+                                    Generate a real-time, comprehensive briefing analyzing today's macro environment,
+                                    held stock earnings catalysts, and options expiration risk.
                                 </p>
                             </div>
 
@@ -2118,23 +2186,25 @@
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left pt-2">
                                 <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
                                     <div class="text-[11px] text-gray-400 uppercase font-semibold">Held Stocks</div>
-                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedStockHoldings.length }}</div>
+                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedStockHoldings.length }}
+                                    </div>
                                     <div class="text-[10px] text-gray-500">Earnings & catalysts radar</div>
                                 </div>
                                 <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
                                     <div class="text-[11px] text-gray-400 uppercase font-semibold">Active Options</div>
-                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedOptionHoldings.length }}</div>
+                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedOptionHoldings.length }}
+                                    </div>
                                     <div class="text-[10px] text-gray-500">Moneyness & DTE alerts</div>
                                 </div>
                                 <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
-                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Grounding Engine</div>
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Grounding Engine
+                                    </div>
                                     <div class="text-lg font-bold text-emerald-400 mt-0.5">Google</div>
                                     <div class="text-[10px] text-gray-500">Live web & news data</div>
                                 </div>
                             </div>
 
-                            <button @click="generateDailyPortfolioResearch"
-                                :disabled="!geminiApiKey"
+                            <button @click="generateDailyPortfolioResearch" :disabled="!geminiApiKey"
                                 class="mt-4 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-950/50">
                                 🚀 Run Today's Market & Portfolio Scan
                             </button>
@@ -2157,8 +2227,10 @@
                                 <button @click="generateSingleTickerResearch(singleTickerQuery)"
                                     :disabled="isGeneratingTickerResearch || !singleTickerQuery.trim() || !geminiApiKey"
                                     class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition whitespace-nowrap flex items-center gap-1.5 shadow-sm">
-                                    <svg v-if="isGeneratingTickerResearch" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <svg v-if="isGeneratingTickerResearch" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                     </svg>
                                     <span>Deep Research</span>
@@ -2166,7 +2238,8 @@
                             </div>
 
                             <!-- Quick Select from Active Portfolio Positions -->
-                            <div v-if="allHeldTickers.length > 0" class="flex items-center gap-1.5 flex-wrap pt-1 border-t border-gray-800/80 text-xs">
+                            <div v-if="allHeldTickers.length > 0"
+                                class="flex items-center gap-1.5 flex-wrap pt-1 border-t border-gray-800/80 text-xs">
                                 <span class="text-gray-400 text-[11px]">Your Portfolio Positions:</span>
                                 <button v-for="t in allHeldTickers" :key="t"
                                     @click="singleTickerQuery = t; generateSingleTickerResearch(t)"
@@ -2179,17 +2252,20 @@
                         <!-- Single Ticker Loading State -->
                         <div v-if="isGeneratingTickerResearch"
                             class="p-8 rounded-2xl bg-gray-950/60 border border-indigo-500/30 text-center space-y-3 my-2">
-                            <div class="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500 flex items-center justify-center mx-auto text-indigo-400 animate-spin">
+                            <div
+                                class="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500 flex items-center justify-center mx-auto text-indigo-400 animate-spin">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
                             </div>
                             <h4 class="text-sm font-bold text-white">
-                                {{ singleTickerProgress || ('Analyzing ' + singleTickerQuery + ' with Live Google Finance...') }}
+                                {{ singleTickerProgress || `Analyzing ${singleTickerQuery} with Live Google Finance...`
+                                }}
                             </h4>
                             <p class="text-xs text-gray-400 max-w-sm mx-auto">
-                                Retrieving valuation multiples, Wall Street price targets, Bull/Bear thesis, and options implied volatility.
+                                Retrieving valuation multiples, Wall Street price targets, Bull/Bear thesis, and options
+                                implied volatility.
                             </p>
                         </div>
 
@@ -2203,7 +2279,8 @@
                             <!-- Citations -->
                             <div v-if="singleTickerSources.length > 0"
                                 class="bg-gray-855 border border-gray-800 rounded-xl p-4">
-                                <div class="text-xs font-semibold text-gray-400 uppercase mb-2 flex items-center gap-1.5">
+                                <div
+                                    class="text-xs font-semibold text-gray-400 uppercase mb-2 flex items-center gap-1.5">
                                     <span>Grounded Web Sources</span>
                                 </div>
                                 <div class="flex flex-wrap gap-2">
@@ -2211,7 +2288,8 @@
                                         target="_blank" rel="noopener noreferrer"
                                         class="text-xs px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition flex items-center gap-1">
                                         <span>{{ src.title || src.uri }}</span>
-                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                         </svg>
@@ -2221,7 +2299,8 @@
                             <div v-else-if="singleTickerReport && enableSearchGrounding"
                                 class="bg-gray-855 border border-gray-800 rounded-xl p-3 text-xs text-gray-400 flex items-center gap-2">
                                 <span class="text-amber-400">⚡</span>
-                                <span>Note: Google Search Grounding was busy; analysis generated using standard Gemini models.</span>
+                                <span>Note: Google Search Grounding was busy; analysis generated using standard Gemini
+                                    models.</span>
                             </div>
                         </div>
 
@@ -2231,7 +2310,8 @@
                             <div class="text-2xl">🔍</div>
                             <h4 class="text-sm font-bold text-white">Institutional Single-Stock Research</h4>
                             <p class="text-xs text-gray-400 max-w-sm mx-auto">
-                                Type any ticker above or click one of your portfolio positions to run an on-demand deep dive grounded with Google Finance.
+                                Type any ticker above or click one of your portfolio positions to run an on-demand deep
+                                dive grounded with Google Finance.
                             </p>
                         </div>
                     </div>
@@ -2271,7 +2351,8 @@
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
                                 Storage & Cloud Hub
                             </h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Manage your database storage, Google Drive / OneDrive sync, and backups.</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Manage your database storage, Google Drive /
+                                OneDrive sync, and backups.</p>
                         </div>
                     </div>
                     <button @click="showStorageHubModal = false"
@@ -2287,27 +2368,39 @@
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                                 :class="fileStatus === 'active' ? 'bg-emerald-900/60 text-emerald-400' : (cloudWebhookUrl ? 'bg-sky-900/60 text-sky-400' : 'bg-blue-900/50 text-blue-400')">
-                                <svg v-if="fileStatus === 'active'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg v-if="fileStatus === 'active'" class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <svg v-else-if="cloudWebhookUrl" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                                <svg v-else-if="cloudWebhookUrl" class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
                                 </svg>
                                 <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                                 </svg>
                             </div>
                             <div>
-                                <div class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Active Storage Target</div>
+                                <div class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Active
+                                    Storage Target</div>
                                 <div class="text-sm font-semibold text-white flex flex-wrap items-center gap-2 mt-0.5">
-                                    <span v-if="fileStatus === 'active'" class="text-emerald-400 font-mono">Linked: {{ fileName }}</span>
-                                    <span v-else-if="fileStatus === 'locked'" class="text-amber-400">Locked File: {{ fileName }}</span>
-                                    <span v-else-if="cloudWebhookUrl" class="text-sky-400">Cloud Webhook Connected</span>
+                                    <span v-if="fileStatus === 'active'" class="text-emerald-400 font-mono">Linked: {{
+                                        fileName }}</span>
+                                    <span v-else-if="fileStatus === 'locked'" class="text-amber-400">Locked File: {{
+                                        fileName }}</span>
+                                    <span v-else-if="cloudWebhookUrl" class="text-sky-400">Cloud Webhook
+                                        Connected</span>
                                     <span v-else class="text-blue-400">Browser Local Memory</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-300 font-mono font-medium">{{ transactions.length }} transactions</span>
+                                    <span
+                                        class="text-[10px] px-2 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-300 font-mono font-medium">{{
+                                        transactions.length }} transactions</span>
                                 </div>
                                 <div v-if="lastCloudSyncTime" class="text-[11px] text-gray-400 mt-1">
-                                    Last Cloud Sync: <span class="text-gray-300 font-mono">{{ lastCloudSyncTime }}</span>
+                                    Last Cloud Sync: <span class="text-gray-300 font-mono">{{ lastCloudSyncTime
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -2331,41 +2424,54 @@
                     </div>
 
                     <!-- Option 1: Desktop Cloud Sync (Google Drive / OneDrive) - RECOMMENDED FOR NON-TECHNICAL USERS -->
-                    <div class="bg-gray-800/80 border border-emerald-700/60 rounded-xl p-4 sm:p-5 space-y-3.5 relative overflow-hidden">
+                    <div
+                        class="bg-gray-800/80 border border-emerald-700/60 rounded-xl p-4 sm:p-5 space-y-3.5 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="flex items-center gap-2">
-                                <span class="text-base font-bold text-white">1. Easy Cloud Sync (Google Drive / OneDrive)</span>
+                                <span class="text-base font-bold text-white">1. Easy Cloud Sync (Google Drive /
+                                    OneDrive)</span>
                             </div>
-                            <span class="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 w-fit">
+                            <span
+                                class="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 w-fit">
                                 ⭐ Recommended for Non-Technical Users (0 Setup)
                             </span>
                         </div>
 
                         <p class="text-xs text-gray-300 leading-relaxed">
-                            If you have <strong class="text-emerald-300">Google Drive for Desktop</strong> or <strong class="text-sky-300">Microsoft OneDrive</strong> installed on your PC, your cloud folders are already synced in Windows!
+                            If you have <strong class="text-emerald-300">Google Drive for Desktop</strong> or <strong
+                                class="text-sky-300">Microsoft OneDrive</strong> installed on your PC, your cloud
+                            folders are already synced in Windows!
                         </p>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 py-1 text-xs">
                             <div class="bg-gray-900/70 p-3 rounded-lg border border-gray-700/60 space-y-1">
                                 <div class="font-semibold text-emerald-400 flex items-center gap-1.5">
-                                    <span class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-700 flex items-center justify-center text-[10px]">1</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-700 flex items-center justify-center text-[10px]">1</span>
                                     Link Synced File
                                 </div>
-                                <p class="text-[11px] text-gray-400">Click the button below to pick or create your <code class="text-gray-200 font-mono">portfolio.json</code>.</p>
+                                <p class="text-[11px] text-gray-400">Click the button below to pick or create your <code
+                                        class="text-gray-200 font-mono">portfolio.json</code>.</p>
                             </div>
                             <div class="bg-gray-900/70 p-3 rounded-lg border border-gray-700/60 space-y-1">
                                 <div class="font-semibold text-sky-400 flex items-center gap-1.5">
-                                    <span class="w-5 h-5 rounded-full bg-sky-950 border border-sky-700 flex items-center justify-center text-[10px]">2</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-sky-950 border border-sky-700 flex items-center justify-center text-[10px]">2</span>
                                     Choose Cloud Folder
                                 </div>
-                                <p class="text-[11px] text-gray-400">Select inside your <span class="text-emerald-300 font-medium">Google Drive</span> (<code class="text-gray-300">G:\My Drive</code>) or <span class="text-sky-300 font-medium">OneDrive</span> folder.</p>
+                                <p class="text-[11px] text-gray-400">Select inside your <span
+                                        class="text-emerald-300 font-medium">Google Drive</span> (<code
+                                        class="text-gray-300">G:\My Drive</code>) or <span
+                                        class="text-sky-300 font-medium">OneDrive</span> folder.</p>
                             </div>
                             <div class="bg-gray-900/70 p-3 rounded-lg border border-gray-700/60 space-y-1">
                                 <div class="font-semibold text-amber-400 flex items-center gap-1.5">
-                                    <span class="w-5 h-5 rounded-full bg-amber-950 border border-amber-700 flex items-center justify-center text-[10px]">3</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-amber-950 border border-amber-700 flex items-center justify-center text-[10px]">3</span>
                                     Automatic Cloud Sync
                                 </div>
-                                <p class="text-[11px] text-gray-400">Every stock or option transaction you save is uploaded to the cloud automatically!</p>
+                                <p class="text-[11px] text-gray-400">Every stock or option transaction you save is
+                                    uploaded to the cloud automatically!</p>
                             </div>
                         </div>
 
@@ -2373,12 +2479,14 @@
                             <button v-if="fileStatus === 'unlinked'" @click="linkLocalFile"
                                 class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-950/50">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                 </svg>
                                 Link File in Google Drive / OneDrive
                             </button>
                             <span v-else class="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Currently linked to {{ fileName }}
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Currently linked to {{
+                                fileName }}
                             </span>
                         </div>
                     </div>
@@ -2390,24 +2498,28 @@
                             <span class="text-[11px] text-gray-400">Save a copy to your PC anytime</span>
                         </div>
                         <p class="text-xs text-gray-400">
-                            Download a full snapshot of your ledger or restore your transactions from any previous backup file.
+                            Download a full snapshot of your ledger or restore your transactions from any previous
+                            backup file.
                         </p>
                         <div class="flex flex-wrap gap-2.5 pt-1">
                             <button @click="downloadBackup"
                                 class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 Download JSON Backup
                             </button>
                             <button @click="triggerJsonFileInput"
                                 class="px-3.5 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
                                 Restore from Backup File
                             </button>
-                            <input type="file" ref="jsonFileInput" @change="handleJsonFileRestore" accept=".json" class="hidden">
+                            <input type="file" ref="jsonFileInput" @change="handleJsonFileRestore" accept=".json"
+                                class="hidden">
                         </div>
                     </div>
 
@@ -2417,13 +2529,18 @@
                             class="w-full flex items-center justify-between text-left focus:outline-none">
                             <div class="flex items-center gap-2">
                                 <span class="p-1 rounded bg-gray-700/70 text-gray-300">
-                                    <svg class="w-4 h-4 transition-transform duration-200" :class="showAdvancedCloud ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    <svg class="w-4 h-4 transition-transform duration-200"
+                                        :class="showAdvancedCloud ? 'rotate-90' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
                                     </svg>
                                 </span>
                                 <div>
-                                    <span class="text-sm font-semibold text-gray-200">3. Advanced: Direct Web Cloud Sync (Google Apps Script Webhook)</span>
-                                    <p class="text-[11px] text-gray-400">For syncing across phones, tablets, or devices without desktop sync apps.</p>
+                                    <span class="text-sm font-semibold text-gray-200">3. Advanced: Direct Web Cloud Sync
+                                        (Google Apps Script Webhook)</span>
+                                    <p class="text-[11px] text-gray-400">For syncing across phones, tablets, or devices
+                                        without desktop sync apps.</p>
                                 </div>
                             </div>
                             <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded"
@@ -2434,11 +2551,15 @@
 
                         <div v-if="showAdvancedCloud" class="mt-4 pt-4 border-t border-gray-700/60 space-y-3.5">
                             <p class="text-xs text-gray-300">
-                                Deploy a private 5-line Google Apps Script on your Google account. It provides a private Webhook URL that reads and writes your <code class="font-mono text-sky-300">portfolio.json</code> directly inside your Google Drive from any browser.
+                                Deploy a private 5-line Google Apps Script on your Google account. It provides a private
+                                Webhook URL that reads and writes your <code
+                                    class="font-mono text-sky-300">portfolio.json</code> directly inside your Google
+                                Drive from any browser.
                             </p>
 
                             <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold text-gray-300">Google Apps Script Webhook URL</label>
+                                <label class="block text-xs font-semibold text-gray-300">Google Apps Script Webhook
+                                    URL</label>
                                 <div class="flex gap-2">
                                     <input type="url" v-model="cloudWebhookUrl" @change="saveCloudWebhookSettings"
                                         placeholder="https://script.google.com/macros/s/.../exec"
@@ -2451,7 +2572,8 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <input type="checkbox" id="autoSyncCheckbox" v-model="cloudAutoSync" @change="saveCloudWebhookSettings"
+                                <input type="checkbox" id="autoSyncCheckbox" v-model="cloudAutoSync"
+                                    @change="saveCloudWebhookSettings"
                                     class="rounded bg-gray-900 border-gray-700 text-sky-600 focus:ring-0">
                                 <label for="autoSyncCheckbox" class="text-xs text-gray-300 cursor-pointer">
                                     Automatically upload to cloud whenever I add, edit, or delete transactions
@@ -2459,21 +2581,28 @@
                             </div>
 
                             <div class="flex flex-wrap gap-2 pt-1">
-                                <button type="button" @click="syncToCloudWebhook(false)" :disabled="isSyncingCloud || !cloudWebhookUrl"
+                                <button type="button" @click="syncToCloudWebhook(false)"
+                                    :disabled="isSyncingCloud || !cloudWebhookUrl"
                                     class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 disabled:bg-gray-700 text-white rounded text-xs font-semibold transition flex items-center gap-1.5">
-                                    <svg v-if="isSyncingCloud" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <svg v-if="isSyncingCloud" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                     </svg>
-                                    <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
                                     {{ isSyncingCloud ? 'Syncing...' : 'Upload Now to Cloud' }}
                                 </button>
-                                <button type="button" @click="pullFromCloudWebhook" :disabled="isSyncingCloud || !cloudWebhookUrl"
+                                <button type="button" @click="pullFromCloudWebhook"
+                                    :disabled="isSyncingCloud || !cloudWebhookUrl"
                                     class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-gray-200 rounded text-xs font-semibold transition flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                     Pull / Load from Cloud
                                 </button>
@@ -4156,8 +4285,8 @@ function doPost(e) {
                     for (const model of candidateModels) {
                         try {
                             if (onStatusUpdate) {
-                                onStatusUpdate(withSearch 
-                                    ? `Connecting to Google Finance & Market Data (${model})...` 
+                                onStatusUpdate(withSearch
+                                    ? `Connecting to Google Finance & Market Data (${model})...`
                                     : `Analyzing portfolio with ${model}...`);
                             }
                             responseData = await tryGenerate(model, withSearch);
@@ -4198,9 +4327,9 @@ function doPost(e) {
                         });
                     }
 
-                    return { 
-                        text, 
-                        sources, 
+                    return {
+                        text,
+                        sources,
                         searchQueries: metadata?.webSearchQueries || [],
                         usedSearch
                     };
@@ -4218,16 +4347,68 @@ function doPost(e) {
                     deepResearchProgress.value = 'Gathering portfolio stocks and options...';
 
                     const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-                    
-                    const stocksList = (computedStockHoldings.value || []).map(s => 
-                        `- ${s.symbol}: ${s.quantity} shs @ $${formatNumber(s.avgCost)} (Now $${formatNumber(s.currentPrice)}, P/L ${s.unrealizedPercent.toFixed(1)}%)`
-                    ).join('\n') || 'None';
 
-                    const optionsList = (computedOptionHoldings.value || []).map(o => 
-                        `- ${o.symbol}: ${o.quantity}x ${o.positionType} ${o.optionType || o.strategyName || 'Option'} $${o.strike || 'N/A'} exp ${o.expiration || 'N/A'}`
-                    ).join('\n') || 'None';
+                    let prompt = '';
+                    if (enableSearchGrounding.value) {
+                        // Comprehensive Institutional-Grade Research (Live Google Search Grounding ON)
+                        const stocksList = (computedStockHoldings.value || []).map(s => 
+                            `- ${s.symbol}: ${s.quantity} shares | Avg Cost: $${formatNumber(s.avgCost)} | Current Price: $${formatNumber(s.currentPrice)} | Market Val: $${formatNumber(s.marketValue)} | P/L: ${s.unrealizedPL >= 0 ? '+' : ''}$${formatNumber(s.unrealizedPL)} (${s.unrealizedPercent.toFixed(1)}%)`
+                        ).join('\n') || 'No open stock holdings.';
 
-                    const prompt = `Provide a daily market & portfolio briefing for ${todayDate}.
+                        const optionsList = (computedOptionHoldings.value || []).map(o => 
+                            `- ${o.symbol}: ${o.quantity} contracts | ${o.positionType} ${o.optionType || o.strategyName || 'Option'} | Strike: $${o.strike || 'N/A'} | Exp: ${o.expiration || 'N/A'} | Total Cost: $${formatNumber(o.totalCost)}`
+                        ).join('\n') || 'No active options or spread positions.';
+
+                        prompt = `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
+Conduct a comprehensive, institutional-grade daily market analysis for today (${todayDate}) based on the investor's exact portfolio below.
+USE GOOGLE SEARCH GROUNDING TO RETRIEVE LIVE GOOGLE FINANCE DATA, CURRENT INDEX/VIX LEVELS, UPCOMING EARNINGS DATES, AND BREAKING MARKET NEWS.
+
+=== INVESTOR PORTFOLIO HOLDINGS ===
+STOCKS HELD:
+${stocksList}
+
+ACTIVE OPTIONS & SPREADS:
+${optionsList}
+
+PORTFOLIO TOTAL STOCK MARKET VALUE: $${formatNumber(holdingsTotals.value.marketValue)}
+REALIZED NET PROFIT TO DATE: $${formatNumber(totalPortfolioNetPL.value)}
+=== END PORTFOLIO ===
+
+Please generate a high-conviction, professional report structured in Markdown with these exact sections:
+
+## 1. 🌐 Daily Macro Pulse & Market Sentiment
+- Current status of S&P 500, Nasdaq, 10-Year Treasury Yield, and CBOE VIX today.
+- Today's top market drivers (Fed policy expectations, economic data, major sector rotations).
+- How today's broader market environment directly influences the user's specific assets.
+
+## 2. 📈 Held Stocks: Catalyst, News & Valuation Radar
+- For each stock held in the portfolio:
+  - Explain today's price action and recent catalyst.
+  - Upcoming earnings announcement date and major expected events.
+  - Wall Street consensus view, price target range, and key technical support/resistance levels.
+
+## 3. ⚡ Active Options & Greeks Expiration Radar
+- Expiration clock: Flag any options contracts with fewer than 14–21 Days to Expiration (DTE).
+- Moneyness & early assignment risk (especially for short covered calls or short puts).
+- Strategic guidance: Whether to hold for remaining theta decay, roll out and up/down, or close position to lock in capital.
+
+## 4. 🎯 Strategic Portfolio Health & Tactical Action Items
+- Concentration and diversification check (sector risk assessment).
+- Hedging opportunities or covered call writing ideas on 100+ share lots.
+- 3 clear, prioritized tactical action items for the investor today.
+
+Maintain an objective, analytical, and highly actionable tone. Ground all insights with today's real market prices and verified corporate news.`;
+                    } else {
+                        // Fast Minimized Briefing (Live Google Search Grounding OFF / Standard AI)
+                        const stocksList = (computedStockHoldings.value || []).map(s =>
+                            `- ${s.symbol}: ${s.quantity} shs @ $${formatNumber(s.avgCost)} (Now $${formatNumber(s.currentPrice)}, P/L ${s.unrealizedPercent.toFixed(1)}%)`
+                        ).join('\n') || 'None';
+
+                        const optionsList = (computedOptionHoldings.value || []).map(o =>
+                            `- ${o.symbol}: ${o.quantity}x ${o.positionType} ${o.optionType || o.strategyName || 'Option'} $${o.strike || 'N/A'} exp ${o.expiration || 'N/A'}`
+                        ).join('\n') || 'None';
+
+                        prompt = `Provide a daily market & portfolio briefing for ${todayDate}.
 
 PORTFOLIO:
 Stocks:
@@ -4247,6 +4428,7 @@ Output in Markdown:
 
 ## 4. 🎯 Tactical Action Items
 - 3 prioritized action items for the portfolio today.`;
+                    }
 
                     const progressTimer = setInterval(() => {
                         if (deepResearchProgress.value.includes('Gathering')) {
@@ -4263,11 +4445,11 @@ Output in Markdown:
                         deepResearchReport.value = res.text;
                         deepResearchSources.value = res.sources;
                         deepResearchTimestamp.value = new Date().toLocaleString();
-                        
+
                         localStorage.setItem('deep_research_report', res.text);
                         localStorage.setItem('deep_research_sources', JSON.stringify(res.sources));
                         localStorage.setItem('deep_research_timestamp', deepResearchTimestamp.value);
-                        
+
                         if (res.usedSearch) {
                             showNotification('Daily AI Market Research generated with Live Google Finance!', 'success');
                         } else {
@@ -4302,7 +4484,35 @@ Output in Markdown:
 
                     const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-                    const prompt = `Provide a concise equity research briefing for ${sym} (${todayDate}).
+                    let prompt = '';
+                    if (enableSearchGrounding.value) {
+                        // Comprehensive Institutional-Grade Research (Live Google Search Grounding ON)
+                        prompt = `You are an equity research analyst.
+Conduct an in-depth, institutional-grade research analysis on ticker symbol: ${sym} for today (${todayDate}).
+USE GOOGLE SEARCH GROUNDING TO CHECK LIVE GOOGLE FINANCE QUOTES, RECENT EARNINGS REPORTS, WALL STREET PRICE TARGETS, AND BREAKING NEWS.
+
+Format your output in clean Markdown:
+## 1. 📊 Executive Summary & Today's Performance
+- Current real-time price, intraday % change, 52-week high/low, and market capitalization.
+- Brief overview of business model and core revenue drivers.
+
+## 2. 🐂 Bull Case vs 🐻 Bear Case
+- Top 3 Bullish catalysts and long-term tailwinds.
+- Top 3 Bearish headwinds, competitive threats, or valuation risks.
+
+## 3. 🎯 Fundamentals, Valuation & Earnings Calendar
+- Key financial metrics: P/E, Forward P/E, Revenue Growth (YoY), Free Cash Flow.
+- Next scheduled earnings date and Wall Street average analyst price target (% upside/downside).
+
+## 4. ⚡ Technical Levels & Options Volatility
+- Key support and resistance price levels, moving average trends.
+- Implied Volatility (IV) regime and options playbook (e.g. Covered Call, Cash-Secured Put, Long Stock, or Wait).
+
+## 5. 💡 Strategic Verdict & Rating
+- Bottom-line investment verdict (Strong Buy / Buy / Hold / Trim / Sell) with clear justification.`;
+                    } else {
+                        // Fast Minimized Briefing (Live Google Search Grounding OFF / Standard AI)
+                        prompt = `Provide a concise equity research briefing for ${sym} (${todayDate}).
 
 Format in Markdown:
 ## 1. 📊 Overview & Price
@@ -4316,8 +4526,11 @@ Format in Markdown:
 
 ## 4. ⚡ Technicals & Verdict
 - Key support/resistance levels and bottom-line verdict (Buy/Hold/Sell) with reasoning.`;
+                    }
 
-                    singleTickerProgress.value = `Analyzing ${sym} with Live Google Finance...`;
+                    singleTickerProgress.value = enableSearchGrounding.value
+                        ? `Analyzing ${sym} with Live Google Finance...`
+                        : `Analyzing ${sym} with Gemini AI...`;
                     try {
                         const res = await callGeminiResearchAPI(prompt, (status) => {
                             singleTickerProgress.value = status;
