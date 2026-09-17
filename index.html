@@ -4082,7 +4082,7 @@ function doPost(e) {
                 const callGeminiAPI = async (prompt, useSearchGrounding = false) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) return null;
                     const key = geminiApiKey.value.trim();
-                    const model = 'gemini-3.5-flash';
+                    const model = useSearchGrounding ? 'gemini-flash-latest' : 'gemini-3.5-flash';
 
                     const reqBody = {
                         contents: [{ parts: [{ text: prompt }] }]
@@ -4236,8 +4236,11 @@ function doPost(e) {
                         throw new Error('Google Gemini API Key is missing. Please enter your key in API & AI Settings.');
                     }
                     const key = geminiApiKey.value.trim();
-                    // Fast and stable models: gemini-3.5-flash priority, followed by flash-latest/3.8/3.7
-                    const candidateModels = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
+                    const withSearch = enableSearchGrounding.value;
+                    // When Live Google Search is ON, prioritize the latest model alias; otherwise keep 3.5 as main
+                    const candidateModels = withSearch
+                        ? ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
+                        : ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
 
                     const tryGenerate = async (modelName, withSearch) => {
                         const payload = {
@@ -4277,8 +4280,6 @@ function doPost(e) {
                     let responseData = null;
                     let usedSearch = false;
                     let lastError = null;
-
-                    const withSearch = enableSearchGrounding.value;
 
                     for (const model of candidateModels) {
                         try {
