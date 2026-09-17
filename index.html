@@ -153,6 +153,19 @@
                     <span v-if="apiKey" class="w-2 h-2 rounded-full bg-emerald-400" title="Finnhub Active"></span>
                 </button>
 
+                <button @click="openDeepResearchModal"
+                    class="px-2.5 py-2 bg-gradient-to-r from-indigo-900/60 to-purple-900/60 hover:from-indigo-800/80 hover:to-purple-800/80 text-indigo-200 hover:text-white text-xs font-semibold rounded border border-indigo-500/50 transition flex items-center gap-1.5 shadow-sm"
+                    title="Daily Market & Portfolio Deep Research powered by Google Gemini & Live Google Finance">
+                    <svg class="w-3.5 h-3.5 text-indigo-300 animate-pulse" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>AI Deep Research</span>
+                    <span v-if="deepResearchReport" class="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                        title="Daily Report Available"></span>
+                </button>
+
                 <button @click="syncPrices" :disabled="isSyncing || (!apiKey && !geminiApiKey)"
                     :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white'"
                     class="px-3 py-2 rounded text-xs font-semibold transition flex items-center gap-1 shadow-sm">
@@ -280,7 +293,8 @@
             <!-- Card Header & Controls -->
             <div
                 class="p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-750 bg-gray-850">
-                <div class="flex items-center justify-between cursor-pointer select-none" @click="toggleAnalyticsHub">
+                <div class="flex items-center justify-between cursor-pointer select-none flex-1"
+                    @click="toggleAnalyticsHub">
                     <div class="flex items-center gap-3">
                         <span class="p-2 bg-emerald-950/70 border border-emerald-800/70 rounded-lg text-emerald-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -301,59 +315,59 @@
                                 returns matrix</p>
                         </div>
                     </div>
-                    <svg :class="{'rotate-180': showAnalyticsHub}"
-                        class="w-5 h-5 text-gray-400 transition-transform lg:hidden" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
                 </div>
 
-                <!-- Right Toolbar (Tabs & Expand Icon) -->
-                <div v-show="showAnalyticsHub" class="flex flex-wrap items-center gap-2.5">
-                    <!-- Tab Switcher: Chart vs Matrix -->
-                    <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
-                        <button type="button" @click="analyticsActiveTab = 'chart'"
-                            :class="analyticsActiveTab === 'chart' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
-                            class="px-3 py-1 rounded transition flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
-                            Chart View
-                        </button>
-                        <button type="button" @click="analyticsActiveTab = 'matrix'"
-                            :class="analyticsActiveTab === 'matrix' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
-                            class="px-3 py-1 rounded transition flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
-                                </path>
-                            </svg>
-                            Monthly Heatmap
-                        </button>
+                <!-- Right Controls & Dropdown Arrow -->
+                <div class="flex items-center justify-between lg:justify-end gap-3">
+                    <!-- Right Toolbar (Tabs & Filters) -->
+                    <div v-show="showAnalyticsHub" class="flex flex-wrap items-center gap-2.5">
+                        <!-- Tab Switcher: Chart vs Matrix -->
+                        <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                            <button type="button" @click="analyticsActiveTab = 'chart'"
+                                :class="analyticsActiveTab === 'chart' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                                class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                                Chart View
+                            </button>
+                            <button type="button" @click="analyticsActiveTab = 'matrix'"
+                                :class="analyticsActiveTab === 'matrix' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                                class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                                    </path>
+                                </svg>
+                                Monthly Heatmap
+                            </button>
+                        </div>
+
+                        <!-- Asset Filter: All / Stocks / Options -->
+                        <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                            <button type="button" @click="chartAssetFilter = 'all'"
+                                :class="chartAssetFilter === 'all' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded transition">All</button>
+                            <button type="button" @click="chartAssetFilter = 'stock'"
+                                :class="chartAssetFilter === 'stock' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded transition">Stocks</button>
+                            <button type="button" @click="chartAssetFilter = 'option'"
+                                :class="chartAssetFilter === 'option' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded transition">Options</button>
+                        </div>
                     </div>
 
-                    <!-- Asset Filter: All / Stocks / Options -->
-                    <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
-                        <button type="button" @click="chartAssetFilter = 'all'"
-                            :class="chartAssetFilter === 'all' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
-                            class="px-2.5 py-1 rounded transition">All</button>
-                        <button type="button" @click="chartAssetFilter = 'stock'"
-                            :class="chartAssetFilter === 'stock' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
-                            class="px-2.5 py-1 rounded transition">Stocks</button>
-                        <button type="button" @click="chartAssetFilter = 'option'"
-                            :class="chartAssetFilter === 'option' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
-                            class="px-2.5 py-1 rounded transition">Options</button>
-                    </div>
-
-                    <button type="button" @click="toggleAnalyticsHub"
-                        class="hidden lg:flex p-1.5 rounded hover:bg-gray-750 text-gray-400 hover:text-white transition">
+                    <!-- Standardized Dropdown Arrow (Identical to Stock Allocation & Stock Price Manual Updates) -->
+                    <div @click="toggleAnalyticsHub"
+                        class="text-emerald-400 hover:text-emerald-300 cursor-pointer select-none p-1 transition"
+                        title="Toggle Performance Analytics">
                         <svg :class="{'rotate-180': showAnalyticsHub}" class="w-5 h-5 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
                             </path>
                         </svg>
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -456,7 +470,7 @@
                     </div>
 
                     <div class="overflow-x-auto border border-gray-700/80 rounded-xl bg-gray-900/60">
-                        <table class="w-full text-center text-xs whitespace-nowrap border-collapse">
+                        <table class="w-full text-center text-xs whitespace-nowrap border-collapse min-w-[620px]">
                             <thead
                                 class="bg-gray-850 text-gray-400 border-b border-gray-750 font-semibold uppercase text-[10px]">
                                 <tr>
@@ -508,12 +522,15 @@
             </div>
         </div>
 
-        <!-- Notification Banner -->
+        <!-- Floating Notification Toast -->
         <div v-if="notification.message"
-            :class="notification.type === 'error' ? 'bg-rose-950 border-rose-800 text-rose-300' : 'bg-emerald-950 border-emerald-800 text-emerald-300'"
-            class="p-3 mb-6 rounded border text-sm flex justify-between items-center transition">
-            <span>{{ notification.message }}</span>
-            <button @click="notification.message = ''" class="text-xs font-bold hover:text-white">✕</button>
+            :class="notification.type === 'error' ? 'bg-rose-950/95 border-rose-700 text-rose-200 shadow-rose-950/50' : (notification.type === 'warning' ? 'bg-amber-950/95 border-amber-700 text-amber-200 shadow-amber-950/50' : 'bg-emerald-950/95 border-emerald-700 text-emerald-200 shadow-emerald-950/50')"
+            class="fixed bottom-6 right-6 z-[9999] max-w-md p-3.5 rounded-xl border text-xs sm:text-sm shadow-2xl backdrop-blur-md flex items-center justify-between gap-3 transition-all">
+            <div class="flex items-center gap-2">
+                <span>{{ notification.message }}</span>
+            </div>
+            <button @click="notification.message = ''"
+                class="text-xs font-bold text-gray-400 hover:text-white p-1">✕</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -535,113 +552,126 @@
                             class="text-xs underline hover:text-white ml-2">Cancel</button>
                     </div>
 
-                    <h2 class="text-lg font-semibold mb-4 text-emerald-400">Record Transaction</h2>
+                    <h2 @click="toggleRecordTransaction"
+                        class="text-lg font-semibold text-emerald-400 cursor-pointer flex justify-between items-center select-none"
+                        :class="showRecordTransaction ? 'mb-4' : 'mb-0'">
+                        <span>Record Transaction</span>
+                        <svg :class="{'rotate-180': showRecordTransaction}" class="w-5 h-5 transition-transform"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </h2>
 
-                    <form @submit.prevent="addTransaction" class="space-y-4">
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Asset Type</label>
-                            <div class="flex space-x-2">
-                                <button type="button" :disabled="isRolling" @click="setAssetType('Stock')"
-                                    :class="[form.assetType === 'Stock' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
-                                    class="flex-1 py-1.5 rounded text-sm font-semibold transition">Stock</button>
-                                <button type="button" :disabled="isRolling" @click="setAssetType('Option')"
-                                    :class="[form.assetType === 'Option' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
-                                    class="flex-1 py-1.5 rounded text-sm font-semibold transition">Option</button>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div v-show="showRecordTransaction">
+                        <form @submit.prevent="addTransaction" class="space-y-4">
                             <div>
-                                <label class="block text-xs text-gray-400 mb-1">Action</label>
-                                <select v-model="form.action" :disabled="isRolling && rollStep === 1"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-                                    <option v-for="action in availableActions" :value="action.value">{{ action.label }}
-                                    </option>
-                                </select>
+                                <label class="block text-xs text-gray-400 mb-1">Asset Type</label>
+                                <div class="flex space-x-2">
+                                    <button type="button" :disabled="isRolling" @click="setAssetType('Stock')"
+                                        :class="[form.assetType === 'Stock' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
+                                        class="flex-1 py-1.5 rounded text-sm font-semibold transition">Stock</button>
+                                    <button type="button" :disabled="isRolling" @click="setAssetType('Option')"
+                                        :class="[form.assetType === 'Option' ? 'bg-emerald-600 text-white' : 'bg-gray-700 text-gray-300', isRolling ? 'opacity-40 cursor-not-allowed' : '']"
+                                        class="flex-1 py-1.5 rounded text-sm font-semibold transition">Option</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Ticker Symbol</label>
-                                <input type="text" v-model="form.ticker" :disabled="isRolling" placeholder="e.g. AAPL"
-                                    required
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-500 uppercase focus:outline-none focus:border-emerald-500 disabled:opacity-50">
-                            </div>
-                        </div>
 
-                        <!-- Option Specific Fields -->
-                        <div v-if="form.assetType === 'Option'"
-                            class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Option Type</label>
-                                    <select v-model="form.optionType" :disabled="isRolling && rollStep === 1"
-                                        class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white disabled:opacity-50">
-                                        <option value="Call">Call</option>
-                                        <option value="Put">Put</option>
+                                    <label class="block text-xs text-gray-400 mb-1">Action</label>
+                                    <select v-model="form.action" :disabled="isRolling && rollStep === 1"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                        <option v-for="action in availableActions" :value="action.value">{{ action.label
+                                            }}
+                                        </option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Strike Price ($)</label>
-                                    <input type="number" step="any" v-model.number="form.strike" placeholder="Strike"
+                                    <label class="block text-xs text-gray-400 mb-1">Ticker Symbol</label>
+                                    <input type="text" v-model="form.ticker" :disabled="isRolling"
+                                        placeholder="e.g. AAPL" required
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-500 uppercase focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                </div>
+                            </div>
+
+                            <!-- Option Specific Fields -->
+                            <div v-if="form.assetType === 'Option'"
+                                class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Option Type</label>
+                                        <select v-model="form.optionType" :disabled="isRolling && rollStep === 1"
+                                            class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white disabled:opacity-50">
+                                            <option value="Call">Call</option>
+                                            <option value="Put">Put</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-400 mb-1">Strike Price ($)</label>
+                                        <input type="number" step="any" v-model.number="form.strike"
+                                            placeholder="Strike"
+                                            class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Expiration Date</label>
+                                    <input type="date" v-model="form.expiration"
                                         class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
                                 </div>
                             </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Expiration Date</label>
-                                <input type="date" v-model="form.expiration"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-1.5 text-sm text-white">
-                            </div>
-                        </div>
 
-                        <!-- Spread / Roll Specific Fields (Only displays dynamically if user clicked "Roll" on an active spread position) -->
-                        <div v-if="form.assetType === 'Spread' && isRolling"
-                            class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1">Spread Strategy Description</label>
-                                <input type="text" v-model="form.strategyName"
-                                    placeholder="Calendar 12 JUN 26/5 JUN 26 60 PUT" required
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Spread / Roll Specific Fields (Only displays dynamically if user clicked "Roll" on an active spread position) -->
+                            <div v-if="form.assetType === 'Spread' && isRolling"
+                                class="space-y-3 p-3 bg-gray-700/30 rounded border border-gray-700">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1">Spread Strategy Description</label>
+                                    <input type="text" v-model="form.strategyName"
+                                        placeholder="Calendar 12 JUN 26/5 JUN 26 60 PUT" required
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Quantities, Cost & Fee -->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
-                                    {{ form.assetType === 'Stock' ? 'Shares' : 'Contracts' }}
-                                </label>
-                                <input type="number" step="any" v-model.number="form.quantity" :disabled="isRolling"
-                                    required min="0.0001"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                            <!-- Quantities, Cost & Fee -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                        {{ form.assetType === 'Stock' ? 'Shares' : 'Contracts' }}
+                                    </label>
+                                    <input type="number" step="any" v-model.number="form.quantity" :disabled="isRolling"
+                                        required min="0.0001"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                        Price per {{ form.assetType === 'Stock' ? 'Share ($)' : 'Contract ($)' }}
+                                    </label>
+                                    <input type="number" step="any" v-model.number="form.price" required min="0.00"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
+                                        Fee ($)
+                                    </label>
+                                    <input type="number" step="any" v-model.number="form.fee" required min="0.00"
+                                        class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                </div>
                             </div>
+
                             <div>
-                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
-                                    Price per {{ form.assetType === 'Stock' ? 'Share ($)' : 'Contract ($)' }}
-                                </label>
-                                <input type="number" step="any" v-model.number="form.price" required min="0.00"
+                                <label class="block text-xs text-gray-400 mb-1">Transaction Date</label>
+                                <input type="date" v-model="form.date" required
                                     class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                             </div>
-                            <div>
-                                <label class="block text-xs text-gray-400 mb-1 min-h-[2.25rem] flex items-end pb-1">
-                                    Fee ($)
-                                </label>
-                                <input type="number" step="any" v-model.number="form.fee" required min="0.00"
-                                    class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            </div>
-                        </div>
 
-                        <div>
-                            <label class="block text-xs text-gray-400 mb-1">Transaction Date</label>
-                            <input type="date" v-model="form.date" required
-                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                        </div>
-
-                        <button type="submit"
-                            class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded transition">
-                            <span v-if="isRolling && rollStep === 1">Save Close Leg (Step 1)</span>
-                            <span v-else-if="isRolling && rollStep === 2">Save Open Leg (Step 2)</span>
-                            <span v-else>Save Transaction</span>
-                        </button>
-                    </form>
+                            <button type="submit"
+                                class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded transition">
+                                <span v-if="isRolling && rollStep === 1">Save Close Leg (Step 1)</span>
+                                <span v-else-if="isRolling && rollStep === 2">Save Open Leg (Step 2)</span>
+                                <span v-else>Save Transaction</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Portfolio Allocation Chart Card -->
@@ -661,6 +691,14 @@
                             by Ticker.</p>
                         <div class="relative flex items-center justify-center min-h-[260px]">
                             <canvas id="allocationChart" class="max-w-[250px] max-h-[250px]"></canvas>
+                            <!-- Center Total Display for Doughnut -->
+                            <div v-if="!hasNoStockHoldings && computedStockHoldings.length > 0"
+                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-7">
+                                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Total
+                                    Value</span>
+                                <span class="text-sm font-extrabold text-white font-mono">${{
+                                    formatNumber(stockPortfolioValue) }}</span>
+                            </div>
                             <div v-if="hasNoStockHoldings"
                                 class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
                                 No active stock positions to display allocation.
@@ -726,7 +764,7 @@
             <div class="lg:col-span-2 space-y-6">
 
                 <!-- Stock Holdings Table -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <div>
                             <div class="flex items-center gap-2">
@@ -756,38 +794,42 @@
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase select-none">
                                     <th @click="toggleStockSort('symbol')"
-                                        class="pb-3 font-semibold cursor-pointer hover:text-white transition">
+                                        class="pb-3 px-3 sm:px-4 font-semibold cursor-pointer hover:text-white transition">
                                         Symbol {{ stockHoldingsSortKey === 'symbol' ? (stockHoldingsSortAsc ? '↑' : '↓')
                                         : '' }}
                                     </th>
                                     <th @click="toggleStockSort('quantity')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Shares {{ stockHoldingsSortKey === 'quantity' ? (stockHoldingsSortAsc ? '↑' :
                                         '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('avgCost')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Avg Cost {{ stockHoldingsSortKey === 'avgCost' ? (stockHoldingsSortAsc ? '↑' :
                                         '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('currentPrice')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        Current Price {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc
+                                        class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        <span class="hidden sm:inline">Current Price</span>
+                                        <span class="sm:hidden">Price / Val</span>
+                                        {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc
                                         ? '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('marketValue')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Market Value {{ stockHoldingsSortKey === 'marketValue' ? (stockHoldingsSortAsc ?
                                         '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('weightPercent')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         Weight % {{ stockHoldingsSortKey === 'weightPercent' ? (stockHoldingsSortAsc ?
                                         '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('unrealizedPL')"
-                                        class="pb-3 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        Unrealized P/L {{ stockHoldingsSortKey === 'unrealizedPL' ?
+                                        class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        <span class="hidden sm:inline">Unrealized P/L</span>
+                                        <span class="sm:hidden">P/L</span>
+                                        {{ stockHoldingsSortKey === 'unrealizedPL' ?
                                         (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
                                     </th>
                                 </tr>
@@ -795,13 +837,28 @@
                             <tbody class="divide-y divide-gray-700/50 text-sm">
                                 <tr v-for="holding in sortedAndFilteredStockHoldings" :key="holding.symbol"
                                     class="hover:bg-gray-700/20 transition">
-                                    <td class="py-3 font-bold text-white">{{ holding.symbol }}</td>
-                                    <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.currentPrice) }}</td>
-                                    <td class="py-3 text-right font-mono text-white">${{
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="font-bold text-white">{{ holding.symbol }}</div>
+                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                            {{ holding.quantity }} shs @ ${{ formatNumber(holding.avgCost) }}
+                                            <span class="text-gray-500">•</span>
+                                            <span class="text-emerald-400/80">{{ holding.weightPercent.toFixed(1)
+                                                }}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        holding.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(holding.avgCost) }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono">
+                                        <div class="text-gray-200">${{ formatNumber(holding.currentPrice) }}</div>
+                                        <div class="sm:hidden text-xs text-gray-400 mt-0.5">${{
+                                            formatNumber(holding.marketValue) }}</div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white">
+                                        ${{
                                         formatNumber(holding.marketValue) }}</td>
-                                    <td class="py-3 text-right">
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right">
                                         <div class="flex items-center justify-end gap-1.5 font-mono text-xs">
                                             <span class="text-gray-300">{{ holding.weightPercent.toFixed(1) }}%</span>
                                             <div
@@ -812,7 +869,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="py-3 text-right font-mono font-semibold"
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-semibold"
                                         :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                                         {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL)
                                         }}
@@ -831,16 +888,31 @@
                             <tfoot v-if="sortedAndFilteredStockHoldings.length > 0"
                                 class="border-t-2 border-gray-700 bg-gray-900/40 text-xs font-semibold text-gray-300">
                                 <tr>
-                                    <td class="py-3 px-1 font-bold text-white">Total ({{
-                                        sortedAndFilteredStockHoldings.length }})</td>
-                                    <td class="py-3 text-right font-mono">{{ formatNumber(holdingsTotals.shares) }}</td>
-                                    <td class="py-3 text-right font-mono text-gray-500">—</td>
-                                    <td class="py-3 text-right font-mono text-gray-500">—</td>
-                                    <td class="py-3 text-right font-mono text-white font-bold">${{
+                                    <td class="py-3 px-3 sm:px-4 font-bold text-white">
+                                        <div>Total ({{ sortedAndFilteredStockHoldings.length }})</div>
+                                        <div class="sm:hidden text-[11px] font-mono text-gray-400 font-normal mt-0.5">
+                                            {{ formatNumber(holdingsTotals.shares) }} shs • {{
+                                            holdingsTotals.totalWeight.toFixed(1) }}%
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        formatNumber(holdingsTotals.shares) }}</td>
+                                    <td
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-500">
+                                        —</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold text-white">
+                                        <span class="hidden sm:inline text-gray-500 font-normal">—</span>
+                                        <span class="sm:hidden">${{ formatNumber(holdingsTotals.marketValue) }}</span>
+                                    </td>
+                                    <td
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">
+                                        ${{
                                         formatNumber(holdingsTotals.marketValue) }}</td>
-                                    <td class="py-3 text-right font-mono text-gray-400">{{
+                                    <td
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-400">
+                                        {{
                                         holdingsTotals.totalWeight.toFixed(1) }}%</td>
-                                    <td class="py-3 text-right font-mono font-bold"
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold"
                                         :class="holdingsTotals.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                                         {{ holdingsTotals.unrealizedPL >= 0 ? '+' : '' }}${{
                                         formatNumber(holdingsTotals.unrealizedPL) }}
@@ -854,7 +926,7 @@
                 </div>
 
                 <!-- Active Option & Spread Positions Table -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
                     <h2 class="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
                         <span>Active Options & Spreads</span>
                         <span class="text-xs text-gray-400 font-normal">Close or expire position to realize ledger
@@ -864,48 +936,70 @@
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                    <th class="pb-3 font-semibold">Underlying / Structure</th>
-                                    <th class="pb-3 font-semibold">Type</th>
-                                    <th class="pb-3 text-right font-semibold">Contracts</th>
-                                    <th class="pb-3 text-right font-semibold">Avg Entry Premium</th>
-                                    <th class="pb-3 text-right font-semibold">Net Cost / Credit</th>
-                                    <th class="pb-3 text-center font-semibold">Actions</th>
+                                    <th class="pb-3 px-3 sm:px-4 font-semibold">
+                                        <span class="hidden sm:inline">Underlying / Structure</span>
+                                        <span class="sm:hidden">Position / Contracts</span>
+                                    </th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 font-semibold">Type</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">
+                                        Contracts</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Avg
+                                        Entry Premium</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-right font-semibold">Cost / Credit</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-center font-semibold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50 text-sm">
                                 <tr v-for="holding in computedOptionHoldings" :key="holding.key"
-                                    class="hover:bg-gray-700/20">
-                                    <td class="py-3">
-                                        <span class="font-bold text-white">{{ holding.symbol }}</span>
-                                        <span v-if="holding.assetType === 'Option'" class="text-xs text-gray-400 block">
+                                    class="hover:bg-gray-700/20 transition">
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-bold text-white">{{ holding.symbol }}</span>
+                                            <!-- Mobile-only Type badge -->
+                                            <span class="sm:hidden px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                                                :class="holding.positionType === 'Long' ? 'text-emerald-400 bg-emerald-950/40 border border-emerald-900/50' : 'text-amber-400 bg-amber-950/40 border border-amber-900/50'">
+                                                {{ holding.positionType }}
+                                            </span>
+                                        </div>
+                                        <div v-if="holding.assetType === 'Option'" class="text-xs text-gray-400 mt-0.5">
                                             {{ holding.optionType }} ${{ holding.strike }} Exp: {{ holding.expiration }}
-                                        </span>
-                                        <span v-else class="text-xs text-amber-400 block font-medium">
+                                        </div>
+                                        <div v-else class="text-xs text-amber-400 mt-0.5 font-medium">
                                             {{ holding.strategyName }}
-                                        </span>
+                                        </div>
+                                        <!-- Mobile-only Contracts & Avg Premium -->
+                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                            {{ holding.quantity }} contract{{ holding.quantity > 1 ? 's' : '' }} @ ${{
+                                            formatNumber(holding.avgCost) }}
+                                        </div>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
                                         <span
                                             :class="holding.positionType === 'Long' ? 'text-emerald-400 bg-emerald-950/40 border border-emerald-900/50' : 'text-amber-400 bg-amber-950/40 border border-amber-900/50'"
                                             class="px-2 py-0.5 rounded text-xs font-semibold">
                                             {{ holding.positionType }}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-right font-mono">{{ holding.quantity }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(holding.avgCost) }}</td>
-                                    <td class="py-3 text-right font-mono text-white">
-                                        {{ holding.positionType === 'Long' ? 'Debit:' : 'Credit:' }} ${{
-                                        formatNumber(holding.totalCost) }}
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        holding.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(holding.avgCost) }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono text-white">
+                                        <div class="text-xs text-gray-400 font-sans">{{ holding.positionType === 'Long'
+                                            ? 'Debit:' : 'Credit:' }}</div>
+                                        <div class="font-semibold">${{ formatNumber(holding.totalCost) }}</div>
                                     </td>
-                                    <td class="py-3 text-center flex items-center justify-center gap-1.5">
-                                        <button @click="quickCloseOption(holding)"
-                                            class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-emerald-400 transition">
-                                            Close / Expire
-                                        </button>
-                                        <button @click="startRollOption(holding)"
-                                            class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-amber-400 transition">
-                                            Roll
-                                        </button>
+                                    <td class="py-3 px-3 sm:px-4 text-center">
+                                        <div class="flex items-center justify-center gap-1.5 flex-wrap sm:flex-nowrap">
+                                            <button @click="quickCloseOption(holding)"
+                                                class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-emerald-400 transition whitespace-nowrap">
+                                                Close
+                                            </button>
+                                            <button @click="startRollOption(holding)"
+                                                class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-xs font-semibold rounded text-amber-400 transition whitespace-nowrap">
+                                                Roll
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr v-if="computedOptionHoldings.length === 0">
@@ -918,36 +1012,45 @@
                 </div>
 
                 <!-- Transaction Ledger (History) -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
+                    <div class="flex items-center justify-between gap-3 mb-4">
                         <h2 @click="showHistory = !showHistory"
                             class="text-lg font-semibold text-emerald-400 cursor-pointer flex items-center gap-2 select-none">
                             <span>Transaction History</span>
                             <span
-                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-800 border border-gray-700 text-gray-300 font-mono">
+                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-900 border border-gray-700 text-gray-300 font-mono">
                                 {{ filteredTransactions.length }} <span
                                     v-if="filteredTransactions.length !== transactions.length">of {{ transactions.length
                                     }}</span> Records
                             </span>
-                            <svg :class="{'rotate-180': showHistory}"
-                                class="w-5 h-5 transition-transform text-gray-400 ml-1" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
                         </h2>
 
-                        <!-- Per Page & Reset if opened -->
-                        <div v-show="showHistory" class="flex items-center gap-2 text-xs">
-                            <span class="text-gray-400">Show:</span>
-                            <select v-model.number="ledgerPerPage" @change="ledgerPage = 1"
-                                class="bg-gray-700 border border-gray-600 text-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
-                                <option :value="15" class="bg-gray-800 text-gray-200">15</option>
-                                <option :value="25" class="bg-gray-800 text-gray-200">25</option>
-                                <option :value="50" class="bg-gray-800 text-gray-200">50</option>
-                                <option :value="100" class="bg-gray-800 text-gray-200">100</option>
-                                <option :value="-1" class="bg-gray-800 text-gray-200">All</option>
-                            </select>
+                        <!-- Right Controls: Per Page Selector & Standardized Chevron -->
+                        <div class="flex items-center gap-3">
+                            <!-- Per Page selector if opened -->
+                            <div v-show="showHistory" class="flex items-center gap-1.5 text-xs">
+                                <span class="text-gray-400">Show:</span>
+                                <select v-model.number="ledgerPerPage" @change="ledgerPage = 1"
+                                    class="bg-gray-700 border border-gray-600 text-gray-200 rounded px-2 py-1 text-xs focus:outline-none focus:border-emerald-500 cursor-pointer">
+                                    <option :value="15" class="bg-gray-800 text-gray-200">15</option>
+                                    <option :value="25" class="bg-gray-800 text-gray-200">25</option>
+                                    <option :value="50" class="bg-gray-800 text-gray-200">50</option>
+                                    <option :value="100" class="bg-gray-800 text-gray-200">100</option>
+                                    <option :value="-1" class="bg-gray-800 text-gray-200">All</option>
+                                </select>
+                            </div>
+
+                            <!-- Standardized Dropdown Arrow (Identical to other cards) -->
+                            <div @click="showHistory = !showHistory"
+                                class="text-emerald-400 hover:text-emerald-300 cursor-pointer select-none p-1 transition"
+                                title="Toggle Transaction History">
+                                <svg :class="{'rotate-180': showHistory}" class="w-5 h-5 transition-transform"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7">
+                                    </path>
+                                </svg>
+                            </div>
                         </div>
                     </div>
 
@@ -1063,49 +1166,74 @@
                         <table class="w-full text-left border-collapse whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                    <th class="pb-3 font-semibold">Date</th>
-                                    <th class="pb-3 font-semibold">Asset</th>
-                                    <th class="pb-3 font-semibold">Action</th>
-                                    <th class="pb-3 text-right font-semibold">Qty</th>
-                                    <th class="pb-3 text-right font-semibold">Price</th>
-                                    <th class="pb-3 text-right font-semibold">Fee</th>
-                                    <th class="pb-3 text-right font-semibold">Net Amount</th>
-                                    <th class="pb-3 text-center font-semibold">Actions</th>
+                                    <th class="pb-3 px-3 sm:px-4 font-semibold">
+                                        <span class="hidden sm:inline">Date</span>
+                                        <span class="sm:hidden">Date / Action</span>
+                                    </th>
+                                    <th class="pb-3 px-3 sm:px-4 font-semibold">
+                                        <span class="hidden sm:inline">Asset</span>
+                                        <span class="sm:hidden">Asset / Trade</span>
+                                    </th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 font-semibold">Action</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Qty</th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Price
+                                    </th>
+                                    <th class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold">Fee</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-right font-semibold">Net Amount</th>
+                                    <th class="pb-3 px-3 sm:px-4 text-center font-semibold">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50 text-sm">
                                 <tr v-for="tx in paginatedTransactions" :key="tx.id"
                                     class="hover:bg-gray-700/20 transition">
-                                    <td class="py-3 text-xs text-gray-400 font-mono">{{ tx.date }}</td>
-                                    <td class="py-3">
-                                        <span class="font-bold text-white">{{ tx.ticker }}</span>
-                                        <span v-if="tx.assetType === 'Option'" class="text-xs text-gray-400 block">
-                                            {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
-                                        </span>
-                                        <span v-else-if="tx.assetType === 'Spread'"
-                                            class="text-xs text-amber-400 block">
-                                            {{ tx.strategyName }}
-                                        </span>
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="text-xs text-gray-400 font-mono">{{ tx.date }}</div>
+                                        <!-- Mobile-only Action badge -->
+                                        <div class="sm:hidden mt-1">
+                                            <span
+                                                :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
+                                                class="px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap">
+                                                {{ tx.action }}
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td class="py-3">
+                                    <td class="py-3 px-3 sm:px-4">
+                                        <div class="font-bold text-white">{{ tx.ticker }}</div>
+                                        <div v-if="tx.assetType === 'Option'" class="text-xs text-gray-400">
+                                            {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
+                                        </div>
+                                        <div v-else-if="tx.assetType === 'Spread'" class="text-xs text-amber-400">
+                                            {{ tx.strategyName }}
+                                        </div>
+                                        <!-- Mobile-only Qty @ Price & Fee -->
+                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                            {{ tx.quantity }} @ ${{ formatNumber(tx.price) }}
+                                            <span v-if="tx.fee > 0" class="text-gray-500">• fee ${{ formatNumber(tx.fee)
+                                                }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
                                         <span
                                             :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
                                             class="px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap">
                                             {{ tx.action }}
                                         </span>
                                     </td>
-                                    <td class="py-3 text-right font-mono">{{ tx.quantity }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(tx.price) }}</td>
-                                    <td class="py-3 text-right font-mono">${{ formatNumber(tx.fee) }}</td>
-                                    <td class="py-3 text-right font-mono text-white"
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        tx.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(tx.price) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
+                                        formatNumber(tx.fee) }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono text-white font-semibold"
                                         :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
                                         {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned',
                                         'Exchange or Exercise'].includes(tx.action) ? '-' : '+' }}${{
                                         formatNumber(tx.totalValue) }}
                                     </td>
-                                    <td class="py-3 text-center whitespace-nowrap">
+                                    <td class="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
                                         <button @click="openEditModal(tx)"
-                                            class="text-indigo-400 hover:text-indigo-300 text-xs font-medium transition mr-2.5">
+                                            class="text-indigo-400 hover:text-indigo-300 text-xs font-medium transition mr-2 sm:mr-2.5">
                                             Edit
                                         </button>
                                         <button @click="deleteTransaction(tx.id)"
@@ -1797,6 +1925,407 @@
                     <button type="button" @click="showApiModal = false"
                         class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition">
                         Done
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Market & Portfolio Deep Research Modal -->
+        <div v-if="showDeepResearchModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+            <div
+                class="bg-gray-900 border border-indigo-500/40 rounded-2xl p-5 sm:p-6 max-w-4xl w-full shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-start border-b border-gray-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="p-2.5 bg-gradient-to-br from-indigo-950/80 to-purple-950/80 border border-indigo-700/60 rounded-xl text-indigo-400 shadow-md shadow-indigo-950/50">
+                            <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    AI Market & Portfolio Deep Research
+                                </h3>
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950 border border-indigo-800 text-indigo-300 font-mono flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                    Google Finance Grounded
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">
+                                Institutional-grade daily market briefings, earnings radars, and options risk analysis
+                                powered by Gemini AI.
+                            </p>
+                        </div>
+                    </div>
+                    <button @click="closeDeepResearchModal"
+                        class="text-gray-400 hover:text-white text-lg font-bold p-1 rounded-lg hover:bg-gray-800 transition">✕</button>
+                </div>
+
+                <!-- Missing Key Warning Banner (if no Gemini API key) -->
+                <div v-if="!geminiApiKey"
+                    class="p-3 bg-amber-950/40 border border-amber-800/60 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-200">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>A free Google Gemini API Key is required to run live Google Finance search
+                            analysis.</span>
+                    </div>
+                    <button @click="showApiModal = true"
+                        class="px-2.5 py-1 bg-amber-600 hover:bg-amber-500 text-white rounded font-semibold transition whitespace-nowrap">
+                        Configure Key ↗
+                    </button>
+                </div>
+
+                <!-- Error Notice Banner (Inside Modal) -->
+                <div v-if="deepResearchError"
+                    class="p-3.5 bg-rose-950/80 border border-rose-800 rounded-xl text-xs text-rose-200 flex items-start justify-between gap-3 shadow-lg">
+                    <div class="flex items-start gap-2.5">
+                        <svg class="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <div class="font-bold text-rose-300">AI Research Notice</div>
+                            <div class="mt-0.5 text-gray-200 leading-relaxed">{{ deepResearchError }}</div>
+                            <div v-if="deepResearchError.includes('429') || deepResearchError.includes('demand') || deepResearchError.includes('rate') || deepResearchError.includes('quota') || deepResearchError.includes('busy')"
+                                class="mt-2 flex items-center gap-2 flex-wrap">
+                                <button
+                                    @click="enableSearchGrounding = false; deepResearchError = ''; deepResearchTab === 'portfolio' ? generateDailyPortfolioResearch() : generateSingleTickerResearch(singleTickerQuery)"
+                                    class="px-2.5 py-1 bg-rose-800 hover:bg-rose-700 text-white rounded text-[11px] font-semibold transition">
+                                    ⚡ Retry with Standard AI (Bypass Search Quota)
+                                </button>
+                                <button v-if="deepResearchError.includes('429') || deepResearchError.includes('quota')"
+                                    @click="deepResearchError = ''; deepResearchTab === 'portfolio' ? generateDailyPortfolioResearch() : generateSingleTickerResearch(singleTickerQuery)"
+                                    class="px-2.5 py-1 bg-gray-800 hover:bg-gray-750 text-gray-200 border border-gray-700 rounded text-[11px] font-medium transition">
+                                    🔄 Retry Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button @click="deepResearchError = ''"
+                        class="text-gray-400 hover:text-white font-bold p-1">✕</button>
+                </div>
+
+                <!-- Search Grounding Mode Toggle Bar -->
+                <div class="flex items-center justify-between px-1 text-xs text-gray-400">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" v-model="enableSearchGrounding" @change="saveSearchGroundingPref"
+                            class="rounded bg-gray-800 border-gray-700 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                        <span class="flex items-center gap-1.5 text-gray-300 font-medium">
+                            <span>Live Google Search Grounding</span>
+                            <span v-if="enableSearchGrounding"
+                                class="px-1.5 py-0.2 rounded text-[10px] bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-bold">ACTIVE</span>
+                            <span v-else
+                                class="px-1.5 py-0.2 rounded text-[10px] bg-gray-800 border border-gray-700 text-gray-400 font-mono font-normal">OFF
+                                (Standard AI)</span>
+                        </span>
+                    </label>
+                    <span class="text-[11px] text-gray-500 hidden sm:inline">Turn OFF if your Gemini key hits search
+                        rate limits.</span>
+                </div>
+
+                <!-- Navigation Tabs & Action Bar -->
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-850/80 p-2.5 rounded-xl border border-gray-800">
+                    <!-- Tab Buttons -->
+                    <div class="flex items-center gap-1.5 bg-gray-900 p-1 rounded-lg border border-gray-750">
+                        <button @click="deepResearchTab = 'portfolio'"
+                            :class="deepResearchTab === 'portfolio' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-950/50' : 'text-gray-400 hover:text-white'"
+                            class="px-3 py-1 text-xs rounded-md transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            <span>Daily Portfolio Briefing</span>
+                        </button>
+                        <button @click="deepResearchTab = 'ticker'"
+                            :class="deepResearchTab === 'ticker' ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-950/50' : 'text-gray-400 hover:text-white'"
+                            class="px-3 py-1 text-xs rounded-md transition flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <span>Single Ticker Deep Dive</span>
+                        </button>
+                    </div>
+
+                    <!-- Right Controls -->
+                    <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                        <span v-if="deepResearchTab === 'portfolio' && deepResearchTimestamp"
+                            class="text-[11px] text-gray-400 font-mono">
+                            Updated: {{ deepResearchTimestamp }}
+                        </span>
+
+                        <button v-if="deepResearchTab === 'portfolio'" @click="generateDailyPortfolioResearch"
+                            :disabled="isGeneratingResearch || !geminiApiKey"
+                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                            <svg v-if="isGeneratingResearch" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span v-else>✨</span>
+                            <span>{{ deepResearchReport ? 'Refresh Daily Analysis' : 'Generate Daily Analysis' }}</span>
+                        </button>
+
+                        <button
+                            v-if="(deepResearchTab === 'portfolio' && deepResearchReport) || (deepResearchTab === 'ticker' && singleTickerReport)"
+                            @click="copyResearchReport"
+                            class="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg text-xs font-medium border border-gray-700 transition flex items-center gap-1"
+                            title="Copy analysis report to clipboard">
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scrollable Body Content -->
+                <div class="overflow-y-auto pr-1 space-y-4 max-h-[65vh]">
+
+                    <!-- TAB 1: Daily Portfolio Briefing -->
+                    <div v-show="deepResearchTab === 'portfolio'">
+                        <!-- Generating Progress State -->
+                        <div v-if="isGeneratingResearch"
+                            class="p-8 rounded-2xl bg-gray-950/60 border border-indigo-500/30 text-center space-y-4 my-2">
+                            <div class="relative w-16 h-16 mx-auto">
+                                <div class="absolute inset-0 rounded-full bg-indigo-500/20 animate-ping"></div>
+                                <div
+                                    class="relative w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-2xl shadow-lg shadow-indigo-950">
+                                    ✨
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-white animate-pulse">
+                                    {{ deepResearchProgress || 'Connecting to Google Gemini...' }}
+                                </h4>
+                                <p class="text-xs text-gray-400 mt-1 max-w-md mx-auto">
+                                    Scanning real-time Google Finance data, today's macro catalysts, and calculating
+                                    options moneyness across your positions.
+                                </p>
+                            </div>
+                            <div class="w-48 h-1.5 bg-gray-800 rounded-full mx-auto overflow-hidden">
+                                <div
+                                    class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-full rounded-full animate-pulse w-full">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rendered Report -->
+                        <div v-else-if="deepResearchReport" class="space-y-4">
+                            <!-- Report Document Card -->
+                            <div class="bg-gray-950/60 border border-gray-800 rounded-2xl p-5 sm:p-7 shadow-inner">
+                                <div class="text-sm leading-relaxed text-gray-200"
+                                    v-html="formatResearchMarkdown(deepResearchReport)"></div>
+                            </div>
+
+                            <!-- Grounding Citations Section -->
+                            <div v-if="deepResearchSources.length > 0"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-4">
+                                <div
+                                    class="text-xs font-semibold text-gray-400 uppercase mb-2.5 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                    <span>Grounded Financial Sources & Live Citations</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a v-for="(src, idx) in deepResearchSources" :key="idx" :href="src.uri"
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="text-xs px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition flex items-center gap-1">
+                                        <span>{{ src.title || src.uri }}</span>
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <div v-else-if="deepResearchReport && enableSearchGrounding"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-3 text-xs text-gray-400 flex items-center gap-2">
+                                <span class="text-amber-400">⚡</span>
+                                <span>Note: Google Search Grounding was busy; analysis was completed successfully using
+                                    standard Gemini analytical models.</span>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div v-else
+                            class="p-8 rounded-2xl bg-gray-950/40 border border-dashed border-gray-800 text-center space-y-4">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-indigo-950/60 border border-indigo-800/80 text-indigo-400 flex items-center justify-center mx-auto text-xl shadow-lg">
+                                📊
+                            </div>
+                            <div class="max-w-md mx-auto">
+                                <h4 class="text-base font-bold text-white">Daily Market & Portfolio Intelligence</h4>
+                                <p class="text-xs text-gray-400 mt-1.5">
+                                    Generate a real-time, comprehensive briefing analyzing today's macro environment,
+                                    held stock earnings catalysts, and options expiration risk.
+                                </p>
+                            </div>
+
+                            <!-- Portfolio Scan Highlights -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto text-left pt-2">
+                                <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Held Stocks</div>
+                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedStockHoldings.length }}
+                                    </div>
+                                    <div class="text-[10px] text-gray-500">Earnings & catalysts radar</div>
+                                </div>
+                                <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Active Options</div>
+                                    <div class="text-lg font-bold text-white mt-0.5">{{ computedOptionHoldings.length }}
+                                    </div>
+                                    <div class="text-[10px] text-gray-500">Moneyness & DTE alerts</div>
+                                </div>
+                                <div class="p-3 bg-gray-900 rounded-xl border border-gray-800">
+                                    <div class="text-[11px] text-gray-400 uppercase font-semibold">Grounding Engine
+                                    </div>
+                                    <div class="text-lg font-bold text-emerald-400 mt-0.5">Google</div>
+                                    <div class="text-[10px] text-gray-500">Live web & news data</div>
+                                </div>
+                            </div>
+
+                            <button @click="generateDailyPortfolioResearch" :disabled="!geminiApiKey"
+                                class="mt-4 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-950/50">
+                                🚀 Run Today's Market & Portfolio Scan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Single Ticker Deep Dive -->
+                    <div v-show="deepResearchTab === 'ticker'" class="space-y-4">
+                        <!-- Ticker Search Bar & Quick Ticker Pills -->
+                        <div class="bg-gray-850/70 border border-gray-800 rounded-xl p-4 space-y-3">
+                            <div class="flex gap-2">
+                                <div class="relative flex-1">
+                                    <input type="text" v-model="singleTickerQuery"
+                                        placeholder="Enter any stock symbol (e.g. NVDA, AAPL, TSLA)..."
+                                        @keyup.enter="generateSingleTickerResearch(singleTickerQuery)"
+                                        class="w-full bg-gray-800 border border-gray-700 focus:border-indigo-500 rounded-lg px-3.5 py-2 text-xs text-white uppercase placeholder-gray-500 focus:outline-none font-mono">
+                                    <button v-if="singleTickerQuery" @click="singleTickerQuery = ''"
+                                        class="absolute right-2.5 top-2 text-gray-400 hover:text-white text-xs">✕</button>
+                                </div>
+                                <button @click="generateSingleTickerResearch(singleTickerQuery)"
+                                    :disabled="isGeneratingTickerResearch || !singleTickerQuery.trim() || !geminiApiKey"
+                                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition whitespace-nowrap flex items-center gap-1.5 shadow-sm">
+                                    <svg v-if="isGeneratingTickerResearch" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                    <span>Deep Research</span>
+                                </button>
+                            </div>
+
+                            <!-- Quick Select from Active Portfolio Positions -->
+                            <div v-if="allHeldTickers.length > 0"
+                                class="flex items-center gap-1.5 flex-wrap pt-1 border-t border-gray-800/80 text-xs">
+                                <span class="text-gray-400 text-[11px]">Your Portfolio Positions:</span>
+                                <button v-for="t in allHeldTickers" :key="t"
+                                    @click="singleTickerQuery = t; generateSingleTickerResearch(t)"
+                                    class="px-2 py-0.5 rounded bg-gray-800 hover:bg-indigo-900/60 hover:text-indigo-200 border border-gray-700 hover:border-indigo-600 text-[11px] font-mono font-semibold text-gray-300 transition">
+                                    {{ t }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Single Ticker Loading State -->
+                        <div v-if="isGeneratingTickerResearch"
+                            class="p-8 rounded-2xl bg-gray-950/60 border border-indigo-500/30 text-center space-y-3 my-2">
+                            <div
+                                class="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500 flex items-center justify-center mx-auto text-indigo-400 animate-spin">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </div>
+                            <h4 class="text-sm font-bold text-white">
+                                {{ singleTickerProgress || `Analyzing ${singleTickerQuery} with Live Google Finance...`
+                                }}
+                            </h4>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                Retrieving valuation multiples, Wall Street price targets, Bull/Bear thesis, and options
+                                implied volatility.
+                            </p>
+                        </div>
+
+                        <!-- Single Ticker Report -->
+                        <div v-else-if="singleTickerReport" class="space-y-4">
+                            <div class="bg-gray-950/60 border border-gray-800 rounded-2xl p-5 sm:p-7 shadow-inner">
+                                <div class="text-sm leading-relaxed text-gray-200"
+                                    v-html="formatResearchMarkdown(singleTickerReport)"></div>
+                            </div>
+
+                            <!-- Citations -->
+                            <div v-if="singleTickerSources.length > 0"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-4">
+                                <div
+                                    class="text-xs font-semibold text-gray-400 uppercase mb-2 flex items-center gap-1.5">
+                                    <span>Grounded Web Sources</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <a v-for="(src, idx) in singleTickerSources" :key="idx" :href="src.uri"
+                                        target="_blank" rel="noopener noreferrer"
+                                        class="text-xs px-2.5 py-1 rounded-lg bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition flex items-center gap-1">
+                                        <span>{{ src.title || src.uri }}</span>
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                            <div v-else-if="singleTickerReport && enableSearchGrounding"
+                                class="bg-gray-855 border border-gray-800 rounded-xl p-3 text-xs text-gray-400 flex items-center gap-2">
+                                <span class="text-amber-400">⚡</span>
+                                <span>Note: Google Search Grounding was busy; analysis generated using standard Gemini
+                                    models.</span>
+                            </div>
+                        </div>
+
+                        <!-- Single Ticker Empty State -->
+                        <div v-else
+                            class="p-8 rounded-2xl bg-gray-950/40 border border-dashed border-gray-800 text-center space-y-2">
+                            <div class="text-2xl">🔍</div>
+                            <h4 class="text-sm font-bold text-white">Institutional Single-Stock Research</h4>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                Type any ticker above or click one of your portfolio positions to run an on-demand deep
+                                dive grounded with Google Finance.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-between items-center pt-3 border-t border-gray-800 text-xs text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full"
+                            :class="geminiApiKey ? 'bg-emerald-400' : 'bg-gray-600'"></span>
+                        <span>{{ geminiApiKey ? 'Gemini AI Ready' : 'API Key Not Set' }}</span>
+                    </div>
+                    <button type="button" @click="closeDeepResearchModal"
+                        class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-xs font-semibold transition">
+                        Close
                     </button>
                 </div>
             </div>
@@ -3041,10 +3570,50 @@
                 };
 
                 // Toggle states for panels
+                const showRecordTransaction = ref(localStorage.getItem('show_record_transaction') !== 'false');
+                const toggleRecordTransaction = () => {
+                    showRecordTransaction.value = !showRecordTransaction.value;
+                    localStorage.setItem('show_record_transaction', showRecordTransaction.value);
+                };
                 const showAllocation = ref(false);
                 const showManualPrices = ref(false);
                 const showHistory = ref(false);
                 const showClearConfirm = ref(false);
+
+                // AI Market & Portfolio Deep Research State
+                const showDeepResearchModal = ref(false);
+                const deepResearchTab = ref('portfolio'); // 'portfolio' | 'ticker'
+                const isGeneratingResearch = ref(false);
+                const deepResearchProgress = ref('');
+                const deepResearchReport = ref(localStorage.getItem('deep_research_report') || '');
+                const deepResearchTimestamp = ref(localStorage.getItem('deep_research_timestamp') || '');
+                let savedResearchSources = [];
+                try {
+                    savedResearchSources = JSON.parse(localStorage.getItem('deep_research_sources') || '[]');
+                } catch (e) {
+                    savedResearchSources = [];
+                }
+                const deepResearchSources = ref(savedResearchSources);
+                const singleTickerQuery = ref('');
+                const singleTickerReport = ref('');
+                const singleTickerSources = ref([]);
+                const isGeneratingTickerResearch = ref(false);
+                const singleTickerProgress = ref('');
+                const enableSearchGrounding = ref(localStorage.getItem('gemini_search_grounding') !== 'false');
+                const deepResearchError = ref('');
+
+                const saveSearchGroundingPref = () => {
+                    localStorage.setItem('gemini_search_grounding', enableSearchGrounding.value);
+                };
+
+                const openDeepResearchModal = () => {
+                    deepResearchError.value = '';
+                    showDeepResearchModal.value = true;
+                };
+
+                const closeDeepResearchModal = () => {
+                    showDeepResearchModal.value = false;
+                };
 
                 // Performance Analytics Hub State (Enhancement 3)
                 const showAnalyticsHub = ref(localStorage.getItem('show_analytics_hub') !== 'false');
@@ -3513,7 +4082,7 @@ function doPost(e) {
                 const callGeminiAPI = async (prompt, useSearchGrounding = false) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) return null;
                     const key = geminiApiKey.value.trim();
-                    const model = 'gemini-flash-latest';
+                    const model = 'gemini-3.5-flash';
 
                     const reqBody = {
                         contents: [{ parts: [{ text: prompt }] }]
@@ -3526,13 +4095,9 @@ function doPost(e) {
                         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(reqBody)
+                            body: JSON.stringify(reqBody),
+                            signal: AbortSignal.timeout(300000) // 300s timeout
                         });
-
-                        // If search grounding was rejected (e.g. 429 quota), gracefully retry without grounding tool
-                        if (!res.ok && useSearchGrounding) {
-                            return await callGeminiAPI(prompt, false);
-                        }
 
                         if (!res.ok) {
                             const err = await res.json().catch(() => ({}));
@@ -3541,7 +4106,8 @@ function doPost(e) {
                         }
 
                         const data = await res.json();
-                        return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+                        const candidate = data.candidates?.[0];
+                        return candidate?.content?.parts?.map(p => p.text || '').filter(Boolean).join('\n') || null;
                     } catch (e) {
                         console.error('Gemini request failed:', e);
                         return null;
@@ -3567,6 +4133,431 @@ function doPost(e) {
                     } finally {
                         isTestingGemini.value = false;
                     }
+                };
+
+                // AI Market & Portfolio Deep Research Methods
+                const allHeldTickers = computed(() => {
+                    const set = new Set();
+                    if (computedStockHoldings.value) {
+                        computedStockHoldings.value.forEach(s => {
+                            if (s.symbol) set.add(s.symbol);
+                        });
+                    }
+                    if (computedOptionHoldings.value) {
+                        computedOptionHoldings.value.forEach(o => {
+                            if (o.symbol) set.add(o.symbol);
+                        });
+                    }
+                    return Array.from(set).sort();
+                });
+
+                const renderHtmlTable = (rows) => {
+                    if (!rows || rows.length === 0) return '';
+                    let html = '<div class="overflow-x-auto my-3"><table class="w-full text-left text-xs border border-gray-700/80 rounded-lg border-collapse min-w-[480px] bg-gray-900/60">';
+                    rows.forEach((row, rIdx) => {
+                        const cells = row.split('|').slice(1, -1).map(c => c.trim());
+                        const isHeader = rIdx === 0;
+                        html += `<tr class="${isHeader ? 'bg-gray-800 text-gray-300 font-semibold border-b border-gray-700' : 'border-b border-gray-800/80 hover:bg-gray-800/40 text-gray-200'}">`;
+                        cells.forEach(cell => {
+                            if (isHeader) {
+                                html += `<th class="p-2.5">${cell}</th>`;
+                            } else {
+                                html += `<td class="p-2.5">${cell}</td>`;
+                            }
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</table></div>';
+                    return html;
+                };
+
+                const formatResearchMarkdown = (md) => {
+                    if (!md) return '';
+                    let text = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                    const lines = text.split('\n');
+                    const outputLines = [];
+                    let inTable = false;
+                    let tableRows = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line.startsWith('|') && line.endsWith('|')) {
+                            if (!inTable) inTable = true;
+                            if (/^\|(\s*:?-+:?\s*\|)+$/.test(line)) {
+                                continue;
+                            }
+                            tableRows.push(line);
+                        } else {
+                            if (inTable) {
+                                outputLines.push(renderHtmlTable(tableRows));
+                                tableRows = [];
+                                inTable = false;
+                            }
+                            outputLines.push(line);
+                        }
+                    }
+                    if (inTable) {
+                        outputLines.push(renderHtmlTable(tableRows));
+                    }
+
+                    let html = outputLines.join('\n');
+
+                    // Headings
+                    html = html.replace(/^### (.*$)/gim, '<h4 class="text-sm sm:text-base font-bold text-emerald-400 mt-5 mb-2 pb-1 border-b border-gray-700/70 flex items-center gap-1.5">$1</h4>');
+                    html = html.replace(/^## (.*$)/gim, '<h3 class="text-base sm:text-lg font-bold text-white mt-6 mb-3 pb-1.5 border-b border-indigo-500/40 flex items-center gap-2">$1</h3>');
+                    html = html.replace(/^# (.*$)/gim, '<h2 class="text-lg sm:text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-sky-300 to-indigo-400 mt-6 mb-4">$1</h2>');
+
+                    // Bold & Italic
+                    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
+                    html = html.replace(/\*(.*?)\*/g, '<em class="text-gray-300 italic">$1</em>');
+
+                    // Blockquotes
+                    html = html.replace(/^\s*&gt;\s+(.*$)/gim, '<div class="border-l-4 border-indigo-500 bg-indigo-950/40 px-3 py-1.5 rounded-r my-2 text-xs text-indigo-200 italic">$1</div>');
+
+                    // Lists: bullet points
+                    html = html.replace(/^\s*[-*]\s+(.*$)/gim, '<div class="flex items-start gap-2 text-gray-300 text-xs sm:text-sm my-1 leading-relaxed pl-1"><span class="text-emerald-400 font-bold select-none">•</span><span>$1</span></div>');
+
+                    // Lists: numbered
+                    html = html.replace(/^\s*(\d+)\.\s+(.*$)/gim, '<div class="flex items-start gap-2 text-gray-300 text-xs sm:text-sm my-1 leading-relaxed pl-1"><span class="text-indigo-400 font-bold select-none text-xs">$1.</span><span>$2</span></div>');
+
+                    // Paragraph spacing
+                    html = html.replace(/\n\n+/g, '<div class="h-2.5"></div>');
+
+                    return html;
+                };
+
+                const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+
+                const callGeminiResearchAPI = async (prompt, onStatusUpdate) => {
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        throw new Error('Google Gemini API Key is missing. Please enter your key in API & AI Settings.');
+                    }
+                    const key = geminiApiKey.value.trim();
+                    // Fast and stable models: gemini-3.5-flash priority, followed by flash-latest/3.8/3.7
+                    const candidateModels = ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
+
+                    const tryGenerate = async (modelName, withSearch) => {
+                        const payload = {
+                            contents: [{ parts: [{ text: prompt }] }]
+                        };
+                        if (withSearch) {
+                            payload.tools = [{ google_search: {} }];
+                        }
+                        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(key)}`;
+                        let res;
+                        try {
+                            res = await fetch(url, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload),
+                                signal: AbortSignal.timeout(300000) // 300s timeout for Deep Research
+                            });
+                        } catch (netErr) {
+                            if (netErr.name === 'TimeoutError' || netErr.name === 'AbortError') {
+                                const timeoutErr = new Error(`Request to ${modelName} timed out (exceeded 300s limit).`);
+                                timeoutErr.status = 504;
+                                throw timeoutErr;
+                            }
+                            throw netErr;
+                        }
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            const msg = data.error?.message || `API error ${res.status}`;
+                            const err = new Error(msg);
+                            err.status = res.status;
+                            err.data = data;
+                            throw err;
+                        }
+                        return data;
+                    };
+
+                    let responseData = null;
+                    let usedSearch = false;
+                    let lastError = null;
+
+                    const withSearch = enableSearchGrounding.value;
+
+                    for (const model of candidateModels) {
+                        try {
+                            if (onStatusUpdate) {
+                                onStatusUpdate(withSearch
+                                    ? `Connecting to Google Finance & Market Data (${model})...`
+                                    : `Analyzing portfolio with ${model}...`);
+                            }
+                            responseData = await tryGenerate(model, withSearch);
+                            usedSearch = withSearch;
+                            break;
+                        } catch (err) {
+                            lastError = err;
+                            console.warn(`Gemini generation with ${model} failed (${err.status || ''}):`, err.message);
+                            // Only try next candidate model if current endpoint is not found (404)
+                            if (err.status === 404) {
+                                continue;
+                            }
+                            // No auto-retry on 429, 400, 500, etc. Fail immediately.
+                            break;
+                        }
+                    }
+
+                    if (!responseData) {
+                        throw new Error(lastError?.message || 'Failed to generate analysis. Please try again.');
+                    }
+
+                    const candidate = responseData.candidates?.[0];
+                    const text = candidate?.content?.parts?.map(p => p.text || '').filter(Boolean).join('\n') || '';
+                    if (!text) {
+                        throw new Error('Gemini returned an empty response. Please try again.');
+                    }
+
+                    const sources = [];
+                    const metadata = candidate?.groundingMetadata;
+                    if (metadata?.groundingChunks) {
+                        metadata.groundingChunks.forEach(chunk => {
+                            if (chunk.web?.uri) {
+                                sources.push({
+                                    title: chunk.web.title || chunk.web.uri.replace(/^https?:\/\//, '').split('/')[0],
+                                    uri: chunk.web.uri
+                                });
+                            }
+                        });
+                    }
+
+                    return {
+                        text,
+                        sources,
+                        searchQueries: metadata?.webSearchQueries || [],
+                        usedSearch
+                    };
+                };
+
+                const generateDailyPortfolioResearch = async () => {
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
+                        showApiModal.value = true;
+                        return;
+                    }
+
+                    deepResearchError.value = '';
+                    isGeneratingResearch.value = true;
+                    deepResearchProgress.value = 'Gathering portfolio stocks and options...';
+
+                    const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                    let prompt = '';
+                    if (enableSearchGrounding.value) {
+                        // Comprehensive Institutional-Grade Research (Live Google Search Grounding ON)
+                        const stocksList = (computedStockHoldings.value || []).map(s => 
+                            `- ${s.symbol}: ${s.quantity} shares | Avg Cost: $${formatNumber(s.avgCost)} | Current Price: $${formatNumber(s.currentPrice)} | Market Val: $${formatNumber(s.marketValue)} | P/L: ${s.unrealizedPL >= 0 ? '+' : ''}$${formatNumber(s.unrealizedPL)} (${s.unrealizedPercent.toFixed(1)}%)`
+                        ).join('\n') || 'No open stock holdings.';
+
+                        const optionsList = (computedOptionHoldings.value || []).map(o => 
+                            `- ${o.symbol}: ${o.quantity} contracts | ${o.positionType} ${o.optionType || o.strategyName || 'Option'} | Strike: $${o.strike || 'N/A'} | Exp: ${o.expiration || 'N/A'} | Total Cost: $${formatNumber(o.totalCost)}`
+                        ).join('\n') || 'No active options or spread positions.';
+
+                        prompt = `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
+Conduct a comprehensive, institutional-grade daily market analysis for today (${todayDate}) based on the investor's exact portfolio below.
+USE GOOGLE SEARCH GROUNDING TO RETRIEVE LIVE GOOGLE FINANCE DATA, CURRENT INDEX/VIX LEVELS, UPCOMING EARNINGS DATES, AND BREAKING MARKET NEWS.
+
+=== INVESTOR PORTFOLIO HOLDINGS ===
+STOCKS HELD:
+${stocksList}
+
+ACTIVE OPTIONS & SPREADS:
+${optionsList}
+
+PORTFOLIO TOTAL STOCK MARKET VALUE: $${formatNumber(holdingsTotals.value.marketValue)}
+REALIZED NET PROFIT TO DATE: $${formatNumber(totalPortfolioNetPL.value)}
+=== END PORTFOLIO ===
+
+Please generate a high-conviction, professional report structured in Markdown with these exact sections:
+
+## 1. 🌐 Daily Macro Pulse & Market Sentiment
+- Current status of S&P 500, Nasdaq, 10-Year Treasury Yield, and CBOE VIX today.
+- Today's top market drivers (Fed policy expectations, economic data, major sector rotations).
+- How today's broader market environment directly influences the user's specific assets.
+
+## 2. 📈 Held Stocks: Catalyst, News & Valuation Radar
+- For each stock held in the portfolio:
+  - Explain today's price action and recent catalyst.
+  - Upcoming earnings announcement date and major expected events.
+  - Wall Street consensus view, price target range, and key technical support/resistance levels.
+
+## 3. ⚡ Active Options & Greeks Expiration Radar
+- Expiration clock: Flag any options contracts with fewer than 14–21 Days to Expiration (DTE).
+- Moneyness & early assignment risk (especially for short covered calls or short puts).
+- Strategic guidance: Whether to hold for remaining theta decay, roll out and up/down, or close position to lock in capital.
+
+## 4. 🎯 Strategic Portfolio Health & Tactical Action Items
+- Concentration and diversification check (sector risk assessment).
+- Hedging opportunities or covered call writing ideas on 100+ share lots.
+- 3 clear, prioritized tactical action items for the investor today.
+
+Maintain an objective, analytical, and highly actionable tone. Ground all insights with today's real market prices and verified corporate news.`;
+                    } else {
+                        // Fast Minimized Briefing (Live Google Search Grounding OFF / Standard AI)
+                        const stocksList = (computedStockHoldings.value || []).map(s =>
+                            `- ${s.symbol}: ${s.quantity} shs @ $${formatNumber(s.avgCost)} (Now $${formatNumber(s.currentPrice)}, P/L ${s.unrealizedPercent.toFixed(1)}%)`
+                        ).join('\n') || 'None';
+
+                        const optionsList = (computedOptionHoldings.value || []).map(o =>
+                            `- ${o.symbol}: ${o.quantity}x ${o.positionType} ${o.optionType || o.strategyName || 'Option'} $${o.strike || 'N/A'} exp ${o.expiration || 'N/A'}`
+                        ).join('\n') || 'None';
+
+                        prompt = `Provide a daily market & portfolio briefing for ${todayDate}.
+
+PORTFOLIO:
+Stocks:
+${stocksList}
+Options:
+${optionsList}
+
+Output in Markdown:
+## 1. 🌐 Market Overview
+- S&P 500, Nasdaq, VIX status, and macro trends today.
+
+## 2. 📈 Held Stocks & Catalysts
+- Key price action, earnings dates, and news for held tickers.
+
+## 3. ⚡ Options & Risk Radar
+- Upcoming expirations, moneyness, and assignment risks.
+
+## 4. 🎯 Tactical Action Items
+- 3 prioritized action items for the portfolio today.`;
+                    }
+
+                    const progressTimer = setInterval(() => {
+                        if (deepResearchProgress.value.includes('Gathering')) {
+                            deepResearchProgress.value = 'Searching Google Finance & live market news...';
+                        } else if (deepResearchProgress.value.includes('Searching') && !deepResearchProgress.value.includes('(') && !deepResearchProgress.value.includes('retrying') && !deepResearchProgress.value.includes('quota')) {
+                            deepResearchProgress.value = 'Analyzing stock catalysts & options risk...';
+                        }
+                    }, 3000);
+
+                    try {
+                        const res = await callGeminiResearchAPI(prompt, (status) => {
+                            deepResearchProgress.value = status;
+                        });
+                        deepResearchReport.value = res.text;
+                        deepResearchSources.value = res.sources;
+                        deepResearchTimestamp.value = new Date().toLocaleString();
+
+                        localStorage.setItem('deep_research_report', res.text);
+                        localStorage.setItem('deep_research_sources', JSON.stringify(res.sources));
+                        localStorage.setItem('deep_research_timestamp', deepResearchTimestamp.value);
+
+                        if (res.usedSearch) {
+                            showNotification('Daily AI Market Research generated with Live Google Finance!', 'success');
+                        } else {
+                            showNotification('Daily AI Market Research generated (Standard Gemini fallback)!', 'success');
+                        }
+                    } catch (e) {
+                        console.error('Deep Research Error:', e);
+                        deepResearchError.value = e.message;
+                        showNotification(`Analysis generation failed: ${e.message}`, 'error');
+                    } finally {
+                        clearInterval(progressTimer);
+                        isGeneratingResearch.value = false;
+                        deepResearchProgress.value = '';
+                    }
+                };
+
+                const generateSingleTickerResearch = async (tickerOverride) => {
+                    const sym = (tickerOverride || singleTickerQuery.value || '').trim().toUpperCase();
+                    if (!sym) {
+                        showNotification('Please enter a stock ticker symbol.', 'warning');
+                        return;
+                    }
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
+                        showApiModal.value = true;
+                        return;
+                    }
+
+                    deepResearchError.value = '';
+                    singleTickerQuery.value = sym;
+                    isGeneratingTickerResearch.value = true;
+
+                    const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                    let prompt = '';
+                    if (enableSearchGrounding.value) {
+                        // Comprehensive Institutional-Grade Research (Live Google Search Grounding ON)
+                        prompt = `You are an equity research analyst.
+Conduct an in-depth, institutional-grade research analysis on ticker symbol: ${sym} for today (${todayDate}).
+USE GOOGLE SEARCH GROUNDING TO CHECK LIVE GOOGLE FINANCE QUOTES, RECENT EARNINGS REPORTS, WALL STREET PRICE TARGETS, AND BREAKING NEWS.
+
+Format your output in clean Markdown:
+## 1. 📊 Executive Summary & Today's Performance
+- Current real-time price, intraday % change, 52-week high/low, and market capitalization.
+- Brief overview of business model and core revenue drivers.
+
+## 2. 🐂 Bull Case vs 🐻 Bear Case
+- Top 3 Bullish catalysts and long-term tailwinds.
+- Top 3 Bearish headwinds, competitive threats, or valuation risks.
+
+## 3. 🎯 Fundamentals, Valuation & Earnings Calendar
+- Key financial metrics: P/E, Forward P/E, Revenue Growth (YoY), Free Cash Flow.
+- Next scheduled earnings date and Wall Street average analyst price target (% upside/downside).
+
+## 4. ⚡ Technical Levels & Options Volatility
+- Key support and resistance price levels, moving average trends.
+- Implied Volatility (IV) regime and options playbook (e.g. Covered Call, Cash-Secured Put, Long Stock, or Wait).
+
+## 5. 💡 Strategic Verdict & Rating
+- Bottom-line investment verdict (Strong Buy / Buy / Hold / Trim / Sell) with clear justification.`;
+                    } else {
+                        // Fast Minimized Briefing (Live Google Search Grounding OFF / Standard AI)
+                        prompt = `Provide a concise equity research briefing for ${sym} (${todayDate}).
+
+Format in Markdown:
+## 1. 📊 Overview & Price
+- Current price, intraday % change, 52-week range, and P/E ratio.
+
+## 2. 🐂 Bull vs 🐻 Bear Case
+- Top 2 catalysts (Bull) and top 2 risks (Bear).
+
+## 3. 🎯 Valuation & Earnings
+- Next earnings date and Wall Street average price target.
+
+## 4. ⚡ Technicals & Verdict
+- Key support/resistance levels and bottom-line verdict (Buy/Hold/Sell) with reasoning.`;
+                    }
+
+                    singleTickerProgress.value = enableSearchGrounding.value
+                        ? `Analyzing ${sym} with Live Google Finance...`
+                        : `Analyzing ${sym} with Gemini AI...`;
+                    try {
+                        const res = await callGeminiResearchAPI(prompt, (status) => {
+                            singleTickerProgress.value = status;
+                        });
+                        singleTickerReport.value = res.text;
+                        singleTickerSources.value = res.sources;
+                        if (res.usedSearch) {
+                            showNotification(`Deep Research completed for ${sym} with Live Search!`, 'success');
+                        } else {
+                            showNotification(`Deep Research completed for ${sym} (Standard Gemini)!`, 'success');
+                        }
+                    } catch (e) {
+                        console.error('Ticker Research Error:', e);
+                        deepResearchError.value = e.message;
+                        showNotification(`Failed to research ${sym}: ${e.message}`, 'error');
+                    } finally {
+                        isGeneratingTickerResearch.value = false;
+                        singleTickerProgress.value = '';
+                    }
+                };
+
+                const copyResearchReport = () => {
+                    const text = deepResearchTab.value === 'portfolio' ? deepResearchReport.value : singleTickerReport.value;
+                    if (!text) return;
+                    navigator.clipboard.writeText(text).then(() => {
+                        showNotification('Research report copied to clipboard!', 'success');
+                    }).catch(() => {
+                        showNotification('Failed to copy to clipboard.', 'error');
+                    });
                 };
 
                 const testFinnhubKey = async () => {
@@ -3833,6 +4824,7 @@ No markdown fences or commentary outside the JSON.`;
                     isRolling.value = true;
                     rollStep.value = 1;
                     rollSourceHolding.value = holding;
+                    showRecordTransaction.value = true;
 
                     form.value.assetType = holding.assetType;
                     form.value.ticker = holding.symbol;
@@ -4101,40 +5093,71 @@ No markdown fences or commentary outside the JSON.`;
                             return;
                         }
 
-                        const backgroundColors = [
-                            '#10b981', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e',
-                            '#f59e0b', '#14b8a6', '#f97316', '#6366f1', '#ec4899'
+                        // Curated Cool Financial Palette (Avoids Profit-Green and Loss-Red to prevent confusion)
+                        const coolFinancialColors = [
+                            '#38bdf8', // Sky Blue
+                            '#6366f1', // Indigo
+                            '#a855f7', // Purple
+                            '#06b6d4', // Cyan
+                            '#f59e0b', // Warm Amber
+                            '#3b82f6', // Cobalt Blue
+                            '#c084fc', // Violet
+                            '#0ea5e9', // Ocean Blue
+                            '#818cf8', // Periwinkle
+                            '#14b8a6', // Deep Teal
+                            '#fbbf24', // Sun Gold
+                            '#93c5fd', // Soft Blue
+                            '#e879f9', // Orchid
+                            '#64748b'  // Slate Steel
                         ];
+
+                        const backgroundColors = labels.map((_, i) => coolFinancialColors[i % coolFinancialColors.length]);
 
                         if (chartInstance) {
                             chartInstance.data.labels = labels;
                             chartInstance.data.datasets[0].data = values;
+                            chartInstance.data.datasets[0].backgroundColor = backgroundColors;
                             chartInstance.update();
                         } else {
                             chartInstance = new Chart(canvas, {
-                                type: 'pie',
+                                type: 'doughnut',
                                 data: {
                                     labels: labels,
                                     datasets: [{
                                         data: values,
-                                        backgroundColor: backgroundColors.slice(0, labels.length),
+                                        backgroundColor: backgroundColors,
                                         borderWidth: 2,
-                                        borderColor: '#1f2937' // gray-800 background
+                                        borderColor: '#1f2937', // gray-800 card background
+                                        borderRadius: 4,
+                                        spacing: 2
                                     }]
                                 },
                                 options: {
                                     responsive: true,
                                     maintainAspectRatio: false,
+                                    cutout: '72%',
                                     plugins: {
                                         legend: {
                                             position: 'bottom',
                                             labels: {
                                                 color: '#9ca3af', // gray-400
-                                                font: { size: 10 },
-                                                boxWidth: 10
+                                                font: { size: 10, weight: '500' },
+                                                boxWidth: 8,
+                                                boxHeight: 8,
+                                                usePointStyle: true,
+                                                pointStyle: 'circle',
+                                                padding: 12
                                             }
                                         },
                                         tooltip: {
+                                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                                            titleColor: '#f3f4f6',
+                                            bodyColor: '#e5e7eb',
+                                            borderColor: '#374151',
+                                            borderWidth: 1,
+                                            padding: 10,
+                                            boxPadding: 4,
+                                            usePointStyle: true,
                                             callbacks: {
                                                 label: (context) => {
                                                     const val = context.raw || 0;
@@ -5755,6 +6778,8 @@ No markdown fences or commentary outside the JSON.`;
                     fileName,
                     isRolling,
                     rollStep,
+                    showRecordTransaction,
+                    toggleRecordTransaction,
                     showAllocation,
                     showManualPrices,
                     showHistory,
@@ -5927,7 +6952,30 @@ No markdown fences or commentary outside the JSON.`;
                     triggerJsonFileInput,
                     handleJsonFileRestore,
                     copyAppsScriptCode,
-                    loadFromFile
+                    loadFromFile,
+                    // AI Market & Portfolio Deep Research
+                    showDeepResearchModal,
+                    deepResearchTab,
+                    isGeneratingResearch,
+                    deepResearchProgress,
+                    deepResearchReport,
+                    deepResearchTimestamp,
+                    deepResearchSources,
+                    singleTickerQuery,
+                    singleTickerReport,
+                    singleTickerSources,
+                    isGeneratingTickerResearch,
+                    openDeepResearchModal,
+                    closeDeepResearchModal,
+                    generateDailyPortfolioResearch,
+                    generateSingleTickerResearch,
+                    copyResearchReport,
+                    formatResearchMarkdown,
+                    allHeldTickers,
+                    enableSearchGrounding,
+                    saveSearchGroundingPref,
+                    deepResearchError,
+                    singleTickerProgress
                 };
             }
         }).mount('#app');
