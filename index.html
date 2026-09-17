@@ -64,10 +64,12 @@
                     class="flex items-center gap-2 bg-gray-800 hover:bg-gray-750 px-3 py-2 rounded border border-gray-700 hover:border-sky-500/50 text-xs transition cursor-pointer shadow-sm group"
                     title="Click to open Storage & Cloud Sync Hub">
                     <span class="text-gray-400 group-hover:text-sky-300 transition">Storage:</span>
-                    <span v-if="fileStatus === 'unlinked' && !cloudWebhookUrl" class="flex items-center gap-1.5 text-blue-400 font-medium">
+                    <span v-if="fileStatus === 'unlinked' && !cloudWebhookUrl"
+                        class="flex items-center gap-1.5 text-blue-400 font-medium">
                         <span class="w-2 h-2 rounded-full bg-blue-500"></span> Browser Memory
                     </span>
-                    <span v-else-if="fileStatus === 'unlinked' && cloudWebhookUrl" class="flex items-center gap-1.5 text-sky-400 font-medium">
+                    <span v-else-if="fileStatus === 'unlinked' && cloudWebhookUrl"
+                        class="flex items-center gap-1.5 text-sky-400 font-medium">
                         <span class="w-2 h-2 rounded-full bg-sky-500"></span> Cloud Sync Active
                     </span>
                     <span v-else-if="fileStatus === 'locked'"
@@ -89,7 +91,9 @@
                                 d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
                         </svg>
                         <span>Cloud & Storage</span>
-                        <span v-if="fileStatus === 'active' || cloudWebhookUrl" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Cloud / File Connected"></span>
+                        <span v-if="fileStatus === 'active' || cloudWebhookUrl"
+                            class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+                            title="Cloud / File Connected"></span>
                     </button>
                     <button v-if="isSupported && fileStatus === 'unlinked'" @click="linkLocalFile"
                         class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded transition flex items-center gap-1.5 shadow-sm"
@@ -448,8 +452,6 @@
                                     class="w-2.5 h-2.5 rounded bg-emerald-500/80"></span> Profit</span>
                             <span class="inline-flex items-center gap-1"><span
                                     class="w-2.5 h-2.5 rounded bg-rose-500/80"></span> Loss</span>
-                            <span class="inline-flex items-center gap-1"><span
-                                    class="w-2.5 h-2.5 rounded bg-gray-800"></span> No Trades</span>
                         </div>
                     </div>
 
@@ -1497,11 +1499,13 @@
         <!-- Ticker Aliases Management Modal -->
         <div v-if="showAliasesModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-            <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 my-auto">
+            <div
+                class="bg-gray-800 border border-gray-700 rounded-xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 my-auto">
                 <div class="flex justify-between items-start border-b border-gray-700 pb-3">
                     <div>
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                            <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                             </svg>
@@ -1532,7 +1536,8 @@
                         <button type="submit"
                             class="px-4 py-2 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white text-xs font-bold rounded-lg transition shrink-0 shadow-sm flex items-center justify-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             <span>Add</span>
                         </button>
@@ -1568,7 +1573,8 @@
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-gray-700">
+                <div
+                    class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 pt-3 border-t border-gray-700">
                     <button @click="applyTickerAliasesToLedger(true)"
                         class="px-3.5 py-2 bg-gray-700 hover:bg-gray-600 text-xs font-semibold text-gray-200 hover:text-white rounded-lg border border-gray-600 transition text-center"
                         title="Update all existing ledger transactions to their new symbols">
@@ -1814,7 +1820,8 @@
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
                                 Storage & Cloud Hub
                             </h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Manage your database storage, Google Drive / OneDrive sync, and backups.</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Manage your database storage, Google Drive /
+                                OneDrive sync, and backups.</p>
                         </div>
                     </div>
                     <button @click="showStorageHubModal = false"
@@ -1830,27 +1837,39 @@
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                                 :class="fileStatus === 'active' ? 'bg-emerald-900/60 text-emerald-400' : (cloudWebhookUrl ? 'bg-sky-900/60 text-sky-400' : 'bg-blue-900/50 text-blue-400')">
-                                <svg v-if="fileStatus === 'active'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <svg v-if="fileStatus === 'active'" class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <svg v-else-if="cloudWebhookUrl" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                                <svg v-else-if="cloudWebhookUrl" class="w-5 h-5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
                                 </svg>
                                 <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                                 </svg>
                             </div>
                             <div>
-                                <div class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Active Storage Target</div>
+                                <div class="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Active
+                                    Storage Target</div>
                                 <div class="text-sm font-semibold text-white flex flex-wrap items-center gap-2 mt-0.5">
-                                    <span v-if="fileStatus === 'active'" class="text-emerald-400 font-mono">Linked: {{ fileName }}</span>
-                                    <span v-else-if="fileStatus === 'locked'" class="text-amber-400">Locked File: {{ fileName }}</span>
-                                    <span v-else-if="cloudWebhookUrl" class="text-sky-400">Cloud Webhook Connected</span>
+                                    <span v-if="fileStatus === 'active'" class="text-emerald-400 font-mono">Linked: {{
+                                        fileName }}</span>
+                                    <span v-else-if="fileStatus === 'locked'" class="text-amber-400">Locked File: {{
+                                        fileName }}</span>
+                                    <span v-else-if="cloudWebhookUrl" class="text-sky-400">Cloud Webhook
+                                        Connected</span>
                                     <span v-else class="text-blue-400">Browser Local Memory</span>
-                                    <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-300 font-mono font-medium">{{ transactions.length }} transactions</span>
+                                    <span
+                                        class="text-[10px] px-2 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-300 font-mono font-medium">{{
+                                        transactions.length }} transactions</span>
                                 </div>
                                 <div v-if="lastCloudSyncTime" class="text-[11px] text-gray-400 mt-1">
-                                    Last Cloud Sync: <span class="text-gray-300 font-mono">{{ lastCloudSyncTime }}</span>
+                                    Last Cloud Sync: <span class="text-gray-300 font-mono">{{ lastCloudSyncTime
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -1874,41 +1893,54 @@
                     </div>
 
                     <!-- Option 1: Desktop Cloud Sync (Google Drive / OneDrive) - RECOMMENDED FOR NON-TECHNICAL USERS -->
-                    <div class="bg-gray-800/80 border border-emerald-700/60 rounded-xl p-4 sm:p-5 space-y-3.5 relative overflow-hidden">
+                    <div
+                        class="bg-gray-800/80 border border-emerald-700/60 rounded-xl p-4 sm:p-5 space-y-3.5 relative overflow-hidden">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div class="flex items-center gap-2">
-                                <span class="text-base font-bold text-white">1. Easy Cloud Sync (Google Drive / OneDrive)</span>
+                                <span class="text-base font-bold text-white">1. Easy Cloud Sync (Google Drive /
+                                    OneDrive)</span>
                             </div>
-                            <span class="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 w-fit">
+                            <span
+                                class="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-[11px] font-semibold flex items-center gap-1 w-fit">
                                 ⭐ Recommended for Non-Technical Users (0 Setup)
                             </span>
                         </div>
 
                         <p class="text-xs text-gray-300 leading-relaxed">
-                            If you have <strong class="text-emerald-300">Google Drive for Desktop</strong> or <strong class="text-sky-300">Microsoft OneDrive</strong> installed on your PC, your cloud folders are already synced in Windows!
+                            If you have <strong class="text-emerald-300">Google Drive for Desktop</strong> or <strong
+                                class="text-sky-300">Microsoft OneDrive</strong> installed on your PC, your cloud
+                            folders are already synced in Windows!
                         </p>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 py-1 text-xs">
                             <div class="bg-gray-900/70 p-3 rounded-lg border border-gray-700/60 space-y-1">
                                 <div class="font-semibold text-emerald-400 flex items-center gap-1.5">
-                                    <span class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-700 flex items-center justify-center text-[10px]">1</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-700 flex items-center justify-center text-[10px]">1</span>
                                     Link Synced File
                                 </div>
-                                <p class="text-[11px] text-gray-400">Click the button below to pick or create your <code class="text-gray-200 font-mono">portfolio.json</code>.</p>
+                                <p class="text-[11px] text-gray-400">Click the button below to pick or create your <code
+                                        class="text-gray-200 font-mono">portfolio.json</code>.</p>
                             </div>
                             <div class="bg-gray-900/70 p-3 rounded-lg border border-gray-700/60 space-y-1">
                                 <div class="font-semibold text-sky-400 flex items-center gap-1.5">
-                                    <span class="w-5 h-5 rounded-full bg-sky-950 border border-sky-700 flex items-center justify-center text-[10px]">2</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-sky-950 border border-sky-700 flex items-center justify-center text-[10px]">2</span>
                                     Choose Cloud Folder
                                 </div>
-                                <p class="text-[11px] text-gray-400">Select inside your <span class="text-emerald-300 font-medium">Google Drive</span> (<code class="text-gray-300">G:\My Drive</code>) or <span class="text-sky-300 font-medium">OneDrive</span> folder.</p>
+                                <p class="text-[11px] text-gray-400">Select inside your <span
+                                        class="text-emerald-300 font-medium">Google Drive</span> (<code
+                                        class="text-gray-300">G:\My Drive</code>) or <span
+                                        class="text-sky-300 font-medium">OneDrive</span> folder.</p>
                             </div>
                             <div class="bg-gray-900/70 p-3 rounded-lg border border-gray-700/60 space-y-1">
                                 <div class="font-semibold text-amber-400 flex items-center gap-1.5">
-                                    <span class="w-5 h-5 rounded-full bg-amber-950 border border-amber-700 flex items-center justify-center text-[10px]">3</span>
+                                    <span
+                                        class="w-5 h-5 rounded-full bg-amber-950 border border-amber-700 flex items-center justify-center text-[10px]">3</span>
                                     Automatic Cloud Sync
                                 </div>
-                                <p class="text-[11px] text-gray-400">Every stock or option transaction you save is uploaded to the cloud automatically!</p>
+                                <p class="text-[11px] text-gray-400">Every stock or option transaction you save is
+                                    uploaded to the cloud automatically!</p>
                             </div>
                         </div>
 
@@ -1916,12 +1948,14 @@
                             <button v-if="fileStatus === 'unlinked'" @click="linkLocalFile"
                                 class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-950/50">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                                 </svg>
                                 Link File in Google Drive / OneDrive
                             </button>
                             <span v-else class="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Currently linked to {{ fileName }}
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Currently linked to {{
+                                fileName }}
                             </span>
                         </div>
                     </div>
@@ -1933,24 +1967,28 @@
                             <span class="text-[11px] text-gray-400">Save a copy to your PC anytime</span>
                         </div>
                         <p class="text-xs text-gray-400">
-                            Download a full snapshot of your ledger or restore your transactions from any previous backup file.
+                            Download a full snapshot of your ledger or restore your transactions from any previous
+                            backup file.
                         </p>
                         <div class="flex flex-wrap gap-2.5 pt-1">
                             <button @click="downloadBackup"
                                 class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                 </svg>
                                 Download JSON Backup
                             </button>
                             <button @click="triggerJsonFileInput"
                                 class="px-3.5 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
                                 Restore from Backup File
                             </button>
-                            <input type="file" ref="jsonFileInput" @change="handleJsonFileRestore" accept=".json" class="hidden">
+                            <input type="file" ref="jsonFileInput" @change="handleJsonFileRestore" accept=".json"
+                                class="hidden">
                         </div>
                     </div>
 
@@ -1960,13 +1998,18 @@
                             class="w-full flex items-center justify-between text-left focus:outline-none">
                             <div class="flex items-center gap-2">
                                 <span class="p-1 rounded bg-gray-700/70 text-gray-300">
-                                    <svg class="w-4 h-4 transition-transform duration-200" :class="showAdvancedCloud ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    <svg class="w-4 h-4 transition-transform duration-200"
+                                        :class="showAdvancedCloud ? 'rotate-90' : ''" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
                                     </svg>
                                 </span>
                                 <div>
-                                    <span class="text-sm font-semibold text-gray-200">3. Advanced: Direct Web Cloud Sync (Google Apps Script Webhook)</span>
-                                    <p class="text-[11px] text-gray-400">For syncing across phones, tablets, or devices without desktop sync apps.</p>
+                                    <span class="text-sm font-semibold text-gray-200">3. Advanced: Direct Web Cloud Sync
+                                        (Google Apps Script Webhook)</span>
+                                    <p class="text-[11px] text-gray-400">For syncing across phones, tablets, or devices
+                                        without desktop sync apps.</p>
                                 </div>
                             </div>
                             <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded"
@@ -1977,11 +2020,15 @@
 
                         <div v-if="showAdvancedCloud" class="mt-4 pt-4 border-t border-gray-700/60 space-y-3.5">
                             <p class="text-xs text-gray-300">
-                                Deploy a private 5-line Google Apps Script on your Google account. It provides a private Webhook URL that reads and writes your <code class="font-mono text-sky-300">portfolio.json</code> directly inside your Google Drive from any browser.
+                                Deploy a private 5-line Google Apps Script on your Google account. It provides a private
+                                Webhook URL that reads and writes your <code
+                                    class="font-mono text-sky-300">portfolio.json</code> directly inside your Google
+                                Drive from any browser.
                             </p>
 
                             <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold text-gray-300">Google Apps Script Webhook URL</label>
+                                <label class="block text-xs font-semibold text-gray-300">Google Apps Script Webhook
+                                    URL</label>
                                 <div class="flex gap-2">
                                     <input type="url" v-model="cloudWebhookUrl" @change="saveCloudWebhookSettings"
                                         placeholder="https://script.google.com/macros/s/.../exec"
@@ -1994,7 +2041,8 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <input type="checkbox" id="autoSyncCheckbox" v-model="cloudAutoSync" @change="saveCloudWebhookSettings"
+                                <input type="checkbox" id="autoSyncCheckbox" v-model="cloudAutoSync"
+                                    @change="saveCloudWebhookSettings"
                                     class="rounded bg-gray-900 border-gray-700 text-sky-600 focus:ring-0">
                                 <label for="autoSyncCheckbox" class="text-xs text-gray-300 cursor-pointer">
                                     Automatically upload to cloud whenever I add, edit, or delete transactions
@@ -2002,21 +2050,28 @@
                             </div>
 
                             <div class="flex flex-wrap gap-2 pt-1">
-                                <button type="button" @click="syncToCloudWebhook(false)" :disabled="isSyncingCloud || !cloudWebhookUrl"
+                                <button type="button" @click="syncToCloudWebhook(false)"
+                                    :disabled="isSyncingCloud || !cloudWebhookUrl"
                                     class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 disabled:bg-gray-700 text-white rounded text-xs font-semibold transition flex items-center gap-1.5">
-                                    <svg v-if="isSyncingCloud" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <svg v-if="isSyncingCloud" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                        viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                     </svg>
-                                    <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
                                     {{ isSyncingCloud ? 'Syncing...' : 'Upload Now to Cloud' }}
                                 </button>
-                                <button type="button" @click="pullFromCloudWebhook" :disabled="isSyncingCloud || !cloudWebhookUrl"
+                                <button type="button" @click="pullFromCloudWebhook"
+                                    :disabled="isSyncingCloud || !cloudWebhookUrl"
                                     class="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-gray-200 rounded text-xs font-semibold transition flex items-center gap-1.5">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                     Pull / Load from Cloud
                                 </button>
