@@ -169,10 +169,10 @@
                 <!-- Sync Live Stocks & Auto Refresh Controls -->
                 <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5 shadow-sm transition hover:border-gray-600 gap-1">
                     <!-- Immediate Sync Now Button -->
-                    <button @click="handleManualSync" :disabled="isSyncing || (!apiKey && !geminiApiKey)"
-                        :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm active:scale-[0.98]'"
-                        class="px-2.5 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1.5"
-                        title="Sync live stock prices immediately">
+                    <button @click="handleManualSync" :disabled="isSyncing || (!apiKey && !geminiApiKey) || autoSyncEnabled"
+                        :class="((!apiKey && !geminiApiKey) || isSyncing || autoSyncEnabled) ? 'bg-gray-700 text-gray-500 cursor-not-allowed opacity-60' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm active:scale-[0.98]'"
+                        class="px-2.5 py-1.5 rounded-md text-xs font-semibold transition flex items-center gap-1.5"
+                        :title="autoSyncEnabled ? 'Manual sync disabled while auto-sync is active' : 'Sync live stock prices immediately'">
                         <svg v-if="isSyncing" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -207,22 +207,22 @@
                                 :class="autoSyncEnabled ? 'text-emerald-400 font-semibold' : 'text-gray-400 group-hover:text-gray-200'">Auto</span>
                         </div>
 
-                        <!-- Interval Input Pill -->
-                        <div class="flex items-center rounded border px-1.5 py-0.5 transition-colors"
+                        <!-- Interval Input Pill (in minutes) -->
+                        <div class="flex items-center rounded border px-2 py-0.5 transition-colors gap-1"
                             :class="autoSyncEnabled ? 'bg-emerald-950/30 border-emerald-600/50' : 'bg-gray-900 border-gray-700 focus-within:border-gray-500'"
-                            title="Auto refresh interval in seconds (minimum 5s)">
-                            <input type="number" v-model.number="autoSyncInterval" @change="handleIntervalChange"
-                                min="5" max="3600" step="5"
+                            title="Auto refresh interval in minutes (minimum 1 min)">
+                            <input type="number" v-model.number="autoSyncIntervalMinutes" @change="handleIntervalChange"
+                                min="1" max="120" step="1"
                                 :disabled="!apiKey && !geminiApiKey"
-                                class="w-8 bg-transparent text-xs text-center font-mono font-medium focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                class="w-7 bg-transparent text-xs text-center font-mono font-medium focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
                                 :class="autoSyncEnabled ? 'text-emerald-300 font-bold' : 'text-gray-300'" />
-                            <span class="text-[10px] text-gray-500 font-mono select-none">s</span>
+                            <span class="text-[11px] text-gray-400 font-mono select-none">min</span>
                         </div>
 
                         <!-- Live Pulse Radar & Countdown Badge -->
                         <div v-if="autoSyncEnabled"
                             class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)]"
-                            :title="isSyncing ? 'Syncing stock prices...' : ('Next sync in ' + autoSyncCountdown + 's (interval: ' + autoSyncInterval + 's)')">
+                            :title="isSyncing ? 'Syncing stock prices...' : ('Next sync in ' + formattedCountdown + ' (interval: ' + autoSyncIntervalMinutes + ' min)')">
                             <span v-if="isSyncing" class="flex items-center gap-1">
                                 <svg class="w-2.5 h-2.5 animate-spin text-emerald-400" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -235,7 +235,7 @@
                                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                     <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
                                 </span>
-                                <span>{{ autoSyncCountdown }}s</span>
+                                <span>{{ formattedCountdown }}</span>
                             </span>
                         </div>
                     </div>
@@ -3551,8 +3551,19 @@
                 const isTestingFinnhub = ref(false);
                 const isSyncing = ref(false);
                 const autoSyncEnabled = ref(false);
-                const autoSyncInterval = ref(Number(localStorage.getItem('tx_auto_sync_interval')) || 60);
-                const autoSyncCountdown = ref(autoSyncInterval.value);
+                const savedMinutes = localStorage.getItem('tx_auto_sync_interval_minutes');
+                const legacySeconds = localStorage.getItem('tx_auto_sync_interval');
+                const initialMinutes = savedMinutes ? Math.max(1, parseInt(savedMinutes, 10)) : (legacySeconds ? Math.max(1, Math.round(parseInt(legacySeconds, 10) / 60)) : 1);
+                const autoSyncIntervalMinutes = ref(initialMinutes || 1);
+                const autoSyncCountdown = ref(autoSyncIntervalMinutes.value * 60);
+                const formattedCountdown = computed(() => {
+                    if (autoSyncCountdown.value >= 60) {
+                        const m = Math.floor(autoSyncCountdown.value / 60);
+                        const s = autoSyncCountdown.value % 60;
+                        return s > 0 ? `${m}m ${s}s` : `${m}m`;
+                    }
+                    return `${autoSyncCountdown.value}s`;
+                });
                 const lastSyncTime = ref('');
                 let autoSyncTimer = null;
                 const notification = ref({ message: '', type: 'success' });
@@ -4853,10 +4864,10 @@ No markdown fences or commentary outside the JSON.`;
                     stopAutoSync();
                     if (!autoSyncEnabled.value) return;
 
-                    const validInterval = Math.max(5, Math.min(3600, parseInt(autoSyncInterval.value, 10) || 60));
-                    autoSyncInterval.value = validInterval;
-                    localStorage.setItem('tx_auto_sync_interval', validInterval.toString());
-                    autoSyncCountdown.value = validInterval;
+                    const validMins = Math.max(1, Math.min(120, parseInt(autoSyncIntervalMinutes.value, 10) || 1));
+                    autoSyncIntervalMinutes.value = validMins;
+                    localStorage.setItem('tx_auto_sync_interval_minutes', validMins.toString());
+                    autoSyncCountdown.value = validMins * 60;
 
                     autoSyncTimer = setInterval(async () => {
                         if (!autoSyncEnabled.value) {
@@ -4881,7 +4892,7 @@ No markdown fences or commentary outside the JSON.`;
                             } finally {
                                 isAutoSyncRunning = false;
                                 if (autoSyncEnabled.value) {
-                                    autoSyncCountdown.value = autoSyncInterval.value;
+                                    autoSyncCountdown.value = autoSyncIntervalMinutes.value * 60;
                                 }
                             }
                         }
@@ -4897,7 +4908,7 @@ No markdown fences or commentary outside the JSON.`;
                         }
                         autoSyncEnabled.value = true;
                         startAutoSync();
-                        showNotification(`Auto sync enabled (refreshing every ${autoSyncInterval.value}s).`, 'success');
+                        showNotification(`Auto sync enabled (refreshing every ${autoSyncIntervalMinutes.value} min).`, 'success');
                     } else {
                         autoSyncEnabled.value = false;
                         stopAutoSync();
@@ -4906,21 +4917,21 @@ No markdown fences or commentary outside the JSON.`;
                 };
 
                 const handleIntervalChange = () => {
-                    const validInterval = Math.max(5, Math.min(3600, parseInt(autoSyncInterval.value, 10) || 60));
-                    autoSyncInterval.value = validInterval;
-                    localStorage.setItem('tx_auto_sync_interval', validInterval.toString());
+                    const validMins = Math.max(1, Math.min(120, parseInt(autoSyncIntervalMinutes.value, 10) || 1));
+                    autoSyncIntervalMinutes.value = validMins;
+                    localStorage.setItem('tx_auto_sync_interval_minutes', validMins.toString());
                     if (autoSyncEnabled.value && !isSyncing.value && !isAutoSyncRunning) {
-                        autoSyncCountdown.value = validInterval;
+                        autoSyncCountdown.value = validMins * 60;
                     }
                 };
 
                 const handleManualSync = async () => {
-                    if (isSyncing.value) return;
+                    if (isSyncing.value || autoSyncEnabled.value) return;
                     try {
                         await syncPrices(false);
                     } finally {
                         if (autoSyncEnabled.value) {
-                            autoSyncCountdown.value = autoSyncInterval.value;
+                            autoSyncCountdown.value = autoSyncIntervalMinutes.value * 60;
                         }
                     }
                 };
@@ -6983,8 +6994,9 @@ No markdown fences or commentary outside the JSON.`;
                     saveApiKey,
                     syncPrices,
                     autoSyncEnabled,
-                    autoSyncInterval,
+                    autoSyncIntervalMinutes,
                     autoSyncCountdown,
+                    formattedCountdown,
                     lastSyncTime,
                     toggleAutoSync,
                     handleIntervalChange,
