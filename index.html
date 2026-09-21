@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Ledger: Stocks & Options</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231e293b'/%3E%3Cstop offset='100%25' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3ClinearGradient id='line' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%23059669'/%3E%3Cstop offset='100%25' stop-color='%2334d399'/%3E%3C/linearGradient%3E%3ClinearGradient id='area' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2310b981' stop-opacity='0.35'/%3E%3Cstop offset='100%25' stop-color='%2310b981' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='16' fill='url(%23bg)' stroke='%23334155' stroke-width='2'/%3E%3Cpath d='M12 44 L24 35 L34 40 L52 18 L52 48 L12 48 Z' fill='url(%23area)'/%3E%3Cpolyline points='12,44 24,35 34,40 52,18' fill='none' stroke='url(%23line)' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='52' cy='18' r='4.5' fill='%2334d399'/%3E%3Ccircle cx='52' cy='18' r='2' fill='%23ffffff'/%3E%3C/svg%3E">
+    <link rel="alternate icon" href="favicon.svg" type="image/svg+xml">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -27,6 +30,41 @@
     <style>
         [v-cloak] {
             display: none;
+        }
+
+        /* Modern Dark & Emerald Theme Scrollbars */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #374151 #111827;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #111827;
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            transition: background 0.2s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+        ::-webkit-scrollbar-thumb:active {
+            background: #10b981;
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: #111827;
         }
 
         input[type="date"] {
@@ -851,9 +889,10 @@
                 </div>
 
                 <!-- Portfolio Allocation Chart Card -->
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700 shadow-sm">
                     <h2 @click="showAllocation = !showAllocation"
-                        class="text-lg font-semibold mb-2 text-emerald-400 cursor-pointer flex justify-between items-center select-none">
+                        class="text-lg font-semibold text-emerald-400 cursor-pointer flex justify-between items-center select-none"
+                        :class="showAllocation ? 'mb-3' : 'mb-0'">
                         <span>Stock Allocation</span>
                         <svg :class="{'rotate-180': showAllocation}" class="w-5 h-5 transition-transform" fill="none"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -861,25 +900,146 @@
                             </path>
                         </svg>
                     </h2>
+
                     <div v-show="showAllocation">
-                        <p class="text-xs text-gray-400 mb-4">Capital distribution (market value) of active stock
-                            holdings
-                            by Ticker.</p>
-                        <div class="relative flex items-center justify-center min-h-[260px]">
-                            <canvas id="allocationChart" class="max-w-[250px] max-h-[250px]"></canvas>
-                            <!-- Center Total Display for Doughnut -->
-                            <div v-if="!hasNoStockHoldings && computedStockHoldings.length > 0"
-                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-7">
-                                <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Total
-                                    Value</span>
-                                <span class="text-sm font-extrabold text-white font-mono">${{
-                                    formatNumber(stockPortfolioValue) }}</span>
+                        <!-- Toolbar & Subtitle row -->
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <p class="text-xs text-gray-400">
+                                <span>Capital distribution by Ticker</span>
+                                <span v-if="allocationViewTab === 'bars'" class="text-[11px] text-gray-500 font-mono ml-1">
+                                    ({{ rankedHoldingsForAllocation.length }})
+                                </span>
+                            </p>
+
+                            <!-- Card Toolbar: View Switcher (Option 2) & Enlarge Button (Option 4) -->
+                            <div class="flex items-center gap-1.5">
+                                <!-- Donut vs Bars Switcher -->
+                                <div class="flex bg-gray-900/90 p-0.5 rounded-lg border border-gray-700 text-xs">
+                                    <button type="button" @click="setAllocationViewTab('donut')"
+                                        :class="allocationViewTab === 'donut' ? 'bg-emerald-600 text-white font-semibold shadow-sm' : 'text-gray-400 hover:text-white'"
+                                        class="px-2 py-0.5 rounded transition flex items-center gap-1"
+                                        title="Donut Chart View">
+                                        <span>🍩</span>
+                                        <span class="text-[11px]">Donut</span>
+                                    </button>
+                                    <button type="button" @click="setAllocationViewTab('bars')"
+                                        :class="allocationViewTab === 'bars' ? 'bg-emerald-600 text-white font-semibold shadow-sm' : 'text-gray-400 hover:text-white'"
+                                        class="px-2 py-0.5 rounded transition flex items-center gap-1"
+                                        title="Ranked Allocation Bars View">
+                                        <span>📊</span>
+                                        <span class="text-[11px]">Bars</span>
+                                    </button>
+                                </div>
+
+                                <!-- Group < 1% Toggle (Option 1) -->
+                                <button v-if="allocationViewTab === 'donut'" type="button"
+                                    @click="toggleAllocationGroupSmall"
+                                    :class="allocationGroupSmall ? 'bg-emerald-950/80 border-emerald-700/80 text-emerald-300' : 'bg-gray-900/80 border-gray-700 text-gray-400 hover:text-gray-200'"
+                                    class="px-2 py-0.5 rounded-lg border text-[11px] font-mono transition flex items-center gap-1"
+                                    :title="allocationGroupSmall ? 'Currently grouping holdings < 1% into Other. Click to show all raw slices.' : 'Currently showing all raw slices. Click to group < 1% holdings.'">
+                                    <span class="w-1.5 h-1.5 rounded-full" :class="allocationGroupSmall ? 'bg-emerald-400' : 'bg-gray-500'"></span>
+                                    <span>&lt;1%</span>
+                                </button>
+
+                                <!-- Enlarge / Popout Modal (Option 4) -->
+                                <button type="button" @click="openAllocationModal"
+                                    class="p-1 bg-gray-900/80 hover:bg-gray-750 text-gray-400 hover:text-emerald-300 rounded-lg border border-gray-700 hover:border-emerald-500/50 transition cursor-pointer"
+                                    title="Enlarge Allocation View (Full Screen Breakdown)">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                    </svg>
+                                </button>
                             </div>
+                        </div>
+
+                        <!-- VIEW A: Thicker Donut with Interactive Center Inspection -->
+                        <div v-show="allocationViewTab === 'donut'" class="relative flex items-center justify-center min-h-[290px]">
+                            <canvas id="allocationChart" class="w-full max-w-[280px] max-h-[280px]"></canvas>
+
+                            <!-- Center Total / Hover Stats Display for Doughnut -->
+                            <div v-if="!hasNoStockHoldings && computedStockHoldings.length > 0"
+                                class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-7 transition-all duration-150">
+                                <template v-if="hoveredAllocationItem">
+                                    <span class="text-[11px] font-bold text-sky-400 tracking-wider flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full shadow-sm" :style="{ backgroundColor: hoveredAllocationItem.color }"></span>
+                                        <span>{{ hoveredAllocationItem.symbol }}</span>
+                                    </span>
+                                    <span class="text-base font-extrabold text-white font-mono mt-0.5">
+                                        ${{ formatNumber(hoveredAllocationItem.marketValue) }}
+                                    </span>
+                                    <span class="text-xs font-semibold text-emerald-400 font-mono">
+                                        {{ hoveredAllocationItem.weightPercent.toFixed(2) }}%
+                                    </span>
+                                    <span v-if="hoveredAllocationItem.isOther" class="text-[9px] text-gray-400 font-mono">
+                                        {{ hoveredAllocationItem.count }} micro-holdings
+                                    </span>
+                                </template>
+                                <template v-else>
+                                    <span class="text-[9px] uppercase font-bold text-gray-400 tracking-wider">Total Value</span>
+                                    <span class="text-base font-extrabold text-white font-mono mt-0.5">
+                                        ${{ formatNumber(stockPortfolioValue) }}
+                                    </span>
+                                    <span class="text-[10px] text-gray-400 font-mono">
+                                        {{ computedStockHoldings.length }} Holdings
+                                    </span>
+                                </template>
+                            </div>
+
                             <div v-if="hasNoStockHoldings"
                                 class="absolute inset-0 flex items-center justify-center bg-gray-800/90 text-xs text-gray-500 text-center px-4">
                                 No active stock positions to display allocation.
                             </div>
                         </div>
+
+                        <!-- Donut Legend Pill Strip (Option 1) -->
+                        <div v-if="allocationViewTab === 'donut' && !hasNoStockHoldings"
+                            class="flex flex-wrap items-center justify-center gap-1.5 mt-2 pt-2 border-t border-gray-700/60 max-h-24 overflow-y-auto pr-1">
+                            <button v-for="item in allocationDonutData.items" :key="item.symbol"
+                                type="button"
+                                @mouseenter="hoveredAllocationItem = item"
+                                @mouseleave="hoveredAllocationItem = null"
+                                class="px-2 py-0.5 rounded-full text-[10px] font-mono flex items-center gap-1.5 transition border cursor-pointer"
+                                :class="(hoveredAllocationItem && hoveredAllocationItem.symbol === item.symbol) ? 'bg-gray-700 border-gray-500 text-white' : 'bg-gray-900/70 border-gray-800 text-gray-300 hover:border-gray-600'">
+                                <span class="w-1.5 h-1.5 rounded-full" :style="{ backgroundColor: item.color }"></span>
+                                <span class="font-semibold">{{ item.symbol }}</span>
+                                <span class="text-gray-400">{{ item.weightPercent.toFixed(1) }}%</span>
+                            </button>
+                        </div>
+
+                        <!-- VIEW B: Ranked Allocation Bars (Option 2 - Perfect for < 1% Holdings) -->
+                        <div v-show="allocationViewTab === 'bars'" class="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                            <div v-if="hasNoStockHoldings" class="text-center py-8 text-xs text-gray-500">
+                                No active stock positions.
+                            </div>
+                            <div v-for="(holding, idx) in rankedHoldingsForAllocation" :key="holding.symbol"
+                                @mouseenter="hoveredAllocationItem = { ...holding, color: getHoldingColor(idx) }"
+                                @mouseleave="hoveredAllocationItem = null"
+                                class="bg-gray-900/50 hover:bg-gray-750 p-2 rounded-lg border border-gray-750 hover:border-gray-600 transition group">
+                                <div class="flex items-center justify-between mb-1 text-xs">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" :style="{ backgroundColor: getHoldingColor(idx) }"></span>
+                                        <span class="font-bold text-white group-hover:text-emerald-300 transition">{{ holding.symbol }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono truncate">({{ holding.quantity }} shs)</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 font-mono flex-shrink-0">
+                                        <span class="text-xs text-gray-200 font-semibold">${{ formatNumber(holding.marketValue) }}</span>
+                                        <span class="text-[11px] px-1.5 py-0.2 rounded font-bold"
+                                            :class="holding.weightPercent >= 1 ? 'bg-gray-800 text-sky-300 border border-gray-700' : 'bg-amber-950/70 text-amber-300 border border-amber-800/70'"
+                                            :title="holding.weightPercent < 1 ? 'Micro position (< 1%)' : ''">
+                                            {{ holding.weightPercent.toFixed(2) }}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Proportional Bar -->
+                                <div class="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-300"
+                                        :style="{ width: Math.max(1.5, Math.min(100, holding.weightPercent)) + '%', backgroundColor: getHoldingColor(idx) }">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -997,11 +1157,6 @@
                                         Market Value {{ stockHoldingsSortKey === 'marketValue' ? (stockHoldingsSortAsc ?
                                         '↑' : '↓') : '' }}
                                     </th>
-                                    <th @click="toggleStockSort('weightPercent')"
-                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        Weight % {{ stockHoldingsSortKey === 'weightPercent' ? (stockHoldingsSortAsc ?
-                                        '↑' : '↓') : '' }}
-                                    </th>
                                     <th @click="toggleStockSort('unrealizedPL')"
                                         class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
                                         <span class="hidden sm:inline">Unrealized P/L</span>
@@ -1018,9 +1173,6 @@
                                         <div class="font-bold text-white">{{ holding.symbol }}</div>
                                         <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
                                             {{ holding.quantity }} shs @ ${{ formatNumber(holding.avgCost) }}
-                                            <span class="text-gray-500">•</span>
-                                            <span class="text-emerald-400/80">{{ holding.weightPercent.toFixed(1)
-                                                }}%</span>
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
@@ -1035,17 +1187,6 @@
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white">
                                         ${{
                                         formatNumber(holding.marketValue) }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right">
-                                        <div class="flex items-center justify-end gap-1.5 font-mono text-xs">
-                                            <span class="text-gray-300">{{ holding.weightPercent.toFixed(1) }}%</span>
-                                            <div
-                                                class="w-12 bg-gray-700 rounded-full h-1.5 overflow-hidden hidden sm:block">
-                                                <div class="bg-emerald-500 h-full rounded-full"
-                                                    :style="{ width: Math.min(100, holding.weightPercent) + '%' }">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-semibold"
                                         :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                                         {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL)
@@ -1055,7 +1196,7 @@
                                     </td>
                                 </tr>
                                 <tr v-if="sortedAndFilteredStockHoldings.length === 0">
-                                    <td colspan="7" class="py-8 text-center text-gray-500 text-sm">
+                                    <td colspan="6" class="py-8 text-center text-gray-500 text-sm">
                                         <span v-if="stockHoldingsSearch">No open stock positions matching "{{
                                             stockHoldingsSearch }}".</span>
                                         <span v-else>No open stock positions.</span>
@@ -1068,8 +1209,7 @@
                                     <td class="py-3 px-3 sm:px-4 font-bold text-white">
                                         <div>Total ({{ sortedAndFilteredStockHoldings.length }})</div>
                                         <div class="sm:hidden text-[11px] font-mono text-gray-400 font-normal mt-0.5">
-                                            {{ formatNumber(holdingsTotals.shares) }} shs • {{
-                                            holdingsTotals.totalWeight.toFixed(1) }}%
+                                            {{ formatNumber(holdingsTotals.shares) }} shs
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
@@ -1085,10 +1225,6 @@
                                         class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">
                                         ${{
                                         formatNumber(holdingsTotals.marketValue) }}</td>
-                                    <td
-                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-400">
-                                        {{
-                                        holdingsTotals.totalWeight.toFixed(1) }}%</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold"
                                         :class="holdingsTotals.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                                         {{ holdingsTotals.unrealizedPL >= 0 ? '+' : '' }}${{
@@ -3646,6 +3782,175 @@
             </div>
         </div>
 
+        <!-- Stock Allocation Enlarge Modal (Option 4) -->
+        <div v-if="showAllocationModal"
+            class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50 animate-in fade-in duration-150">
+            <div @click.stop
+                class="bg-gray-850 rounded-2xl border border-gray-750 shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+                
+                <!-- Modal Header -->
+                <div class="p-4 sm:p-5 border-b border-gray-750 flex items-center justify-between bg-gray-900/60">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-950/80 border border-emerald-700/60 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2 flex-wrap">
+                                <span>Stock Capital Allocation</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full font-mono bg-emerald-950 text-emerald-300 border border-emerald-800">
+                                    {{ computedStockHoldings.length }} Positions
+                                </span>
+                            </h3>
+                            <p class="text-xs text-gray-400">Full capital distribution & portfolio weighting breakdown</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <span class="text-[10px] uppercase font-bold text-gray-400">Total Market Value</span>
+                            <span class="text-sm font-extrabold text-white font-mono">${{ formatNumber(stockPortfolioValue) }}</span>
+                        </div>
+                        <button @click="closeAllocationModal"
+                            class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-gray-750 transition text-lg leading-none cursor-pointer"
+                            title="Close (Esc)">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Body: Two-Column Responsive Layout -->
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Left: Large Donut Chart & Controls (5 cols) -->
+                    <div class="lg:col-span-5 flex flex-col items-center justify-between bg-gray-900/40 p-4 rounded-xl border border-gray-750">
+                        <div class="w-full flex items-center justify-between mb-2">
+                            <span class="text-xs font-semibold text-gray-300">Donut Visualization</span>
+                            <button type="button" @click="toggleAllocationGroupSmall"
+                                :class="allocationGroupSmall ? 'bg-emerald-950 border-emerald-700 text-emerald-300' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-gray-200'"
+                                class="px-2.5 py-1 rounded-lg border text-xs font-mono transition flex items-center gap-1.5 cursor-pointer">
+                                <span class="w-1.5 h-1.5 rounded-full" :class="allocationGroupSmall ? 'bg-emerald-400' : 'bg-gray-500'"></span>
+                                <span>Group &lt; 1%</span>
+                            </button>
+                        </div>
+
+                        <div class="relative flex items-center justify-center w-full min-h-[310px]">
+                            <canvas id="modalAllocationChart" class="w-full max-w-[320px] max-h-[320px]"></canvas>
+
+                            <!-- Interactive Center Stats in Modal -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-7 transition-all duration-150">
+                                <template v-if="hoveredAllocationItem">
+                                    <span class="text-xs font-bold text-sky-400 tracking-wider flex items-center gap-1.5">
+                                        <span class="w-2.5 h-2.5 rounded-full shadow-sm" :style="{ backgroundColor: hoveredAllocationItem.color }"></span>
+                                        <span>{{ hoveredAllocationItem.symbol }}</span>
+                                    </span>
+                                    <span class="text-xl font-extrabold text-white font-mono mt-0.5">
+                                        ${{ formatNumber(hoveredAllocationItem.marketValue) }}
+                                    </span>
+                                    <span class="text-sm font-semibold text-emerald-400 font-mono">
+                                        {{ hoveredAllocationItem.weightPercent.toFixed(2) }}%
+                                    </span>
+                                    <span v-if="hoveredAllocationItem.isOther" class="text-[10px] text-gray-400 font-mono mt-0.5">
+                                        {{ hoveredAllocationItem.count }} micro-positions
+                                    </span>
+                                </template>
+                                <template v-else>
+                                    <span class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Total Value</span>
+                                    <span class="text-xl font-extrabold text-white font-mono mt-0.5">
+                                        ${{ formatNumber(stockPortfolioValue) }}
+                                    </span>
+                                    <span class="text-xs text-gray-400 font-mono">
+                                        {{ computedStockHoldings.length }} Active Stocks
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="w-full text-center text-[11px] text-gray-400 mt-2">
+                            Hover over any chart segment or table row to inspect individual capital weight.
+                        </div>
+                    </div>
+
+                    <!-- Right: Detailed Ranked Breakdown Table (7 cols) -->
+                    <div class="lg:col-span-7 flex flex-col">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div class="relative flex-1">
+                                <input type="text" v-model="modalAllocationSearch" placeholder="Filter ticker symbol..."
+                                    class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 uppercase">
+                                <button v-if="modalAllocationSearch" @click="modalAllocationSearch = ''"
+                                    class="absolute right-2.5 top-1.5 text-gray-400 hover:text-white text-xs">✕</button>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono whitespace-nowrap">
+                                {{ modalFilteredHoldings.length }} of {{ rankedHoldingsForAllocation.length }}
+                            </span>
+                        </div>
+
+                        <div class="overflow-x-auto flex-1 max-h-[440px] overflow-y-auto border border-gray-750 rounded-xl bg-gray-900/40 pr-1">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-850 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-750 z-10">
+                                    <tr>
+                                        <th class="p-2.5">Symbol</th>
+                                        <th class="p-2.5 text-right">Shares</th>
+                                        <th class="p-2.5 text-right">Price</th>
+                                        <th class="p-2.5 text-right">Market Value</th>
+                                        <th class="p-2.5 text-right">Unrealized P/L</th>
+                                        <th class="p-2.5 text-right">Weight %</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800 text-gray-200">
+                                    <tr v-for="(h, idx) in modalFilteredHoldings" :key="h.symbol"
+                                        @mouseenter="hoveredAllocationItem = { ...h, color: getHoldingColor(idx) }"
+                                        @mouseleave="hoveredAllocationItem = null"
+                                        class="hover:bg-gray-800/60 transition group cursor-pointer"
+                                        :class="{ 'bg-gray-800/40': hoveredAllocationItem && hoveredAllocationItem.symbol === h.symbol }">
+                                        <td class="p-2.5 font-bold text-white whitespace-nowrap flex items-center gap-2">
+                                            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" :style="{ backgroundColor: getHoldingColor(idx) }"></span>
+                                            <span>{{ h.symbol }}</span>
+                                        </td>
+                                        <td class="p-2.5 text-right font-mono text-gray-300">{{ h.quantity }}</td>
+                                        <td class="p-2.5 text-right font-mono text-gray-300">${{ formatNumber(h.currentPrice) }}</td>
+                                        <td class="p-2.5 text-right font-mono font-bold text-white">${{ formatNumber(h.marketValue) }}</td>
+                                        <td class="p-2.5 text-right font-mono" :class="h.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ h.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(h.unrealizedPL) }}
+                                            <span class="text-[10px] text-gray-400">({{ h.unrealizedPercent.toFixed(1) }}%)</span>
+                                        </td>
+                                        <td class="p-2.5 text-right font-mono">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <span class="font-bold text-xs"
+                                                    :class="h.weightPercent >= 1 ? 'text-sky-300' : 'text-amber-300'">
+                                                    {{ h.weightPercent.toFixed(2) }}%
+                                                </span>
+                                                <div class="w-14 bg-gray-800 rounded-full h-1.5 overflow-hidden hidden sm:block">
+                                                    <div class="h-full rounded-full"
+                                                        :style="{ width: Math.max(2, Math.min(100, h.weightPercent)) + '%', backgroundColor: getHoldingColor(idx) }">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-4 border-t border-gray-750 flex items-center justify-between bg-gray-900/60 text-xs text-gray-400">
+                    <span>Weights are calculated relative to active stock market value (${{ formatNumber(stockPortfolioValue) }}).</span>
+                    <button type="button" @click="closeAllocationModal"
+                        class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700 cursor-pointer">
+                        Done
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 
     <!-- Application Script Logic -->
@@ -3893,6 +4198,7 @@
                 // Chart Instance References
                 let chartInstance = null;
                 let performanceChartInstance = null;
+                let modalChartInstance = null;
 
                 const form = ref({
                     id: null,
@@ -5364,15 +5670,145 @@ No markdown fences or commentary outside the JSON.`;
                     return computedStockHoldings.value.length === 0;
                 });
 
-                // Exclude Option holdings - Aggregate strictly stock market values
-                const chartData = computed(() => {
-                    const totals = {};
+                const stockPortfolioValue = computed(() => {
+                    return computedStockHoldings.value.reduce((acc, curr) => acc + curr.marketValue, 0);
+                });
 
-                    computedStockHoldings.value.forEach(s => {
-                        if (!totals[s.symbol]) totals[s.symbol] = 0;
-                        totals[s.symbol] += s.marketValue;
+                const stockCostBasis = computed(() => {
+                    return computedStockHoldings.value.reduce((acc, curr) => acc + curr.totalCost, 0);
+                });
+
+                const stockUnrealizedPL = computed(() => {
+                    return stockPortfolioValue.value - stockCostBasis.value;
+                });
+
+                // Stock Allocation Display Settings & Color System
+                const coolFinancialColors = [
+                    '#38bdf8', // Sky Blue
+                    '#6366f1', // Indigo
+                    '#a855f7', // Purple
+                    '#06b6d4', // Cyan
+                    '#f59e0b', // Warm Amber
+                    '#3b82f6', // Cobalt Blue
+                    '#c084fc', // Violet
+                    '#0ea5e9', // Ocean Blue
+                    '#818cf8', // Periwinkle
+                    '#14b8a6', // Deep Teal
+                    '#fbbf24', // Sun Gold
+                    '#93c5fd', // Soft Blue
+                    '#e879f9', // Orchid
+                    '#2dd4bf', // Teal Accent
+                    '#f472b6', // Pink Accent
+                    '#64748b'  // Slate Steel (Reserved for Other <1%)
+                ];
+
+                const getHoldingColor = (idx) => {
+                    return coolFinancialColors[idx % (coolFinancialColors.length - 1)];
+                };
+
+                const allocationViewTab = ref(localStorage.getItem('tx_allocation_view_tab') || 'donut');
+                const allocationGroupSmall = ref(localStorage.getItem('tx_allocation_group_small') !== 'false');
+                const hoveredAllocationItem = ref(null);
+                const showAllocationModal = ref(false);
+                const modalAllocationSearch = ref('');
+
+                const setAllocationViewTab = (tab) => {
+                    allocationViewTab.value = tab;
+                    localStorage.setItem('tx_allocation_view_tab', tab);
+                    if (tab === 'donut') {
+                        updateAllocationChart();
+                    }
+                };
+
+                const toggleAllocationGroupSmall = () => {
+                    allocationGroupSmall.value = !allocationGroupSmall.value;
+                    localStorage.setItem('tx_allocation_group_small', allocationGroupSmall.value ? 'true' : 'false');
+                    updateAllocationChart();
+                    if (showAllocationModal.value) {
+                        updateModalAllocationChart();
+                    }
+                };
+
+                const rankedHoldingsForAllocation = computed(() => {
+                    const totalVal = stockPortfolioValue.value;
+                    return computedStockHoldings.value.map(h => {
+                        const weightPercent = totalVal > 0 ? (h.marketValue / totalVal) * 100 : 0;
+                        return {
+                            ...h,
+                            weightPercent
+                        };
+                    }).sort((a, b) => b.marketValue - a.marketValue);
+                });
+
+                const modalFilteredHoldings = computed(() => {
+                    let list = rankedHoldingsForAllocation.value;
+                    if (modalAllocationSearch.value && modalAllocationSearch.value.trim()) {
+                        const q = modalAllocationSearch.value.trim().toUpperCase();
+                        list = list.filter(h => h.symbol.includes(q));
+                    }
+                    return list;
+                });
+
+                const allocationDonutData = computed(() => {
+                    const holdings = rankedHoldingsForAllocation.value;
+                    const totalVal = stockPortfolioValue.value;
+                    if (holdings.length === 0 || totalVal <= 0) {
+                        return { labels: [], values: [], colors: [], items: [] };
+                    }
+
+                    const labels = [];
+                    const values = [];
+                    const colors = [];
+                    const items = [];
+
+                    const otherItems = [];
+                    let otherValue = 0;
+
+                    holdings.forEach((h, index) => {
+                        if (allocationGroupSmall.value && h.weightPercent < 1.0) {
+                            otherItems.push(h);
+                            otherValue += h.marketValue;
+                        } else {
+                            const color = getHoldingColor(index);
+                            labels.push(h.symbol);
+                            values.push(h.marketValue);
+                            colors.push(color);
+                            items.push({
+                                symbol: h.symbol,
+                                quantity: h.quantity,
+                                marketValue: h.marketValue,
+                                weightPercent: h.weightPercent,
+                                color: color,
+                                isOther: false
+                            });
+                        }
                     });
 
+                    if (otherItems.length > 0) {
+                        const otherWeight = totalVal > 0 ? (otherValue / totalVal) * 100 : 0;
+                        labels.push(`Other (<1%) [${otherItems.length}]`);
+                        values.push(otherValue);
+                        const otherColor = '#64748b'; // Slate Steel
+                        colors.push(otherColor);
+                        items.push({
+                            symbol: `Other (<1%)`,
+                            marketValue: otherValue,
+                            weightPercent: otherWeight,
+                            color: otherColor,
+                            isOther: true,
+                            subItems: otherItems,
+                            count: otherItems.length
+                        });
+                    }
+
+                    return { labels, values, colors, items };
+                });
+
+                const chartData = computed(() => {
+                    const totals = {};
+                    allocationDonutData.value.items.forEach(it => {
+                        totals[it.symbol] = it.marketValue;
+                    });
                     return totals;
                 });
 
@@ -5381,9 +5817,10 @@ No markdown fences or commentary outside the JSON.`;
                         const canvas = document.getElementById('allocationChart');
                         if (!canvas) return;
 
-                        const dataMap = chartData.value;
-                        const labels = Object.keys(dataMap);
-                        const values = Object.values(dataMap);
+                        const donutData = allocationDonutData.value;
+                        const labels = donutData.labels;
+                        const values = donutData.values;
+                        const colors = donutData.colors;
 
                         if (labels.length === 0) {
                             if (chartInstance) {
@@ -5393,30 +5830,10 @@ No markdown fences or commentary outside the JSON.`;
                             return;
                         }
 
-                        // Curated Cool Financial Palette (Avoids Profit-Green and Loss-Red to prevent confusion)
-                        const coolFinancialColors = [
-                            '#38bdf8', // Sky Blue
-                            '#6366f1', // Indigo
-                            '#a855f7', // Purple
-                            '#06b6d4', // Cyan
-                            '#f59e0b', // Warm Amber
-                            '#3b82f6', // Cobalt Blue
-                            '#c084fc', // Violet
-                            '#0ea5e9', // Ocean Blue
-                            '#818cf8', // Periwinkle
-                            '#14b8a6', // Deep Teal
-                            '#fbbf24', // Sun Gold
-                            '#93c5fd', // Soft Blue
-                            '#e879f9', // Orchid
-                            '#64748b'  // Slate Steel
-                        ];
-
-                        const backgroundColors = labels.map((_, i) => coolFinancialColors[i % coolFinancialColors.length]);
-
                         if (chartInstance) {
                             chartInstance.data.labels = labels;
                             chartInstance.data.datasets[0].data = values;
-                            chartInstance.data.datasets[0].backgroundColor = backgroundColors;
+                            chartInstance.data.datasets[0].backgroundColor = colors;
                             chartInstance.update();
                         } else {
                             chartInstance = new Chart(canvas, {
@@ -5425,29 +5842,31 @@ No markdown fences or commentary outside the JSON.`;
                                     labels: labels,
                                     datasets: [{
                                         data: values,
-                                        backgroundColor: backgroundColors,
+                                        backgroundColor: colors,
                                         borderWidth: 2,
-                                        borderColor: '#1f2937', // gray-800 card background
-                                        borderRadius: 4,
-                                        spacing: 2
+                                        borderColor: '#1f2937', // gray-800
+                                        borderRadius: 3,
+                                        spacing: 1.5
                                     }]
                                 },
                                 options: {
                                     responsive: true,
                                     maintainAspectRatio: false,
-                                    cutout: '72%',
+                                    cutout: '58%',
+                                    onHover: (event, activeElements) => {
+                                        if (activeElements && activeElements.length > 0) {
+                                            const idx = activeElements[0].index;
+                                            const item = donutData.items[idx];
+                                            if (item) {
+                                                hoveredAllocationItem.value = item;
+                                            }
+                                        } else {
+                                            hoveredAllocationItem.value = null;
+                                        }
+                                    },
                                     plugins: {
                                         legend: {
-                                            position: 'bottom',
-                                            labels: {
-                                                color: '#9ca3af', // gray-400
-                                                font: { size: 10, weight: '500' },
-                                                boxWidth: 8,
-                                                boxHeight: 8,
-                                                usePointStyle: true,
-                                                pointStyle: 'circle',
-                                                padding: 12
-                                            }
+                                            display: false
                                         },
                                         tooltip: {
                                             backgroundColor: 'rgba(17, 24, 39, 0.95)',
@@ -5462,7 +5881,11 @@ No markdown fences or commentary outside the JSON.`;
                                                 label: (context) => {
                                                     const val = context.raw || 0;
                                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                                    const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                                    const pct = total > 0 ? ((val / total) * 100).toFixed(2) : 0;
+                                                    const item = donutData.items[context.dataIndex];
+                                                    if (item && item.isOther) {
+                                                        return ` ${item.symbol}: $${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${pct}%) - ${item.count} holdings`;
+                                                    }
                                                     return ` ${context.label}: $${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${pct}%)`;
                                                 }
                                             }
@@ -5474,21 +5897,117 @@ No markdown fences or commentary outside the JSON.`;
                     });
                 };
 
+                const updateModalAllocationChart = () => {
+                    nextTick(() => {
+                        const canvas = document.getElementById('modalAllocationChart');
+                        if (!canvas) return;
+
+                        const donutData = allocationDonutData.value;
+                        const labels = donutData.labels;
+                        const values = donutData.values;
+                        const colors = donutData.colors;
+
+                        if (labels.length === 0) {
+                            if (modalChartInstance) {
+                                modalChartInstance.destroy();
+                                modalChartInstance = null;
+                            }
+                            return;
+                        }
+
+                        if (modalChartInstance) {
+                            modalChartInstance.data.labels = labels;
+                            modalChartInstance.data.datasets[0].data = values;
+                            modalChartInstance.data.datasets[0].backgroundColor = colors;
+                            modalChartInstance.update();
+                        } else {
+                            modalChartInstance = new Chart(canvas, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        data: values,
+                                        backgroundColor: colors,
+                                        borderWidth: 2,
+                                        borderColor: '#151d2a', // gray-850
+                                        borderRadius: 4,
+                                        spacing: 2
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    cutout: '58%',
+                                    onHover: (event, activeElements) => {
+                                        if (activeElements && activeElements.length > 0) {
+                                            const idx = activeElements[0].index;
+                                            const item = donutData.items[idx];
+                                            if (item) {
+                                                hoveredAllocationItem.value = item;
+                                            }
+                                        } else {
+                                            hoveredAllocationItem.value = null;
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            display: false
+                                        },
+                                        tooltip: {
+                                            backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                                            titleColor: '#f3f4f6',
+                                            bodyColor: '#e5e7eb',
+                                            borderColor: '#374151',
+                                            borderWidth: 1,
+                                            padding: 10,
+                                            boxPadding: 4,
+                                            usePointStyle: true,
+                                            callbacks: {
+                                                label: (context) => {
+                                                    const val = context.raw || 0;
+                                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                                    const pct = total > 0 ? ((val / total) * 100).toFixed(2) : 0;
+                                                    const item = donutData.items[context.dataIndex];
+                                                    if (item && item.isOther) {
+                                                        return ` ${item.symbol}: $${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${pct}%) - ${item.count} holdings`;
+                                                    }
+                                                    return ` ${context.label}: $${val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${pct}%)`;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                };
+
+                const openAllocationModal = () => {
+                    showAllocationModal.value = true;
+                    updateModalAllocationChart();
+                };
+
+                const closeAllocationModal = () => {
+                    showAllocationModal.value = false;
+                    modalAllocationSearch.value = '';
+                    if (modalChartInstance) {
+                        modalChartInstance.destroy();
+                        modalChartInstance = null;
+                    }
+                };
+
                 // Watch stock holdings to dynamically update the allocation chart canvas
                 watch(computedStockHoldings, () => {
                     updateAllocationChart();
+                    if (showAllocationModal.value) {
+                        updateModalAllocationChart();
+                    }
                 }, { deep: true });
 
-                const stockPortfolioValue = computed(() => {
-                    return computedStockHoldings.value.reduce((acc, curr) => acc + curr.marketValue, 0);
-                });
-
-                const stockCostBasis = computed(() => {
-                    return computedStockHoldings.value.reduce((acc, curr) => acc + curr.totalCost, 0);
-                });
-
-                const stockUnrealizedPL = computed(() => {
-                    return stockPortfolioValue.value - stockCostBasis.value;
+                watch(showAllocation, (val) => {
+                    if (val && allocationViewTab.value === 'donut') {
+                        updateAllocationChart();
+                    }
                 });
 
                 const allRealizedStockRecords = computed(() => {
@@ -7081,6 +7600,19 @@ No markdown fences or commentary outside the JSON.`;
                     showRecordTransaction,
                     toggleRecordTransaction,
                     showAllocation,
+                    allocationViewTab,
+                    allocationGroupSmall,
+                    hoveredAllocationItem,
+                    showAllocationModal,
+                    modalAllocationSearch,
+                    modalFilteredHoldings,
+                    setAllocationViewTab,
+                    toggleAllocationGroupSmall,
+                    openAllocationModal,
+                    closeAllocationModal,
+                    rankedHoldingsForAllocation,
+                    allocationDonutData,
+                    getHoldingColor,
                     showManualPrices,
                     showHistory,
                     hasNoStockHoldings,
