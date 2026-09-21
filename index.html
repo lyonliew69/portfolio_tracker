@@ -167,11 +167,12 @@
                 </button>
 
                 <!-- Sync Live Stocks & Auto Refresh Controls -->
-                <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5 shadow-sm transition hover:border-gray-600">
+                <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5 shadow-sm transition hover:border-gray-600 gap-1">
+                    <!-- Immediate Sync Now Button -->
                     <button @click="handleManualSync" :disabled="isSyncing || (!apiKey && !geminiApiKey)"
-                        :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'"
+                        :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm active:scale-[0.98]'"
                         class="px-2.5 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1.5"
-                        title="Sync live stock prices now">
+                        title="Sync live stock prices immediately">
                         <svg v-if="isSyncing" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -184,29 +185,50 @@
                         <span v-else>Sync Live Stocks</span>
                     </button>
 
-                    <!-- Auto Refresh Toggle & Interval Input -->
-                    <div class="flex items-center gap-1.5 px-2 py-1 text-xs border-l border-gray-700/80">
-                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-gray-300 hover:text-white"
-                            title="Tick to enable auto refresh at interval">
-                            <input type="checkbox" v-model="autoSyncEnabled" @change="toggleAutoSync"
+                    <!-- Divider -->
+                    <div class="h-4 w-px bg-gray-700 mx-0.5"></div>
+
+                    <!-- Modern Toggle Switch & Interval Pill -->
+                    <div class="flex items-center gap-1.5 px-1 py-0.5 text-xs">
+                        <!-- Toggle Button & Label -->
+                        <div @click="toggleAutoSync"
+                            class="flex items-center gap-1.5 cursor-pointer select-none group"
+                            title="Click to toggle auto refresh">
+                            <button type="button"
                                 :disabled="!apiKey && !geminiApiKey"
-                                class="rounded bg-gray-900 border-gray-600 text-emerald-500 focus:ring-emerald-500/50 w-3.5 h-3.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-                            <span class="text-xs text-gray-300 font-medium">Auto</span>
-                        </label>
-                        <div class="flex items-center bg-gray-900 border border-gray-700 px-1.5 py-0.5 rounded focus-within:border-emerald-500">
+                                role="switch"
+                                :aria-checked="autoSyncEnabled"
+                                :class="autoSyncEnabled ? 'bg-emerald-600 ring-1 ring-emerald-400/50' : 'bg-gray-700 group-hover:bg-gray-650'"
+                                class="relative inline-flex h-4 w-7 flex-shrink-0 cursor-pointer rounded-full p-0.5 transition-colors duration-200 ease-in-out focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed items-center">
+                                <span :class="autoSyncEnabled ? 'translate-x-3 bg-white shadow' : 'translate-x-0 bg-gray-300'"
+                                    class="pointer-events-none inline-block h-3 w-3 transform rounded-full transition duration-200 ease-in-out"></span>
+                            </button>
+                            <span class="text-xs transition-colors"
+                                :class="autoSyncEnabled ? 'text-emerald-400 font-semibold' : 'text-gray-400 group-hover:text-gray-200'">Auto</span>
+                        </div>
+
+                        <!-- Interval Input Pill -->
+                        <div class="flex items-center rounded border px-1.5 py-0.5 transition-colors"
+                            :class="autoSyncEnabled ? 'bg-emerald-950/30 border-emerald-600/50' : 'bg-gray-900 border-gray-700 focus-within:border-gray-500'"
+                            title="Auto refresh interval in seconds (minimum 5s)">
                             <input type="number" v-model.number="autoSyncInterval" @change="handleIntervalChange"
                                 min="5" max="3600" step="5"
                                 :disabled="!apiKey && !geminiApiKey"
-                                class="w-10 bg-transparent text-xs text-center font-mono text-emerald-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
-                                title="Auto refresh interval in seconds (minimum 5s)">
-                            <span class="text-[10px] text-gray-400 font-mono">s</span>
+                                class="w-8 bg-transparent text-xs text-center font-mono font-medium focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                :class="autoSyncEnabled ? 'text-emerald-300 font-bold' : 'text-gray-300'" />
+                            <span class="text-[10px] text-gray-500 font-mono select-none">s</span>
                         </div>
-                        <span v-if="autoSyncEnabled"
-                            class="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium flex items-center gap-1 border border-emerald-700/60 bg-emerald-950/80 text-emerald-300"
-                            :title="'Auto sync active. Next refresh in ' + autoSyncCountdown + 's'">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            {{ autoSyncCountdown }}s
-                        </span>
+
+                        <!-- Live Pulse Radar & Countdown Badge -->
+                        <div v-if="autoSyncEnabled"
+                            class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)]"
+                            :title="'Next sync in ' + autoSyncCountdown + 's (interval: ' + autoSyncInterval + 's)'">
+                            <span class="relative flex h-1.5 w-1.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+                            </span>
+                            <span>{{ autoSyncCountdown }}s</span>
+                        </div>
                     </div>
                 </div>
 
@@ -4844,16 +4866,17 @@ No markdown fences or commentary outside the JSON.`;
                 };
 
                 const toggleAutoSync = () => {
-                    if (autoSyncEnabled.value) {
+                    if (!autoSyncEnabled.value) {
                         if (!apiKey.value && !geminiApiKey.value) {
-                            autoSyncEnabled.value = false;
                             showApiModal.value = true;
                             showNotification('Please configure Finnhub or Gemini API key before enabling auto sync.', 'info');
                             return;
                         }
+                        autoSyncEnabled.value = true;
                         startAutoSync();
                         showNotification(`Auto sync enabled (refreshing every ${autoSyncInterval.value}s).`, 'success');
                     } else {
+                        autoSyncEnabled.value = false;
                         stopAutoSync();
                         showNotification('Auto sync disabled.', 'info');
                     }
