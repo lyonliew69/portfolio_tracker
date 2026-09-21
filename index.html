@@ -58,101 +58,49 @@
                 <p class="text-gray-400 text-sm">Stocks, Single Options, and Multi-Leg Spreads/Rolls</p>
             </div>
 
-            <!-- Connection Hub & Configurations -->
+            <!-- Connection Hub & Configurations: Clean 4-Element Layout -->
             <div class="flex flex-wrap items-center gap-3 w-full xl:w-auto">
-                <button @click="showStorageHubModal = true"
-                    class="flex items-center gap-2 bg-gray-800 hover:bg-gray-750 px-3 py-2 rounded border border-gray-700 hover:border-sky-500/50 text-xs transition cursor-pointer shadow-sm group"
-                    title="Click to open Storage & Cloud Sync Hub">
-                    <span class="text-gray-400 group-hover:text-sky-300 transition">Storage:</span>
-                    <span v-if="fileStatus === 'unlinked' && !cloudWebhookUrl"
-                        class="flex items-center gap-1.5 text-blue-400 font-medium">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> Browser Memory
-                    </span>
-                    <span v-else-if="fileStatus === 'unlinked' && cloudWebhookUrl"
-                        class="flex items-center gap-1.5 text-sky-400 font-medium">
-                        <span class="w-2 h-2 rounded-full bg-sky-500"></span> Cloud Sync Active
-                    </span>
-                    <span v-else-if="fileStatus === 'locked'"
-                        class="flex items-center gap-1.5 text-amber-400 font-medium">
-                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> Locked ({{ fileName }})
-                    </span>
-                    <span v-else class="flex items-center gap-1.5 text-emerald-400 font-medium">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Linked ({{ fileName }})
-                    </span>
-                    <span class="text-gray-500 text-[10px] ml-0.5">▼</span>
-                </button>
-
-                <div class="flex gap-2">
+                <!-- 1. Storage Status Pill (Click opens Storage & Cloud Hub) -->
+                <div class="flex items-center gap-2">
                     <button @click="showStorageHubModal = true"
-                        class="px-2.5 py-2 bg-gray-800 hover:bg-gray-750 text-sky-400 hover:text-sky-300 text-xs font-semibold rounded border border-gray-700 hover:border-sky-500/40 transition flex items-center gap-1.5 shadow-sm"
-                        title="Open Storage & Cloud Hub (Google Drive, OneDrive, Backups)">
-                        <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
-                        </svg>
-                        <span>Cloud & Storage</span>
-                        <span v-if="fileStatus === 'active' || cloudWebhookUrl"
-                            class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
-                            title="Cloud / File Connected"></span>
-                    </button>
-                    <button v-if="isSupported && fileStatus === 'unlinked'" @click="linkLocalFile"
-                        class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded transition flex items-center gap-1.5 shadow-sm"
-                        title="Link a file in Google Drive, OneDrive, or local folder">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        Link File (Drive/Local)
-                    </button>
-                    <button v-if="isSupported && fileStatus === 'locked'" @click="authorizeFile"
-                        class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded transition animate-pulse">
-                        Authorize File Access
-                    </button>
-                    <button v-if="isSupported && fileStatus !== 'unlinked'" @click="unlinkFile"
-                        class="px-2 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded transition">
-                        Unlink File
-                    </button>
-                    <button @click="triggerSchwabFileInput"
-                        class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded transition flex items-center gap-1.5 shadow-sm"
-                        title="Import Charles Schwab JSON or XML export">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                        </svg>
-                        Import Schwab
-                    </button>
-                    <input type="file" ref="schwabFileInput" @change="handleSchwabFileSelect" accept=".json,.xml"
-                        class="hidden">
-                    <button @click="showAliasesModal = true"
-                        class="px-2.5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded border border-gray-700 transition flex items-center gap-1.5"
-                        title="Manage stock symbol renames and aliases (e.g. SPLG -> SPYM)">
-                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                        </svg>
-                        <span>Ticker Aliases</span>
-                        <span v-if="Object.keys(tickerAliases).length > 0"
-                            class="px-1.5 py-0.2 bg-amber-950/60 text-amber-300 border border-amber-800/60 rounded-full text-[10px]">
-                            {{ Object.keys(tickerAliases).length }}
+                        class="flex items-center gap-2 bg-gray-800 hover:bg-gray-750 px-3 py-2 rounded border border-gray-700 hover:border-sky-500/50 text-xs transition cursor-pointer shadow-sm group"
+                        title="Click to open Storage & Cloud Sync Hub">
+                        <span class="text-gray-400 group-hover:text-sky-300 transition">Storage:</span>
+                        <span v-if="fileStatus === 'unlinked' && !cloudWebhookUrl"
+                            class="flex items-center gap-1.5 text-blue-400 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Browser Memory
                         </span>
+                        <span v-else-if="fileStatus === 'unlinked' && cloudWebhookUrl"
+                            class="flex items-center gap-1.5 text-sky-400 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-sky-500"></span> Cloud Sync Active
+                        </span>
+                        <span v-else-if="fileStatus === 'locked'"
+                            class="flex items-center gap-1.5 text-amber-400 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Locked ({{ fileName }})
+                        </span>
+                        <span v-else class="flex items-center gap-1.5 text-emerald-400 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Linked ({{ fileName }})
+                        </span>
+                        <span class="text-gray-500 text-[10px] ml-0.5">▼</span>
+                    </button>
+
+                    <!-- Conditional Re-authorize Button (shown only if file handle locked) -->
+                    <button v-if="isSupported && fileStatus === 'locked'" @click="authorizeFile"
+                        class="px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded transition animate-pulse flex items-center gap-1.5 shadow-sm"
+                        title="Re-authorize access to local linked file">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                        </svg>
+                        <span>Authorize File Access</span>
                     </button>
                 </div>
 
-                <button @click="showApiModal = true"
-                    class="px-2.5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold rounded border border-gray-700 transition flex items-center gap-1.5 shadow-sm"
-                    title="Configure Google Gemini AI and Finnhub API keys">
-                    <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <span>API & AI</span>
-                    <span v-if="geminiApiKey" class="w-2 h-2 rounded-full bg-indigo-400"
-                        title="Gemini AI Active"></span>
-                    <span v-if="apiKey" class="w-2 h-2 rounded-full bg-emerald-400" title="Finnhub Active"></span>
-                </button>
+                <!-- Hidden file input for Schwab Import -->
+                <input type="file" ref="schwabFileInput" @change="handleSchwabFileSelect" accept=".json,.xml"
+                    class="hidden">
 
+                <!-- 2. AI Deep Research Button -->
                 <button @click="openDeepResearchModal"
                     class="px-2.5 py-2 bg-gradient-to-r from-indigo-900/60 to-purple-900/60 hover:from-indigo-800/80 hover:to-purple-800/80 text-indigo-200 hover:text-white text-xs font-semibold rounded border border-indigo-500/50 transition flex items-center gap-1.5 shadow-sm"
                     title="Daily Market & Portfolio Deep Research powered by Google Gemini & Live Google Finance">
@@ -166,7 +114,7 @@
                         title="Daily Report Available"></span>
                 </button>
 
-                <!-- Sync Live Stocks & Auto Refresh Controls -->
+                <!-- 3. Sync Live Stocks & Auto Refresh Controls -->
                 <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5 shadow-sm transition hover:border-gray-600 gap-1">
                     <!-- Immediate Sync Now Button -->
                     <button @click="handleManualSync" :disabled="isSyncing || (!apiKey && !geminiApiKey) || autoSyncEnabled"
@@ -241,10 +189,175 @@
                     </div>
                 </div>
 
-                <button @click="showClearConfirm = true"
-                    class="px-3 py-2 bg-red-900/40 hover:bg-red-900 text-red-300 text-xs rounded transition">
-                    Clear Ledger
-                </button>
+                <!-- 4. Tools & Actions Dropdown Menu -->
+                <div class="relative">
+                    <!-- Dropdown Trigger Button -->
+                    <button @click="showToolsDropdown = !showToolsDropdown"
+                        class="px-3 py-2 bg-gray-800 hover:bg-gray-750 text-gray-200 text-xs font-semibold rounded border border-gray-700 hover:border-gray-600 transition flex items-center gap-2 shadow-sm cursor-pointer"
+                        :class="{ 'border-sky-500/60 bg-gray-750 text-sky-300': showToolsDropdown }"
+                        title="Actions, file tools, and configurations">
+                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                        <span>Tools</span>
+                        <span class="text-gray-400 text-[10px] transition-transform duration-200" :class="{ 'rotate-180': showToolsDropdown }">▼</span>
+                    </button>
+
+                    <!-- Transparent Click-Outside Overlay -->
+                    <div v-if="showToolsDropdown" @click="showToolsDropdown = false" class="fixed inset-0 z-40"></div>
+
+                    <!-- Dropdown Menu Panel -->
+                    <div v-if="showToolsDropdown"
+                        class="absolute right-0 mt-2 w-64 bg-gray-850 rounded-xl border border-gray-750 shadow-2xl z-50 py-2 text-xs divide-y divide-gray-800">
+                        
+                        <!-- Section: Data & Storage -->
+                        <div class="py-1">
+                            <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400 select-none">
+                                Data & Storage
+                            </div>
+
+                            <!-- Import Schwab -->
+                            <button @click="triggerSchwabFileInput(); showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-200 hover:text-white flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-indigo-950/60 border border-indigo-800/50 flex items-center justify-center text-indigo-400 group-hover:text-indigo-300 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium">Import Schwab</div>
+                                    <div class="text-[10px] text-gray-400">JSON or XML export file</div>
+                                </div>
+                            </button>
+
+                            <!-- Ticker Aliases -->
+                            <button @click="showAliasesModal = true; showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-200 hover:text-white flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-amber-950/60 border border-amber-800/50 flex items-center justify-center text-amber-400 group-hover:text-amber-300 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium">Ticker Aliases</span>
+                                        <span v-if="Object.keys(tickerAliases).length > 0"
+                                            class="px-1.5 py-0.5 bg-amber-950 text-amber-300 border border-amber-800/60 rounded-full text-[10px] font-mono">
+                                            {{ Object.keys(tickerAliases).length }}
+                                        </span>
+                                    </div>
+                                    <div class="text-[10px] text-gray-400">Symbol renames (e.g. SPLG)</div>
+                                </div>
+                            </button>
+
+                            <!-- Storage & Cloud Hub -->
+                            <button @click="showStorageHubModal = true; showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-200 hover:text-white flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-sky-950/60 border border-sky-800/50 flex items-center justify-center text-sky-400 group-hover:text-sky-300 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium">Storage & Cloud Hub</span>
+                                        <span v-if="fileStatus === 'active' || cloudWebhookUrl"
+                                            class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"
+                                            title="Sync active"></span>
+                                    </div>
+                                    <div class="text-[10px] text-gray-400">Google Drive, OneDrive, Webhooks</div>
+                                </div>
+                            </button>
+
+                            <!-- Link Local File (if supported & unlinked) -->
+                            <button v-if="isSupported && fileStatus === 'unlinked'" @click="linkLocalFile(); showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-emerald-300 hover:text-emerald-200 flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-emerald-950/60 border border-emerald-800/50 flex items-center justify-center text-emerald-400 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium">Link Local File</div>
+                                    <div class="text-[10px] text-gray-400">Direct sync with file on disk</div>
+                                </div>
+                            </button>
+
+                            <!-- Unlink File (if linked) -->
+                            <button v-if="isSupported && fileStatus !== 'unlinked'" @click="unlinkFile(); showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-300 hover:text-gray-100 flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium">Unlink Local File</div>
+                                    <div class="text-[10px] text-gray-400">Disconnect linked disk file</div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- Section: Configurations -->
+                        <div class="py-1">
+                            <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400 select-none">
+                                Settings & Keys
+                            </div>
+
+                            <!-- API & AI Configuration -->
+                            <button @click="showApiModal = true; showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-200 hover:text-white flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-purple-950/60 border border-purple-800/50 flex items-center justify-center text-purple-400 group-hover:text-purple-300 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium">API & AI Settings</span>
+                                        <div class="flex items-center gap-1">
+                                            <span v-if="geminiApiKey" class="w-1.5 h-1.5 rounded-full bg-indigo-400" title="Gemini Active"></span>
+                                            <span v-if="apiKey" class="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Finnhub Active"></span>
+                                        </div>
+                                    </div>
+                                    <div class="text-[10px] text-gray-400">Gemini & Finnhub keys</div>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- Section: Danger Zone -->
+                        <div class="py-1">
+                            <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-400/80 select-none">
+                                Danger Zone
+                            </div>
+
+                            <!-- Clear Ledger -->
+                            <button @click="showClearConfirm = true; showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-rose-950/40 text-rose-300 hover:text-rose-200 flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-rose-950/60 border border-rose-800/50 flex items-center justify-center text-rose-400 group-hover:text-rose-300 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium">Clear Ledger</div>
+                                    <div class="text-[10px] text-rose-400/70">Wipe all ledger transactions</div>
+                                </div>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -3547,6 +3660,7 @@
                 const geminiApiKey = ref(localStorage.getItem('gemini_api_key') || '');
                 const priceProvider = ref(localStorage.getItem('price_provider') || 'finnhub');
                 const showApiModal = ref(false);
+                const showToolsDropdown = ref(false);
                 const isTestingGemini = ref(false);
                 const isTestingFinnhub = ref(false);
                 const isSyncing = ref(false);
@@ -7010,6 +7124,7 @@ No markdown fences or commentary outside the JSON.`;
                     geminiApiKey,
                     priceProvider,
                     showApiModal,
+                    showToolsDropdown,
                     isTestingGemini,
                     isTestingFinnhub,
                     saveGeminiApiKey,
