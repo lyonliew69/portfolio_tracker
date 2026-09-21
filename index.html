@@ -166,17 +166,49 @@
                         title="Daily Report Available"></span>
                 </button>
 
-                <button @click="syncPrices" :disabled="isSyncing || (!apiKey && !geminiApiKey)"
-                    :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white'"
-                    class="px-3 py-2 rounded text-xs font-semibold transition flex items-center gap-1 shadow-sm">
-                    <svg v-if="isSyncing" class="w-3.5 h-3.5 animate-spin mr-1" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                        </circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                    <span v-if="isSyncing">Syncing...</span>
-                    <span v-else>Sync Live Stocks</span>
-                </button>
+                <!-- Sync Live Stocks & Auto Refresh Controls -->
+                <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5 shadow-sm transition hover:border-gray-600">
+                    <button @click="handleManualSync" :disabled="isSyncing || (!apiKey && !geminiApiKey)"
+                        :class="((!apiKey && !geminiApiKey) || isSyncing) ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'"
+                        class="px-2.5 py-1.5 rounded text-xs font-semibold transition flex items-center gap-1.5"
+                        title="Sync live stock prices now">
+                        <svg v-if="isSyncing" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span v-if="isSyncing">Syncing...</span>
+                        <span v-else>Sync Live Stocks</span>
+                    </button>
+
+                    <!-- Auto Refresh Toggle & Interval Input -->
+                    <div class="flex items-center gap-1.5 px-2 py-1 text-xs border-l border-gray-700/80">
+                        <label class="flex items-center gap-1.5 cursor-pointer select-none text-gray-300 hover:text-white"
+                            title="Tick to enable auto refresh at interval">
+                            <input type="checkbox" v-model="autoSyncEnabled" @change="toggleAutoSync"
+                                :disabled="!apiKey && !geminiApiKey"
+                                class="rounded bg-gray-900 border-gray-600 text-emerald-500 focus:ring-emerald-500/50 w-3.5 h-3.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="text-xs text-gray-300 font-medium">Auto</span>
+                        </label>
+                        <div class="flex items-center bg-gray-900 border border-gray-700 px-1.5 py-0.5 rounded focus-within:border-emerald-500">
+                            <input type="number" v-model.number="autoSyncInterval" @change="handleIntervalChange"
+                                min="5" max="3600" step="5"
+                                :disabled="!apiKey && !geminiApiKey"
+                                class="w-10 bg-transparent text-xs text-center font-mono text-emerald-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Auto refresh interval in seconds (minimum 5s)">
+                            <span class="text-[10px] text-gray-400 font-mono">s</span>
+                        </div>
+                        <span v-if="autoSyncEnabled"
+                            class="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium flex items-center gap-1 border border-emerald-700/60 bg-emerald-950/80 text-emerald-300"
+                            :title="'Auto sync active. Next refresh in ' + autoSyncCountdown + 's'">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            {{ autoSyncCountdown }}s
+                        </span>
+                    </div>
+                </div>
 
                 <button @click="showClearConfirm = true"
                     class="px-3 py-2 bg-red-900/40 hover:bg-red-900 text-red-300 text-xs rounded transition">
@@ -719,9 +751,10 @@
                         </svg>
                     </h2>
                     <div v-show="showManualPrices">
-                        <p class="text-xs text-gray-400 mb-4">Values update automatically with Stock API, or can be
-                            adjusted
-                            here manually.</p>
+                        <p class="text-xs text-gray-400 mb-4 flex items-center justify-between flex-wrap gap-1">
+                            <span>Values update automatically with Stock API, or can be adjusted here manually.</span>
+                            <span v-if="lastSyncTime" class="text-emerald-400 font-mono text-[11px] bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-800/40">Last synced: {{ lastSyncTime }}</span>
+                        </p>
                         <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
                             <div v-for="ticker in uniqueStockTickers" :key="ticker"
                                 class="flex justify-between items-center bg-gray-700/40 p-2 rounded">
@@ -3473,7 +3506,7 @@
 
     <!-- Application Script Logic -->
     <script>
-        const { createApp, ref, computed, watch, onMounted, nextTick } = Vue;
+        const { createApp, ref, computed, watch, onMounted, onBeforeUnmount, nextTick } = Vue;
 
         createApp({
             setup() {
@@ -3486,6 +3519,11 @@
                 const isTestingGemini = ref(false);
                 const isTestingFinnhub = ref(false);
                 const isSyncing = ref(false);
+                const autoSyncEnabled = ref(false);
+                const autoSyncInterval = ref(Number(localStorage.getItem('tx_auto_sync_interval')) || 60);
+                const autoSyncCountdown = ref(autoSyncInterval.value);
+                const lastSyncTime = ref('');
+                let autoSyncTimer = null;
                 const notification = ref({ message: '', type: 'success' });
 
                 // Realized Options History Modal State
@@ -4641,13 +4679,16 @@ No markdown fences or commentary outside the JSON.`;
                     return null;
                 };
 
-                const syncPrices = async () => {
+                const syncPrices = async (isAuto = false) => {
                     const stockTickers = uniqueStockTickers.value;
                     if (stockTickers.length === 0) {
-                        showNotification('No active stock tickers in portfolio to sync.', 'info');
+                        if (!isAuto) {
+                            showNotification('No active stock tickers in portfolio to sync.', 'info');
+                        }
                         return;
                     }
 
+                    if (isSyncing.value) return;
                     isSyncing.value = true;
 
                     // Check if Finnhub is the active provider (default)
@@ -4658,8 +4699,10 @@ No markdown fences or commentary outside the JSON.`;
                     if (useFinnhub) {
                         if (!apiKey.value || !apiKey.value.trim()) {
                             isSyncing.value = false;
-                            showApiModal.value = true;
-                            showNotification('Finnhub API key is required for accurate real-time market prices. Please enter your free key.', 'info');
+                            if (!isAuto) {
+                                showApiModal.value = true;
+                                showNotification('Finnhub API key is required for accurate real-time market prices. Please enter your free key.', 'info');
+                            }
                             return;
                         }
 
@@ -4680,10 +4723,12 @@ No markdown fences or commentary outside the JSON.`;
                             console.error('Failed to fetch market status:', err);
                         }
 
-                        if (!isMarketOpen) {
-                            showNotification('US Market is currently closed. Showing last closing prices.', 'error');
-                        } else {
-                            showNotification('Fetching live stock prices via Finnhub...', 'success');
+                        if (!isAuto) {
+                            if (!isMarketOpen) {
+                                showNotification('US Market is currently closed. Showing last closing prices.', 'error');
+                            } else {
+                                showNotification('Fetching live stock prices via Finnhub...', 'success');
+                            }
                         }
 
                         let errors = 0;
@@ -4711,12 +4756,15 @@ No markdown fences or commentary outside the JSON.`;
 
                         savePrices();
                         isSyncing.value = false;
+                        lastSyncTime.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
                         if (rateLimited) {
                             showNotification('Finnhub rate limit reached. Partial prices synced.', 'error');
                         } else if (errors > 0) {
-                            showNotification(`Sync complete, but failed to fetch ${errors} stock(s).`, 'error');
-                        } else if (isMarketOpen) {
+                            if (!isAuto) {
+                                showNotification(`Sync complete, but failed to fetch ${errors} stock(s).`, 'error');
+                            }
+                        } else if (!isAuto && isMarketOpen) {
                             showNotification('Live stock prices updated via Finnhub.', 'success');
                         }
                         return;
@@ -4726,12 +4774,16 @@ No markdown fences or commentary outside the JSON.`;
                     if (priceProvider.value === 'gemini') {
                         if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
                             isSyncing.value = false;
-                            showApiModal.value = true;
-                            showNotification('Please enter your Gemini API Key in settings.', 'info');
+                            if (!isAuto) {
+                                showApiModal.value = true;
+                                showNotification('Please enter your Gemini API Key in settings.', 'info');
+                            }
                             return;
                         }
 
-                        showNotification('Fetching stock prices via Google Gemini AI...', 'success');
+                        if (!isAuto) {
+                            showNotification('Fetching stock prices via Google Gemini AI...', 'success');
+                        }
                         try {
                             const quotes = await fetchGeminiBatchPrices(stockTickers);
                             let updated = 0;
@@ -4743,10 +4795,13 @@ No markdown fences or commentary outside the JSON.`;
                             }
                             savePrices();
                             isSyncing.value = false;
-                            if (updated > 0) {
-                                showNotification(`Updated ${updated} stock price(s) via Google Gemini AI.`, 'success');
-                            } else {
-                                showNotification('Could not retrieve new prices from Gemini. Check API connection.', 'error');
+                            lastSyncTime.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            if (!isAuto) {
+                                if (updated > 0) {
+                                    showNotification(`Updated ${updated} stock price(s) via Google Gemini AI.`, 'success');
+                                } else {
+                                    showNotification('Could not retrieve new prices from Gemini. Check API connection.', 'error');
+                                }
                             }
                         } catch (err) {
                             isSyncing.value = false;
@@ -4754,6 +4809,75 @@ No markdown fences or commentary outside the JSON.`;
                         }
                     }
                 };
+
+                const stopAutoSync = () => {
+                    if (autoSyncTimer) {
+                        clearInterval(autoSyncTimer);
+                        autoSyncTimer = null;
+                    }
+                };
+
+                const startAutoSync = () => {
+                    stopAutoSync();
+                    if (!autoSyncEnabled.value) return;
+
+                    const validInterval = Math.max(5, Math.min(3600, parseInt(autoSyncInterval.value, 10) || 60));
+                    autoSyncInterval.value = validInterval;
+                    localStorage.setItem('tx_auto_sync_interval', validInterval.toString());
+                    autoSyncCountdown.value = validInterval;
+
+                    autoSyncTimer = setInterval(async () => {
+                        if (!autoSyncEnabled.value) {
+                            stopAutoSync();
+                            return;
+                        }
+
+                        if (autoSyncCountdown.value > 1) {
+                            autoSyncCountdown.value -= 1;
+                        } else {
+                            autoSyncCountdown.value = autoSyncInterval.value;
+                            if (!isSyncing.value && uniqueStockTickers.value.length > 0) {
+                                await syncPrices(true);
+                            }
+                        }
+                    }, 1000);
+                };
+
+                const toggleAutoSync = () => {
+                    if (autoSyncEnabled.value) {
+                        if (!apiKey.value && !geminiApiKey.value) {
+                            autoSyncEnabled.value = false;
+                            showApiModal.value = true;
+                            showNotification('Please configure Finnhub or Gemini API key before enabling auto sync.', 'info');
+                            return;
+                        }
+                        startAutoSync();
+                        showNotification(`Auto sync enabled (refreshing every ${autoSyncInterval.value}s).`, 'success');
+                    } else {
+                        stopAutoSync();
+                        showNotification('Auto sync disabled.', 'info');
+                    }
+                };
+
+                const handleIntervalChange = () => {
+                    const validInterval = Math.max(5, Math.min(3600, parseInt(autoSyncInterval.value, 10) || 60));
+                    autoSyncInterval.value = validInterval;
+                    localStorage.setItem('tx_auto_sync_interval', validInterval.toString());
+                    if (autoSyncEnabled.value) {
+                        autoSyncCountdown.value = validInterval;
+                    }
+                };
+
+                const handleManualSync = async () => {
+                    await syncPrices(false);
+                    if (autoSyncEnabled.value) {
+                        autoSyncCountdown.value = autoSyncInterval.value;
+                    }
+                };
+
+                onBeforeUnmount(() => {
+                    stopAutoSync();
+                });
 
                 const executeClearAllData = () => {
                     transactions.value = [];
@@ -6808,6 +6932,13 @@ No markdown fences or commentary outside the JSON.`;
                     savePrices,
                     saveApiKey,
                     syncPrices,
+                    autoSyncEnabled,
+                    autoSyncInterval,
+                    autoSyncCountdown,
+                    lastSyncTime,
+                    toggleAutoSync,
+                    handleIntervalChange,
+                    handleManualSync,
                     linkLocalFile,
                     authorizeFile,
                     unlinkFile,
