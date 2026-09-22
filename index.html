@@ -82,7 +82,208 @@
         input[type="date"]::-webkit-calendar-picker-indicator:hover {
             opacity: 1;
         }
+
+        /* Smooth theme transitions */
+        body {
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* 1. OLED Midnight Theme (True pitch black #000000) */
+        html.theme-oled,
+        html.theme-oled body,
+        body.theme-oled,
+        .theme-oled {
+            background-color: #000000 !important;
+            color: #f3f4f6 !important;
+            scrollbar-color: #262626 #000000 !important;
+        }
+        html.theme-oled ::-webkit-scrollbar-track,
+        body.theme-oled ::-webkit-scrollbar-track {
+            background: #000000 !important;
+        }
+        html.theme-oled ::-webkit-scrollbar-thumb,
+        body.theme-oled ::-webkit-scrollbar-thumb {
+            background: #262626 !important;
+            border-color: #121212 !important;
+        }
+        html.theme-oled .bg-gray-900,
+        body.theme-oled .bg-gray-900,
+        .theme-oled .bg-gray-900 {
+            background-color: #040404 !important;
+        }
+        html.theme-oled .bg-gray-850,
+        body.theme-oled .bg-gray-850,
+        .theme-oled .bg-gray-850 {
+            background-color: #080808 !important;
+        }
+        html.theme-oled .bg-gray-800,
+        body.theme-oled .bg-gray-800,
+        .theme-oled .bg-gray-800 {
+            background-color: #0d0d0d !important;
+            border-color: #222222 !important;
+        }
+        html.theme-oled .bg-gray-750,
+        html.theme-oled .bg-gray-700,
+        body.theme-oled .bg-gray-750,
+        body.theme-oled .bg-gray-700,
+        .theme-oled .bg-gray-750,
+        .theme-oled .bg-gray-700 {
+            background-color: #151515 !important;
+        }
+        html.theme-oled .hover\:bg-gray-750:hover,
+        html.theme-oled .hover\:bg-gray-800:hover,
+        body.theme-oled .hover\:bg-gray-750:hover,
+        body.theme-oled .hover\:bg-gray-800:hover {
+            background-color: #1a1a1a !important;
+        }
+        html.theme-oled .border-gray-800,
+        html.theme-oled .border-gray-750,
+        html.theme-oled .border-gray-700,
+        html.theme-oled .border-gray-650,
+        body.theme-oled .border-gray-800,
+        body.theme-oled .border-gray-750,
+        body.theme-oled .border-gray-700,
+        body.theme-oled .border-gray-650,
+        .theme-oled .border-gray-800,
+        .theme-oled .border-gray-750,
+        .theme-oled .border-gray-700 {
+            border-color: #222222 !important;
+        }
+        html.theme-oled .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+        html.theme-oled .divide-gray-700 > :not([hidden]) ~ :not([hidden]),
+        body.theme-oled .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+        body.theme-oled .divide-gray-700 > :not([hidden]) ~ :not([hidden]) {
+            border-color: #202020 !important;
+        }
+
+        /* 2. Clean Light Mode */
+        html.theme-light,
+        html.theme-light body,
+        body.theme-light,
+        .theme-light {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+            scrollbar-color: #cbd5e1 #f8fafc !important;
+        }
+        html.theme-light ::-webkit-scrollbar-track,
+        body.theme-light ::-webkit-scrollbar-track {
+            background: #f8fafc !important;
+        }
+        html.theme-light ::-webkit-scrollbar-thumb,
+        body.theme-light ::-webkit-scrollbar-thumb {
+            background: #cbd5e1 !important;
+            border-color: #e2e8f0 !important;
+        }
+        html.theme-light .text-white,
+        html.theme-light .text-gray-100,
+        html.theme-light .text-gray-200,
+        html.theme-light .text-gray-300,
+        body.theme-light .text-white,
+        body.theme-light .text-gray-100,
+        body.theme-light .text-gray-200,
+        body.theme-light .text-gray-300,
+        .theme-light .text-white,
+        .theme-light .text-gray-100,
+        .theme-light .text-gray-200,
+        .theme-light .text-gray-300 {
+            color: #0f172a !important;
+        }
+        html.theme-light .text-gray-400,
+        body.theme-light .text-gray-400,
+        .theme-light .text-gray-400 {
+            color: #475569 !important;
+        }
+        html.theme-light .text-gray-500,
+        body.theme-light .text-gray-500,
+        .theme-light .text-gray-500 {
+            color: #64748b !important;
+        }
+        html.theme-light .bg-gray-900,
+        body.theme-light .bg-gray-900,
+        .theme-light .bg-gray-900 {
+            background-color: #f1f5f9 !important;
+        }
+        html.theme-light .bg-gray-850,
+        body.theme-light .bg-gray-850,
+        .theme-light .bg-gray-850 {
+            background-color: #f8fafc !important;
+        }
+        html.theme-light .bg-gray-800,
+        body.theme-light .bg-gray-800,
+        .theme-light .bg-gray-800 {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+        }
+        html.theme-light .bg-gray-750,
+        html.theme-light .bg-gray-700,
+        body.theme-light .bg-gray-750,
+        body.theme-light .bg-gray-700,
+        .theme-light .bg-gray-750,
+        .theme-light .bg-gray-700 {
+            background-color: #f1f5f9 !important;
+            border-color: #cbd5e1 !important;
+        }
+        html.theme-light .hover\:bg-gray-800:hover,
+        html.theme-light .hover\:bg-gray-750:hover,
+        html.theme-light .hover\:bg-gray-700:hover,
+        body.theme-light .hover\:bg-gray-800:hover,
+        body.theme-light .hover\:bg-gray-750:hover,
+        body.theme-light .hover\:bg-gray-700:hover {
+            background-color: #e2e8f0 !important;
+        }
+        html.theme-light .border-gray-800,
+        html.theme-light .border-gray-750,
+        html.theme-light .border-gray-700,
+        html.theme-light .border-gray-650,
+        html.theme-light .border-gray-600,
+        body.theme-light .border-gray-800,
+        body.theme-light .border-gray-750,
+        body.theme-light .border-gray-700,
+        body.theme-light .border-gray-650,
+        body.theme-light .border-gray-600,
+        .theme-light .border-gray-800,
+        .theme-light .border-gray-750,
+        .theme-light .border-gray-700 {
+            border-color: #e2e8f0 !important;
+        }
+        html.theme-light .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+        html.theme-light .divide-gray-700 > :not([hidden]) ~ :not([hidden]),
+        body.theme-light .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+        body.theme-light .divide-gray-700 > :not([hidden]) ~ :not([hidden]) {
+            border-color: #e2e8f0 !important;
+        }
+        html.theme-light input,
+        html.theme-light select,
+        html.theme-light textarea,
+        body.theme-light input,
+        body.theme-light select,
+        body.theme-light textarea {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+        html.theme-light input::placeholder,
+        html.theme-light textarea::placeholder,
+        body.theme-light input::placeholder,
+        body.theme-light textarea::placeholder {
+            color: #94a3b8 !important;
+        }
+        html.theme-light input[type="date"],
+        body.theme-light input[type="date"] {
+            color-scheme: light !important;
+        }
     </style>
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme_mode') || 'dark';
+                if (theme === 'oled' || theme === 'light') {
+                    document.documentElement.classList.add('theme-' + theme);
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
@@ -227,7 +428,8 @@
                     </div>
                 </div>
 
-                <!-- 4. Tools & Actions Dropdown Menu -->
+
+                <!-- 6. Tools & Actions Dropdown Menu -->
                 <div class="relative">
                     <!-- Dropdown Trigger Button -->
                     <button @click="showToolsDropdown = !showToolsDropdown"
@@ -247,7 +449,7 @@
 
                     <!-- Dropdown Menu Panel -->
                     <div v-if="showToolsDropdown"
-                        class="absolute right-0 mt-2 w-64 bg-gray-850 rounded-xl border border-gray-750 shadow-2xl z-50 py-2 text-xs divide-y divide-gray-800">
+                        class="absolute right-0 mt-2 w-72 bg-gray-850 rounded-xl border border-gray-750 shadow-2xl z-50 py-2 text-xs divide-y divide-gray-800">
                         
                         <!-- Section: Data & Storage -->
                         <div class="py-1">
@@ -342,13 +544,89 @@
                             </button>
                         </div>
 
+                        <!-- Section: Appearance & Theme -->
+                        <div class="py-1">
+                            <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400 select-none">
+                                Appearance & Theme
+                            </div>
+                            <div class="px-3 py-2 hover:bg-gray-800/60 transition">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-xs font-medium text-gray-200">Theme Mode</span>
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-gray-700 text-emerald-300 border border-gray-600 capitalize">
+                                        {{ themeMode }}
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1 bg-gray-900/90 p-1 rounded-lg border border-gray-700/80">
+                                    <button @click="setThemeMode('dark')"
+                                        type="button"
+                                        class="py-1.5 text-[11px] font-semibold rounded text-center transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                        :class="themeMode === 'dark' ? 'bg-gray-700 text-emerald-400 font-bold shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="Dark Slate (Default Emerald)">
+                                        <span>🌙</span>
+                                        <span>Dark</span>
+                                    </button>
+                                    <button @click="setThemeMode('oled')"
+                                        type="button"
+                                        class="py-1.5 text-[11px] font-semibold rounded text-center transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                        :class="themeMode === 'oled' ? 'bg-black text-emerald-400 font-bold border border-neutral-700 shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="OLED Midnight (True pitch black #000000)">
+                                        <span>⚡</span>
+                                        <span>OLED</span>
+                                    </button>
+                                    <button @click="setThemeMode('light')"
+                                        type="button"
+                                        class="py-1.5 text-[11px] font-semibold rounded text-center transition-all flex items-center justify-center gap-1 cursor-pointer"
+                                        :class="themeMode === 'light' ? 'bg-white text-gray-900 font-bold shadow-sm' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="Clean Light Mode (Paper White)">
+                                        <span>☀️</span>
+                                        <span>Light</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Section: Configurations -->
                         <div class="py-1">
                             <div class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-gray-400 select-none">
                                 Settings & Keys
                             </div>
 
-                            <!-- Cost Basis Method Switcher -->
+                            <!-- Display Currency Selector -->
+                            <div class="px-3 py-2 hover:bg-gray-800/60 transition">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded bg-emerald-950/70 border border-emerald-800/60 flex items-center justify-center text-emerald-400 text-xs font-mono font-bold">
+                                            {{ currencySymbol }}
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-gray-200">Display Currency</div>
+                                            <div class="text-[10px] text-gray-400">{{ activeCurrencyObj.name }}</div>
+                                        </div>
+                                    </div>
+                                    <button @click="openCurrencyModal(); showToolsDropdown = false"
+                                        type="button"
+                                        class="px-2 py-0.5 rounded text-[10px] font-medium bg-gray-750 hover:bg-gray-700 text-emerald-300 border border-gray-650 transition cursor-pointer"
+                                        title="Configure live and custom exchange rates">
+                                        FX Settings ⚙
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+                                    <button v-for="c in SUPPORTED_CURRENCIES" :key="c.code"
+                                        @click="selectCurrency(c.code)"
+                                        type="button"
+                                        class="px-2 py-1 rounded text-[10.5px] font-mono font-semibold transition shrink-0 flex items-center gap-1 cursor-pointer"
+                                        :class="selectedCurrency === c.code ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-700/80'">
+                                        <span>{{ c.flag }}</span>
+                                        <span>{{ c.code }}</span>
+                                    </button>
+                                </div>
+                                <div v-if="selectedCurrency !== 'USD'" class="text-[9.5px] text-gray-400 mt-1 flex justify-between items-center font-mono">
+                                    <span>Rate: 1 USD = {{ activeFxRate.toFixed(selectedCurrency === 'JPY' ? 1 : 4) }} {{ selectedCurrency }}</span>
+                                    <span v-if="customFxRates[selectedCurrency]" class="text-amber-400 font-sans text-[9px]">(custom)</span>
+                                </div>
+                            </div>
+
+                            <!-- Cost Basis Method Switcher (FIFO, LIFO, HIFO, AVG) -->
                             <div class="px-3 py-2.5 hover:bg-gray-800/60 transition">
                                 <div class="flex items-center justify-between mb-1.5">
                                     <div class="flex items-center gap-2">
@@ -364,24 +642,31 @@
                                         {{ costBasisMethod }}
                                     </span>
                                 </div>
-                                <div class="grid grid-cols-3 gap-1 bg-gray-900/90 p-1 rounded-lg border border-gray-700/80">
+                                <div class="grid grid-cols-4 gap-1 bg-gray-900/90 p-1 rounded-lg border border-gray-700/80">
                                     <button @click="setCostBasisMethod('FIFO')"
                                         type="button"
-                                        class="py-1 text-[11px] font-semibold rounded text-center transition-all"
+                                        class="py-1 text-[10px] font-semibold rounded text-center transition-all"
                                         :class="costBasisMethod === 'FIFO' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
-                                        title="First-In, First-Out: Earliest purchased lots sold first (Schwab / IRS standard)">
+                                        title="First-In, First-Out: Earliest purchased lots sold first (IRS standard)">
                                         FIFO
                                     </button>
                                     <button @click="setCostBasisMethod('LIFO')"
                                         type="button"
-                                        class="py-1 text-[11px] font-semibold rounded text-center transition-all"
+                                        class="py-1 text-[10px] font-semibold rounded text-center transition-all"
                                         :class="costBasisMethod === 'LIFO' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
-                                        title="Last-In, First-Out (First In, Last Out): Most recent lots sold first">
+                                        title="Last-In, First-Out: Most recent lots sold first">
                                         LIFO
+                                    </button>
+                                    <button @click="setCostBasisMethod('HIFO')"
+                                        type="button"
+                                        class="py-1 text-[10px] font-semibold rounded text-center transition-all"
+                                        :class="costBasisMethod === 'HIFO' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="Highest-In, First-Out: Highest cost lots sold first (Tax-loss harvesting)">
+                                        HIFO
                                     </button>
                                     <button @click="setCostBasisMethod('AVG')"
                                         type="button"
-                                        class="py-1 text-[11px] font-semibold rounded text-center transition-all"
+                                        class="py-1 text-[10px] font-semibold rounded text-center transition-all"
                                         :class="costBasisMethod === 'AVG' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
                                         title="Continuous Moving Weighted Average cost basis">
                                         AVG
@@ -390,6 +675,7 @@
                                 <div class="text-[9.5px] text-gray-400 mt-1.5 leading-tight italic">
                                     <span v-if="costBasisMethod === 'FIFO'">FIFO: Closes earliest lots first (Broker default).</span>
                                     <span v-else-if="costBasisMethod === 'LIFO'">LIFO: Closes newest lots first (First in, last out).</span>
+                                    <span v-else-if="costBasisMethod === 'HIFO'">HIFO: Closes highest-cost lots first (Minimizes tax / gains).</span>
                                     <span v-else>AVG: Continuous blended weighted average price.</span>
                                 </div>
                             </div>
@@ -458,14 +744,14 @@
                 </div>
                 <div class="text-2xl font-bold mt-1 font-mono"
                     :class="totalPortfolioNetPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    {{ totalPortfolioNetPL >= 0 ? '+' : '' }}${{ formatNumber(totalPortfolioNetPL) }}
+                    {{ formatMoney(totalPortfolioNetPL, { sign: true }) }}
                 </div>
                 <div class="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
                     <span>Realized: <strong
-                            :class="(realizedStockPL + realizedOptionsPL) >= 0 ? 'text-emerald-400' : 'text-rose-400'">${{
-                            formatNumber(realizedStockPL + realizedOptionsPL) }}</strong></span>
-                    <span>Unreal: <strong :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">${{
-                            formatNumber(stockUnrealizedPL) }}</strong></span>
+                            :class="(realizedStockPL + realizedOptionsPL) >= 0 ? 'text-emerald-400' : 'text-rose-400'">{{
+                            formatMoney(realizedStockPL + realizedOptionsPL) }}</strong></span>
+                    <span>Unreal: <strong :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">{{
+                            formatMoney(stockUnrealizedPL) }}</strong></span>
                 </div>
             </div>
 
@@ -477,9 +763,9 @@
                         {{ computedStockHoldings.length }} Holdings
                     </span>
                 </div>
-                <div class="text-2xl font-bold mt-1 text-white font-mono">${{ formatNumber(stockPortfolioValue) }}</div>
+                <div class="text-2xl font-bold mt-1 text-white font-mono">{{ formatMoney(stockPortfolioValue) }}</div>
                 <div class="text-[11px] text-gray-400 mt-0.5">
-                    Cost Basis: ${{ formatNumber(stockCostBasis) }}
+                    Cost Basis: {{ formatMoney(stockCostBasis) }}
                 </div>
             </div>
 
@@ -494,7 +780,7 @@
                 </div>
                 <div class="text-2xl font-bold mt-1 font-mono"
                     :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    {{ stockUnrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(stockUnrealizedPL) }}
+                    {{ formatMoney(stockUnrealizedPL, { sign: true }) }}
                 </div>
                 <div class="text-[11px] text-gray-400 mt-0.5">
                     Market value vs cost
@@ -514,7 +800,7 @@
                 </div>
                 <div class="text-2xl font-bold mt-1 font-mono"
                     :class="realizedStockPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    {{ realizedStockPL >= 0 ? '+' : '' }}${{ formatNumber(realizedStockPL) }}
+                    {{ formatMoney(realizedStockPL, { sign: true }) }}
                 </div>
                 <div
                     class="text-[11px] text-gray-500 group-hover:text-gray-300 transition mt-0.5 flex items-center justify-between">
@@ -537,7 +823,7 @@
                 </div>
                 <div class="text-2xl font-bold mt-1 font-mono"
                     :class="realizedOptionsPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    {{ realizedOptionsPL >= 0 ? '+' : '' }}${{ formatNumber(realizedOptionsPL) }}
+                    {{ formatMoney(realizedOptionsPL, { sign: true }) }}
                 </div>
                 <div
                     class="text-[11px] text-gray-500 group-hover:text-gray-300 transition mt-0.5 flex items-center justify-between">
@@ -1160,7 +1446,7 @@
                                 </span>
                                 <span
                                     class="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-750 border border-gray-650 text-emerald-300 font-mono"
-                                    :title="'Accounting Method: ' + (costBasisMethod === 'FIFO' ? 'First-In, First-Out' : (costBasisMethod === 'LIFO' ? 'Last-In, First-Out' : 'Moving Average')) + ' (Change in Tools menu)'">
+                                    :title="'Accounting Method: ' + (costBasisMethod === 'FIFO' ? 'First-In, First-Out' : (costBasisMethod === 'LIFO' ? 'Last-In, First-Out' : (costBasisMethod === 'HIFO' ? 'Highest-In, First-Out (Tax-Loss)' : 'Moving Average'))) + ' (Change in Tools menu)'">
                                     {{ costBasisMethod }}
                                 </span>
                             </div>
@@ -1182,37 +1468,33 @@
                             <thead>
                                 <tr class="border-b border-gray-700 text-gray-400 text-xs uppercase select-none">
                                     <th @click="toggleStockSort('symbol')"
-                                        class="pb-3 px-3 sm:px-4 font-semibold cursor-pointer hover:text-white transition">
+                                        class="py-3 px-3 sm:px-4 cursor-pointer hover:text-white transition">
                                         Symbol {{ stockHoldingsSortKey === 'symbol' ? (stockHoldingsSortAsc ? '↑' : '↓')
                                         : '' }}
                                     </th>
                                     <th @click="toggleStockSort('quantity')"
-                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right cursor-pointer hover:text-white transition">
                                         Shares {{ stockHoldingsSortKey === 'quantity' ? (stockHoldingsSortAsc ? '↑' :
                                         '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('avgCost')"
-                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right cursor-pointer hover:text-white transition">
                                         Avg Cost {{ stockHoldingsSortKey === 'avgCost' ? (stockHoldingsSortAsc ? '↑' :
                                         '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('currentPrice')"
-                                        class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        <span class="hidden sm:inline">Current Price</span>
-                                        <span class="sm:hidden">Price / Val</span>
-                                        {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc
-                                        ? '↑' : '↓') : '' }}
+                                        class="py-3 px-3 sm:px-4 text-right cursor-pointer hover:text-white transition">
+                                        Price {{ stockHoldingsSortKey === 'currentPrice' ? (stockHoldingsSortAsc ? '↑' :
+                                        '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('marketValue')"
-                                        class="hidden sm:table-cell pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
+                                        class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right cursor-pointer hover:text-white transition">
                                         Market Value {{ stockHoldingsSortKey === 'marketValue' ? (stockHoldingsSortAsc ?
                                         '↑' : '↓') : '' }}
                                     </th>
                                     <th @click="toggleStockSort('unrealizedPL')"
-                                        class="pb-3 px-3 sm:px-4 text-right font-semibold cursor-pointer hover:text-white transition">
-                                        <span class="hidden sm:inline">Unrealized P/L</span>
-                                        <span class="sm:hidden">P/L</span>
-                                        {{ stockHoldingsSortKey === 'unrealizedPL' ?
+                                        class="py-3 px-3 sm:px-4 text-right cursor-pointer hover:text-white transition">
+                                        Unrealized P/L {{ stockHoldingsSortKey === 'unrealizedPL' ?
                                         (stockHoldingsSortAsc ? '↑' : '↓') : '' }}
                                     </th>
                                 </tr>
@@ -1223,25 +1505,23 @@
                                     <td class="py-3 px-3 sm:px-4">
                                         <div class="font-bold text-white">{{ holding.symbol }}</div>
                                         <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
-                                            {{ holding.quantity }} shs @ ${{ formatNumber(holding.avgCost) }}
+                                            {{ holding.quantity }} shs @ {{ formatMoney(holding.avgCost) }}
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
                                         holding.quantity }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
-                                        formatNumber(holding.avgCost) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        formatMoney(holding.avgCost) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono">
-                                        <div class="text-gray-200">${{ formatNumber(holding.currentPrice) }}</div>
-                                        <div class="sm:hidden text-xs text-gray-400 mt-0.5">${{
-                                            formatNumber(holding.marketValue) }}</div>
+                                        <div class="text-gray-200">{{ formatMoney(holding.currentPrice) }}</div>
+                                        <div class="sm:hidden text-xs text-gray-400 mt-0.5">{{
+                                            formatMoney(holding.marketValue) }}</div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white">
-                                        ${{
-                                        formatNumber(holding.marketValue) }}</td>
+                                        {{ formatMoney(holding.marketValue) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-semibold"
                                         :class="holding.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                        {{ holding.unrealizedPL >= 0 ? '+' : '' }}${{ formatNumber(holding.unrealizedPL)
-                                        }}
+                                        {{ formatMoney(holding.unrealizedPL, { sign: true }) }}
                                         <div class="text-xs font-normal">({{ formatPercent(holding.unrealizedPercent)
                                             }})</div>
                                     </td>
@@ -1270,16 +1550,14 @@
                                         —</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold text-white">
                                         <span class="hidden sm:inline text-gray-500 font-normal">—</span>
-                                        <span class="sm:hidden">${{ formatNumber(holdingsTotals.marketValue) }}</span>
+                                        <span class="sm:hidden">{{ formatMoney(holdingsTotals.marketValue) }}</span>
                                     </td>
                                     <td
                                         class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">
-                                        ${{
-                                        formatNumber(holdingsTotals.marketValue) }}</td>
+                                        {{ formatMoney(holdingsTotals.marketValue) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold"
                                         :class="holdingsTotals.unrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                        {{ holdingsTotals.unrealizedPL >= 0 ? '+' : '' }}${{
-                                        formatNumber(holdingsTotals.unrealizedPL) }}
+                                        {{ formatMoney(holdingsTotals.unrealizedPL, { sign: true }) }}
                                         <div class="text-[11px] font-normal">({{
                                             formatPercent(holdingsTotals.unrealizedPercent) }})</div>
                                     </td>
@@ -2294,6 +2572,125 @@
             </div>
         </div>
 
+        <!-- Currency Settings & Custom Rate Modal -->
+        <div v-if="showCurrencyModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+            <div
+                class="bg-gray-900 border border-gray-700/90 rounded-2xl p-5 sm:p-6 max-w-lg w-full shadow-2xl space-y-4 my-auto flex flex-col">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="p-2 bg-emerald-950/70 border border-emerald-800/80 rounded-xl text-emerald-400 font-bold font-mono text-base">
+                            {{ currencySymbol }}
+                        </span>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Currency & FX Settings</h2>
+                            <p class="text-xs text-gray-400">Configure display currency and conversion exchange rates</p>
+                        </div>
+                    </div>
+                    <button @click="showCurrencyModal = false"
+                        class="text-gray-400 hover:text-white text-xl font-bold px-2 py-1 rounded-lg hover:bg-gray-800 transition">✕</button>
+                </div>
+
+                <!-- Currency Picker Grid -->
+                <div class="space-y-2">
+                    <label class="text-xs font-semibold text-gray-300">Select Display Currency</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button v-for="c in SUPPORTED_CURRENCIES" :key="c.code"
+                            @click="selectCurrency(c.code)"
+                            class="p-2.5 rounded-xl border text-left transition flex items-center gap-2 cursor-pointer"
+                            :class="selectedCurrency === c.code ? 'bg-emerald-950/70 border-emerald-500 text-white shadow-md' : 'bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-750 hover:text-white'">
+                            <span class="text-xl">{{ c.flag }}</span>
+                            <div class="min-w-0">
+                                <div class="font-bold text-xs flex items-center gap-1">
+                                    <span>{{ c.code }}</span>
+                                    <span class="text-[10px] text-gray-400 font-normal">({{ c.symbol }})</span>
+                                </div>
+                                <div class="text-[9.5px] text-gray-400 truncate">{{ c.name }}</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live vs Custom Rate for Active Currency -->
+                <div v-if="selectedCurrency !== 'USD'" class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <span>1 USD = {{ activeFxRate.toFixed(selectedCurrency === 'JPY' ? 1 : 4) }} {{ selectedCurrency }}</span>
+                                <span v-if="customFxRates[selectedCurrency]"
+                                    class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-950 text-amber-300 border border-amber-800">
+                                    Custom Override
+                                </span>
+                                <span v-else
+                                    class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                                    Live Rate
+                                </span>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-0.5">
+                                Market Mid-Rate: 1 USD = {{ (exchangeRates[selectedCurrency] || 1).toFixed(4) }} {{ selectedCurrency }}
+                                <span v-if="fxLastUpdated">({{ fxLastUpdated }})</span>
+                            </div>
+                        </div>
+                        <button @click="fetchExchangeRates(true)" :disabled="isFetchingFx"
+                            class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 border border-gray-700 text-gray-300 text-xs flex items-center gap-1 transition cursor-pointer">
+                            <svg :class="{ 'animate-spin': isFetchingFx }" class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span>{{ isFetchingFx ? 'Fetching...' : 'Update Live' }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Custom Rate Override Input -->
+                    <div class="pt-2 border-t border-gray-800/80">
+                        <label class="text-[11px] font-medium text-gray-300 block mb-1">
+                            Custom Bank / Exchange Rate Override (Optional):
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <div class="relative flex-1">
+                                <span class="absolute left-2.5 top-2 text-xs text-gray-500 font-mono">1 USD =</span>
+                                <input type="number" step="0.0001" v-model="customRateInput"
+                                    :placeholder="(exchangeRates[selectedCurrency] || 1).toString()"
+                                    class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-16 pr-12 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-emerald-500">
+                                <span class="absolute right-2.5 top-2 text-xs text-gray-400 font-mono">{{ selectedCurrency }}</span>
+                            </div>
+                            <button @click="saveCustomFxRate"
+                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition">
+                                Apply
+                            </button>
+                            <button v-if="customFxRates[selectedCurrency]" @click="resetCustomFxRate(selectedCurrency)"
+                                class="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-xs transition border border-gray-700"
+                                title="Reset to live open market exchange rate">
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview Conversion -->
+                    <div class="bg-gray-900/80 rounded-lg p-2.5 text-[11px] text-gray-300 flex items-center justify-between border border-gray-800">
+                        <span class="text-gray-400">Sample $1,000 USD portfolio:</span>
+                        <span class="font-mono font-bold text-emerald-400">{{ formatMoney(1000) }}</span>
+                    </div>
+                </div>
+
+                <div v-else class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 text-xs text-gray-300">
+                    <div class="font-semibold text-white flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        USD is the native base currency (1.00)
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-1">
+                        All Schwab broker transactions and live market quotes are imported and stored natively in USD.
+                    </p>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+                    <button type="button" @click="showCurrencyModal = false"
+                        class="px-4 py-1.5 bg-gray-800 hover:bg-gray-750 text-white rounded-lg text-xs font-semibold transition border border-gray-700">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- AI Market & Portfolio Deep Research Modal -->
         <div v-if="showDeepResearchModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
@@ -3001,12 +3398,11 @@
 
         <!-- Realized Options P/L History Modal -->
         <div v-if="showOptionsHistoryModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
             <div
-                class="bg-gray-900 border border-gray-700/90 rounded-2xl p-4 sm:p-6 max-w-6xl w-full shadow-2xl space-y-4 my-auto max-h-[95vh] flex flex-col">
-                <!-- Modal Header -->
-                <div
-                    class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
+                class="bg-gray-900 border border-gray-700/90 rounded-2xl p-3 sm:p-6 max-w-6xl w-full min-w-0 shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col overflow-hidden">
+                <!-- Modal Header (Fixed at top) -->
+                <div class="flex-shrink-0 flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-3">
                     <div class="flex items-center gap-3">
                         <span class="p-2 bg-emerald-950/70 border border-emerald-800/80 rounded-xl text-emerald-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3023,18 +3419,16 @@
                                 </span>
                             </div>
                             <p class="text-xs text-gray-400 mt-0.5">
-                                Performance breakdown of expired, assigned, and closed option contracts across all
-                                years.
+                                Performance breakdown of expired, assigned, and closed option contracts across all years.
                             </p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="text-right hidden sm:block">
-                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered
-                                Realized P/L</div>
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized P/L</div>
                             <div class="text-lg font-bold font-mono"
                                 :class="optionsHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                ${{ formatNumber(optionsHistorySummary.totalPL) }}
+                                {{ formatMoney(optionsHistorySummary.totalPL, { sign: true }) }}
                             </div>
                         </div>
                         <button @click="closeOptionsHistoryModal"
@@ -3042,301 +3436,314 @@
                     </div>
                 </div>
 
-                <!-- Multi-Dimensional Filter Controls Bar -->
-                <div class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 space-y-3">
-                    <div class="flex flex-wrap items-center justify-between gap-2.5">
-                        <!-- Year Pills -->
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                Year:
-                            </span>
-                            <button @click="setHistoryYear('ALL')"
-                                :class="historyYearFilter === 'ALL' && !historyDateFrom && !historyDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
-                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
-                                All Years
-                            </button>
-                            <button v-for="y in availableHistoryYears" :key="y" @click="setHistoryYear(y)"
-                                :class="historyYearFilter === y && !historyDateFrom && !historyDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
-                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
-                                {{ y }}
-                            </button>
-                        </div>
-
-                        <!-- Reset / Clear Button -->
-                        <button @click="resetHistoryFilters"
-                            class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2 py-1 rounded bg-gray-800/80 hover:bg-gray-800 border border-gray-700">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            Reset Filters
-                        </button>
-                    </div>
-
-                    <!-- Date Range, Ticker, Action Type, and Search -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
-                        <!-- Date From -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
-                            <input type="date" v-model="historyDateFrom" @change="historyYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
-                        </div>
-
-                        <!-- Date To -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
-                            <input type="date" v-model="historyDateTo" @change="historyYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
-                        </div>
-
-                        <!-- Ticker Filter -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Ticker:</span>
-                            <select v-model="historyTickerFilter"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
-                                <option value="" class="bg-gray-800">All Tickers ({{ availableHistoryTickers.length }})
-                                </option>
-                                <option v-for="t in availableHistoryTickers" :key="t" :value="t" class="bg-gray-800">{{
-                                    t }}</option>
-                            </select>
-                        </div>
-
-                        <!-- Closing Action Type Filter -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Action:</span>
-                            <select v-model="historyActionFilter"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
-                                <option value="ALL" class="bg-gray-800">All Closing Types</option>
-                                <option value="EXPIRED" class="bg-gray-800">Expired Worthless (OTM)</option>
-                                <option value="ASSIGNED" class="bg-gray-800">Assigned / Exercised</option>
-                                <option value="CLOSE" class="bg-gray-800">Buy/Sell to Close (Early)</option>
-                            </select>
-                        </div>
-
-                        <!-- Search -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" v-model="historySearchQuery" placeholder="Search contract or strike..."
-                                class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
-                            <button v-if="historySearchQuery" @click="historySearchQuery = ''"
-                                class="text-gray-400 hover:text-white">✕</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KPI Summary Cards Grid -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <!-- 1. Realized P/L in Selection -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized
-                            P/L</div>
-                        <div class="text-xl font-bold font-mono mt-1"
-                            :class="optionsHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                            ${{ formatNumber(optionsHistorySummary.totalPL) }}
-                        </div>
-                        <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
-                            <span>{{ optionsHistorySummary.totalTrades }} closed trades</span>
-                            <span class="text-emerald-400 font-medium">{{ optionsHistorySummary.winRate.toFixed(1) }}%
-                                win rate</span>
-                        </div>
-                    </div>
-
-                    <!-- 2. Win / Loss Record -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Win / Loss Record
-                        </div>
-                        <div class="text-xl font-bold font-mono mt-1 text-white flex items-baseline gap-2">
-                            <span class="text-emerald-400">{{ optionsHistorySummary.wins }}W</span>
-                            <span class="text-gray-500 text-sm">/</span>
-                            <span class="text-rose-400">{{ optionsHistorySummary.losses }}L</span>
-                            <span v-if="optionsHistorySummary.breakeven > 0"
-                                class="text-gray-400 text-xs font-normal">({{ optionsHistorySummary.breakeven }}
-                                Even)</span>
-                        </div>
-                        <!-- Mini Win Bar -->
-                        <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mt-2 flex">
-                            <div class="bg-emerald-500 h-full" :style="{ width: optionsHistorySummary.winRate + '%' }">
-                            </div>
-                            <div class="bg-rose-500 h-full"
-                                :style="{ width: (100 - optionsHistorySummary.winRate) + '%' }"></div>
-                        </div>
-                    </div>
-
-                    <!-- 3. Strategy Category Breakdown -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Strategy Breakdown
-                        </div>
-                        <div class="space-y-1 mt-1 text-[11px]">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Expired OTM:</span>
-                                <span class="font-mono font-semibold text-emerald-400">+${{
-                                    formatNumber(optionsHistorySummary.expirePL) }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Assigned ITM:</span>
-                                <span class="font-mono font-semibold text-indigo-300">+${{
-                                    formatNumber(optionsHistorySummary.assignPL) }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Early Close / Roll:</span>
-                                <span class="font-mono font-semibold"
-                                    :class="optionsHistorySummary.closePL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                    ${{ formatNumber(optionsHistorySummary.closePL) }}
+                <!-- Unified Scrollable Modal Body -->
+                <div class="overflow-y-auto flex-1 min-w-0 w-full space-y-4 pr-1">
+                    <!-- Multi-Dimensional Filter Controls Bar -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3 space-y-2.5">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <!-- Year Pills -->
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Year:
                                 </span>
+                                <button @click="setHistoryYear('ALL')"
+                                    :class="historyYearFilter === 'ALL' && !historyDateFrom && !historyDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                    class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                    All Years
+                                </button>
+                                <button v-for="y in availableHistoryYears" :key="y" @click="setHistoryYear(y)"
+                                    :class="historyYearFilter === y && !historyDateFrom && !historyDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                    class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                    {{ y }}
+                                </button>
+                            </div>
+
+                            <!-- Reset / Clear Button -->
+                            <button @click="resetHistoryFilters"
+                                class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2 py-1 rounded bg-gray-800/80 hover:bg-gray-800 border border-gray-700">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Reset Filters
+                            </button>
+                        </div>
+
+                        <!-- Date Range, Ticker, Action, and Search -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 pt-1 text-xs">
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
+                                <input type="date" v-model="historyDateFrom" @change="historyYearFilter = 'CUSTOM'"
+                                    class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                            </div>
+
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
+                                <input type="date" v-model="historyDateTo" @change="historyYearFilter = 'CUSTOM'"
+                                    class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                            </div>
+
+                            <div class="relative">
+                                <select v-model="historyTickerFilter"
+                                    class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-emerald-500 text-xs appearance-none cursor-pointer">
+                                    <option value="ALL">All Underlying Tickers</option>
+                                    <option v-for="t in availableHistoryTickers" :key="t" :value="t">{{ t }}</option>
+                                </select>
+                                <span class="absolute right-2.5 top-2 text-gray-400 pointer-events-none text-[10px]">▼</span>
+                            </div>
+
+                            <div class="relative">
+                                <select v-model="historyOutcomeFilter"
+                                    class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-emerald-500 text-xs appearance-none cursor-pointer">
+                                    <option value="ALL">All Closing Actions</option>
+                                    <option value="EXPIRED">Expired OTM</option>
+                                    <option value="ASSIGNED">Assigned ITM</option>
+                                    <option value="CLOSED">Early Closed / Rolled</option>
+                                    <option value="WIN">Profitable Only (+)</option>
+                                    <option value="LOSS">Losses Only (-)</option>
+                                </select>
+                                <span class="absolute right-2.5 top-2 text-gray-400 pointer-events-none text-[10px]">▼</span>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <input type="text" v-model="historySearchQuery" placeholder="Search ticker or strike..."
+                                    class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
+                                <button v-if="historySearchQuery" @click="historySearchQuery = ''" class="text-gray-400 hover:text-white">✕</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 4. Total Net Fees -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Commissions & Fees
+                    <!-- KPI Summary Cards Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                        <!-- 1. Realized P/L in Selection -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized P/L</div>
+                            <div class="text-lg sm:text-xl font-bold font-mono mt-1"
+                                :class="optionsHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                {{ formatMoney(optionsHistorySummary.totalPL, { sign: true }) }}
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
+                                <span>{{ optionsHistorySummary.totalTrades }} closed</span>
+                                <span class="text-emerald-400 font-medium">{{ optionsHistorySummary.winRate.toFixed(1) }}% win</span>
+                            </div>
                         </div>
-                        <div class="text-xl font-bold font-mono mt-1 text-amber-400">
-                            ${{ formatNumber(optionsHistorySummary.totalFees) }}
+
+                        <!-- 2. Win / Loss Record -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Win / Loss Record</div>
+                            <div class="text-lg sm:text-xl font-bold font-mono mt-1 text-white flex items-baseline gap-1.5">
+                                <span class="text-emerald-400">{{ optionsHistorySummary.wins }}W</span>
+                                <span class="text-gray-500 text-sm">/</span>
+                                <span class="text-rose-400">{{ optionsHistorySummary.losses }}L</span>
+                                <span v-if="optionsHistorySummary.breakeven > 0" class="text-gray-400 text-xs font-normal">({{ optionsHistorySummary.breakeven }})</span>
+                            </div>
+                            <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mt-2 flex">
+                                <div class="bg-emerald-500 h-full" :style="{ width: optionsHistorySummary.winRate + '%' }"></div>
+                                <div class="bg-rose-500 h-full" :style="{ width: (100 - optionsHistorySummary.winRate) + '%' }"></div>
+                            </div>
                         </div>
-                        <div class="text-[11px] text-gray-400 mt-1">
-                            Schwab regulatory & contract fees deducted
+
+                        <!-- 3. Strategy Category Breakdown -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Strategy Breakdown</div>
+                            <div class="space-y-0.5 mt-1 text-[11px]">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Expired:</span>
+                                    <span class="font-mono font-semibold text-emerald-400">+{{ formatMoney(optionsHistorySummary.expirePL) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Assigned:</span>
+                                    <span class="font-mono font-semibold text-indigo-300">+{{ formatMoney(optionsHistorySummary.assignPL) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Closed:</span>
+                                    <span class="font-mono font-semibold"
+                                        :class="optionsHistorySummary.closePL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                        {{ formatMoney(optionsHistorySummary.closePL, { sign: true }) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Total Net Fees -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Commissions & Fees</div>
+                            <div class="text-lg sm:text-xl font-bold font-mono mt-1 text-amber-400">
+                                {{ formatMoney(optionsHistorySummary.totalFees) }}
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-1">
+                                Regulatory & contract fees deducted
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Tabs: Ledger vs Yearly Overview -->
-                <div class="flex items-center justify-between border-b border-gray-800 pt-1">
-                    <div class="flex gap-2">
-                        <button @click="historyActiveTab = 'trades'"
-                            :class="historyActiveTab === 'trades' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
-                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            Closed Trades Ledger ({{ filteredOptionsRecords.length }})
-                        </button>
-                        <button @click="historyActiveTab = 'yearly'"
-                            :class="historyActiveTab === 'yearly' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
-                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Yearly Performance Breakdown
-                        </button>
+                    <!-- Tabs: Ledger vs Yearly Overview -->
+                    <div class="flex items-center justify-between border-b border-gray-800 pt-1">
+                        <div class="flex gap-2">
+                            <button @click="historyActiveTab = 'trades'"
+                                :class="historyActiveTab === 'trades' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                                class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <span>Closed Trades ({{ filteredOptionsRecords.length }})</span>
+                            </button>
+                            <button @click="historyActiveTab = 'yearly'"
+                                :class="historyActiveTab === 'yearly' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                                class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                <span>Yearly Breakdown</span>
+                            </button>
+                        </div>
+
+                        <!-- Per Page Selector for Trades -->
+                        <div v-if="historyActiveTab === 'trades'" class="flex items-center gap-2 text-xs text-gray-400 pb-2">
+                            <span>Show:</span>
+                            <select v-model.number="historyPerPage" @change="historyPage = 1"
+                                class="bg-gray-800 border border-gray-700 text-gray-200 rounded px-2 py-0.5 text-xs cursor-pointer">
+                                <option :value="15">15</option>
+                                <option :value="25">25</option>
+                                <option :value="50">50</option>
+                                <option :value="100">100</option>
+                                <option :value="-1">All</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Per Page Selector for Trades -->
-                    <div v-if="historyActiveTab === 'trades'"
-                        class="flex items-center gap-2 text-xs text-gray-400 pb-2">
-                        <span>Show:</span>
-                        <select v-model.number="historyPerPage" @change="historyPage = 1"
-                            class="bg-gray-800 border border-gray-700 text-gray-200 rounded px-2 py-0.5 text-xs">
-                            <option :value="15">15</option>
-                            <option :value="25">25</option>
-                            <option :value="50">50</option>
-                            <option :value="100">100</option>
-                            <option :value="-1">All</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Content Area (Scrollable) -->
-                <div class="overflow-y-auto flex-1 pr-1 min-h-[300px]">
                     <!-- TAB 1: Detailed Trades Ledger -->
-                    <div v-if="historyActiveTab === 'trades'">
+                    <div v-if="historyActiveTab === 'trades'" class="space-y-3">
                         <div v-if="filteredOptionsRecords.length === 0" class="text-center py-12 text-gray-400 text-xs">
                             No option records found matching the active filters.
-                            <button @click="resetHistoryFilters"
-                                class="block mx-auto mt-2 text-emerald-400 underline">Reset all filters</button>
+                            <button @click="resetHistoryFilters" class="block mx-auto mt-2 text-emerald-400 underline">Reset all filters</button>
                         </div>
-                        <div v-else class="overflow-x-auto">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead
-                                    class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-700">
-                                    <tr>
-                                        <th @click="toggleHistorySort('date')"
-                                            class="p-2.5 cursor-pointer hover:text-white transition">
-                                            Date {{ historySortKey === 'date' ? (historySortAsc ? '↑' : '↓') : '' }}
-                                        </th>
-                                        <th @click="toggleHistorySort('ticker')"
-                                            class="p-2.5 cursor-pointer hover:text-white transition">
-                                            Underlying {{ historySortKey === 'ticker' ? (historySortAsc ? '↑' : '↓') :
-                                            '' }}
-                                        </th>
-                                        <th class="p-2.5">Contract Details</th>
-                                        <th class="p-2.5">Closing Action</th>
-                                        <th class="p-2.5 text-center">Qty</th>
-                                        <th class="p-2.5 text-right">Entry Basis</th>
-                                        <th class="p-2.5 text-right">Exit Price</th>
-                                        <th class="p-2.5 text-right">Fee</th>
-                                        <th @click="toggleHistorySort('profit')"
-                                            class="p-2.5 text-right cursor-pointer hover:text-white transition">
-                                            Realized P/L {{ historySortKey === 'profit' ? (historySortAsc ? '↑' : '↓') :
-                                            '' }}
-                                        </th>
-                                        <th class="p-2.5 text-right">Return %</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-800 text-gray-200">
-                                    <tr v-for="rec in paginatedHistoryRecords" :key="rec.id"
-                                        class="hover:bg-gray-800/50 transition">
-                                        <td class="p-2.5 font-mono text-gray-400 whitespace-nowrap">{{ rec.date }}</td>
-                                        <td class="p-2.5 font-bold text-white whitespace-nowrap">{{ rec.ticker }}</td>
-                                        <td class="p-2.5 whitespace-nowrap">
-                                            <span
-                                                :class="rec.optionType === 'Call' ? 'text-emerald-400' : 'text-amber-400'"
-                                                class="font-semibold">
-                                                {{ rec.optionType }}
-                                            </span>
-                                            <span class="font-mono text-gray-300 ml-1.5">${{ rec.strike }}</span>
-                                            <span class="text-gray-500 text-[11px] ml-1.5">Exp: {{ rec.expiration
-                                                }}</span>
-                                        </td>
-                                        <td class="p-2.5 whitespace-nowrap">
-                                            <span v-if="rec.closingType === 'Expired'"
-                                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 border border-emerald-800 text-emerald-300">
-                                                Expired (OTM)
-                                            </span>
-                                            <span v-else-if="rec.closingType === 'Assigned'"
-                                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950/80 border border-indigo-800 text-indigo-300">
-                                                Assigned (ITM)
-                                            </span>
-                                            <span v-else
-                                                class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-800 border border-gray-700 text-gray-300">
-                                                {{ rec.action }}
-                                            </span>
-                                        </td>
-                                        <td class="p-2.5 text-center font-mono font-semibold text-gray-300">{{
-                                            rec.quantity }}x</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-300">${{
-                                            rec.entryPrice.toFixed(2) }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-300">${{
-                                            rec.closePrice.toFixed(2) }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-400">${{ rec.fee.toFixed(2) }}
-                                        </td>
-                                        <td class="p-2.5 text-right font-mono font-bold whitespace-nowrap"
-                                            :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ rec.profit >= 0 ? '+' : '' }}${{ formatNumber(rec.profit) }}
-                                        </td>
-                                        <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap"
-                                            :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ formatPercent(rec.returnPct) }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div v-else>
+                            <!-- Mobile Card View (sm:hidden) -->
+                            <div class="sm:hidden space-y-2.5">
+                                <div v-for="rec in paginatedHistoryRecords" :key="rec.id"
+                                    class="bg-gray-850 border border-gray-800 rounded-xl p-3 space-y-2 hover:border-gray-700 transition">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div>
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-bold text-white text-base leading-none">{{ rec.ticker }}</span>
+                                                <span :class="rec.optionType === 'Call' ? 'text-emerald-400 bg-emerald-950/60 border-emerald-900/60' : 'text-amber-400 bg-amber-950/60 border-amber-900/60'"
+                                                    class="px-1.5 py-0.5 rounded text-[10.5px] font-semibold border font-mono">
+                                                    {{ rec.optionType }} ${{ rec.strike }}
+                                                </span>
+                                                <span class="text-xs text-gray-400 font-mono">{{ rec.quantity }}x</span>
+                                            </div>
+                                            <div class="text-[10px] text-gray-500 font-mono mt-1">
+                                                Exp: {{ rec.expiration }} • Closed: {{ rec.date }}
+                                            </div>
+                                        </div>
+                                        <div class="text-right shrink-0">
+                                            <div class="text-sm font-bold font-mono"
+                                                :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatMoney(rec.profit, { sign: true }) }}
+                                            </div>
+                                            <div class="text-[10px] font-mono mt-0.5"
+                                                :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatPercent(rec.returnPct) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between pt-2 border-t border-gray-800/80 text-xs">
+                                        <span v-if="rec.closingType === 'Expired'"
+                                            class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 border border-emerald-800 text-emerald-300">
+                                            Expired (OTM)
+                                        </span>
+                                        <span v-else-if="rec.closingType === 'Assigned'"
+                                            class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950/80 border border-indigo-800 text-indigo-300">
+                                            Assigned (ITM)
+                                        </span>
+                                        <span v-else
+                                            class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-800 border border-gray-700 text-gray-300">
+                                            {{ rec.action }}
+                                        </span>
+                                        <div class="text-[11px] font-mono text-gray-300 flex items-center gap-2">
+                                            <span>Entry: <strong class="text-gray-200">{{ formatMoney(rec.entryPrice) }}</strong></span>
+                                            <span>Exit: <strong class="text-gray-200">{{ formatMoney(rec.closePrice) }}</strong></span>
+                                        </div>
+                                    </div>
+                                    <div v-if="rec.fee > 0" class="text-right text-[10px] text-gray-500 font-mono">
+                                        Fee: {{ formatMoney(rec.fee) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Desktop Table View (hidden sm:block) -->
+                            <div class="hidden sm:block overflow-x-auto w-full max-w-full scrollbar-thin">
+                                <table class="min-w-[680px] w-full text-left text-xs border-collapse">
+                                    <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-700">
+                                        <tr>
+                                            <th @click="toggleHistorySort('date')" class="p-2.5 cursor-pointer hover:text-white transition">
+                                                Date {{ historySortKey === 'date' ? (historySortAsc ? '↑' : '↓') : '' }}
+                                            </th>
+                                            <th @click="toggleHistorySort('ticker')" class="p-2.5 cursor-pointer hover:text-white transition">
+                                                Underlying {{ historySortKey === 'ticker' ? (historySortAsc ? '↑' : '↓') : '' }}
+                                            </th>
+                                            <th class="p-2.5">Contract Details</th>
+                                            <th class="p-2.5">Closing Action</th>
+                                            <th class="p-2.5 text-center">Qty</th>
+                                            <th class="p-2.5 text-right">Entry Basis</th>
+                                            <th class="p-2.5 text-right">Exit Price</th>
+                                            <th class="p-2.5 text-right">Fee</th>
+                                            <th @click="toggleHistorySort('profit')" class="p-2.5 text-right cursor-pointer hover:text-white transition">
+                                                Realized P/L {{ historySortKey === 'profit' ? (historySortAsc ? '↑' : '↓') : '' }}
+                                            </th>
+                                            <th class="p-2.5 text-right">Return %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 text-gray-200">
+                                        <tr v-for="rec in paginatedHistoryRecords" :key="rec.id" class="hover:bg-gray-800/50 transition">
+                                            <td class="p-2.5 font-mono text-gray-400 whitespace-nowrap">{{ rec.date }}</td>
+                                            <td class="p-2.5 font-bold text-white whitespace-nowrap">{{ rec.ticker }}</td>
+                                            <td class="p-2.5 whitespace-nowrap">
+                                                <span :class="rec.optionType === 'Call' ? 'text-emerald-400' : 'text-amber-400'" class="font-semibold">
+                                                    {{ rec.optionType }}
+                                                </span>
+                                                <span class="font-mono text-gray-300 ml-1.5">${{ rec.strike }}</span>
+                                                <span class="text-gray-500 text-[11px] ml-1.5">Exp: {{ rec.expiration }}</span>
+                                            </td>
+                                            <td class="p-2.5 whitespace-nowrap">
+                                                <span v-if="rec.closingType === 'Expired'"
+                                                    class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950/80 border border-emerald-800 text-emerald-300">
+                                                    Expired (OTM)
+                                                </span>
+                                                <span v-else-if="rec.closingType === 'Assigned'"
+                                                    class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-950/80 border border-indigo-800 text-indigo-300">
+                                                    Assigned (ITM)
+                                                </span>
+                                                <span v-else class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-800 border border-gray-700 text-gray-300">
+                                                    {{ rec.action }}
+                                                </span>
+                                            </td>
+                                            <td class="p-2.5 text-center font-mono font-semibold text-gray-300">{{ rec.quantity }}x</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-300">{{ formatMoney(rec.entryPrice) }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-300">{{ formatMoney(rec.closePrice) }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-400">{{ formatMoney(rec.fee) }}</td>
+                                            <td class="p-2.5 text-right font-mono font-bold whitespace-nowrap"
+                                                :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatMoney(rec.profit, { sign: true }) }}
+                                            </td>
+                                            <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap"
+                                                :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatPercent(rec.returnPct) }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         <!-- Pagination Controls -->
@@ -3348,15 +3755,12 @@
                                 of {{ filteredOptionsRecords.length }} records
                             </div>
                             <div class="flex items-center gap-1.5">
-                                <button @click="historyPage = Math.max(1, historyPage - 1)"
-                                    :disabled="historyPage === 1"
+                                <button @click="historyPage = Math.max(1, historyPage - 1)" :disabled="historyPage === 1"
                                     class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 disabled:opacity-40 disabled:hover:bg-gray-800 border border-gray-700 transition">
                                     Previous
                                 </button>
-                                <span class="px-2 font-mono text-gray-300">Page {{ historyPage }} of {{
-                                    historyTotalPages }}</span>
-                                <button @click="historyPage = Math.min(historyTotalPages, historyPage + 1)"
-                                    :disabled="historyPage === historyTotalPages"
+                                <span class="px-2 font-mono text-gray-300">Page {{ historyPage }} of {{ historyTotalPages }}</span>
+                                <button @click="historyPage = Math.min(historyTotalPages, historyPage + 1)" :disabled="historyPage === historyTotalPages"
                                     class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-750 disabled:opacity-40 disabled:hover:bg-gray-800 border border-gray-700 transition">
                                     Next
                                 </button>
@@ -3364,12 +3768,53 @@
                         </div>
                     </div>
 
-                    <!-- TAB 2: Yearly Performance Breakdown Table -->
-                    <div v-if="historyActiveTab === 'yearly'" class="space-y-4">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead
-                                    class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold border-b border-gray-700">
+                    <!-- TAB 2: Yearly Performance Breakdown -->
+                    <div v-if="historyActiveTab === 'yearly'" class="space-y-3">
+                        <!-- Mobile Card View for Yearly (sm:hidden) -->
+                        <div class="sm:hidden space-y-2.5">
+                            <div v-for="y in optionsYearlySummary" :key="y.year"
+                                class="bg-gray-850 border border-gray-800 rounded-xl p-3 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-base font-bold font-mono text-white">{{ y.year }}</span>
+                                    <div class="text-right">
+                                        <span class="text-base font-bold font-mono"
+                                            :class="y.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ formatMoney(y.totalPL, { sign: true }) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-gray-800 font-mono">
+                                    <div>
+                                        <span class="text-gray-400">Win Rate:</span>
+                                        <span class="font-semibold text-emerald-400 ml-1">{{ y.winRate.toFixed(1) }}%</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">Trades:</span>
+                                        <span class="text-gray-200 ml-1">{{ y.wins }}W / {{ y.losses }}L ({{ y.trades }})</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">Expired:</span>
+                                        <span class="text-emerald-400 ml-1">+{{ formatMoney(y.expirePL) }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-400">Assigned:</span>
+                                        <span class="text-indigo-300 ml-1">+{{ formatMoney(y.assignPL) }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-1 border-t border-gray-800 text-xs">
+                                    <span class="text-gray-400 text-[11px]">Top: <strong class="text-white">{{ y.topTicker }}</strong></span>
+                                    <button @click="setHistoryYear(y.year); historyActiveTab = 'trades'"
+                                        class="px-2 py-0.5 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-semibold">
+                                        View {{ y.year }} Trades →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Table View for Yearly (hidden sm:block) -->
+                        <div class="hidden sm:block overflow-x-auto w-full max-w-full scrollbar-thin">
+                            <table class="min-w-[650px] w-full text-left text-xs border-collapse">
+                                <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold border-b border-gray-700">
                                     <tr>
                                         <th class="p-3">Year</th>
                                         <th class="p-3 text-right">Realized P/L</th>
@@ -3383,34 +3828,24 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-800 text-gray-200">
-                                    <tr v-for="y in optionsYearlySummary" :key="y.year"
-                                        class="hover:bg-gray-800/50 transition">
+                                    <tr v-for="y in optionsYearlySummary" :key="y.year" class="hover:bg-gray-800/50 transition">
                                         <td class="p-3 font-mono font-bold text-white text-sm">{{ y.year }}</td>
                                         <td class="p-3 text-right font-mono font-bold text-sm"
                                             :class="y.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ y.totalPL >= 0 ? '+' : '' }}${{ formatNumber(y.totalPL) }}
+                                            {{ formatMoney(y.totalPL, { sign: true }) }}
                                         </td>
-                                        <td class="p-3 text-center font-mono font-semibold text-emerald-400">
-                                            {{ y.winRate.toFixed(1) }}%
-                                        </td>
+                                        <td class="p-3 text-center font-mono font-semibold text-emerald-400">{{ y.winRate.toFixed(1) }}%</td>
                                         <td class="p-3 text-center font-mono text-gray-300">
                                             <span class="text-emerald-400">{{ y.wins }}W</span> /
                                             <span class="text-rose-400">{{ y.losses }}L</span>
                                             <span class="text-gray-500 text-[11px] ml-1">({{ y.trades }})</span>
                                         </td>
-                                        <td class="p-3 text-right font-mono text-emerald-400">
-                                            +${{ formatNumber(y.expirePL) }}
+                                        <td class="p-3 text-right font-mono text-emerald-400">+{{ formatMoney(y.expirePL) }}</td>
+                                        <td class="p-3 text-right font-mono text-indigo-300">+{{ formatMoney(y.assignPL) }}</td>
+                                        <td class="p-3 text-right font-mono" :class="y.closePL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ formatMoney(y.closePL, { sign: true }) }}
                                         </td>
-                                        <td class="p-3 text-right font-mono text-indigo-300">
-                                            +${{ formatNumber(y.assignPL) }}
-                                        </td>
-                                        <td class="p-3 text-right font-mono"
-                                            :class="y.closePL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ y.closePL >= 0 ? '+' : '' }}${{ formatNumber(y.closePL) }}
-                                        </td>
-                                        <td class="p-3 font-semibold text-gray-200">
-                                            {{ y.topTicker }}
-                                        </td>
+                                        <td class="p-3 font-semibold text-gray-200">{{ y.topTicker }}</td>
                                         <td class="p-3 text-center">
                                             <button @click="setHistoryYear(y.year); historyActiveTab = 'trades'"
                                                 class="px-2.5 py-1 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 hover:text-white transition text-xs font-semibold">
@@ -3424,14 +3859,14 @@
                     </div>
                 </div>
 
-                <!-- Modal Footer -->
-                <div class="flex justify-between items-center pt-3 border-t border-gray-800 text-xs text-gray-400">
+                <!-- Modal Footer (Fixed at bottom) -->
+                <div class="flex-shrink-0 flex flex-col sm:flex-row justify-between items-center gap-2 pt-3 border-t border-gray-800 text-xs text-gray-400">
                     <span class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         Includes all multi-leg spreads, rolls, single options, and ACAT transfers.
                     </span>
                     <button type="button" @click="closeOptionsHistoryModal"
-                        class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700">
+                        class="w-full sm:w-auto px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700">
                         Close
                     </button>
                 </div>
@@ -3440,12 +3875,12 @@
 
         <!-- Realized Stock P/L History Modal -->
         <div v-if="showStockHistoryModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
             <div
-                class="bg-gray-900 border border-gray-700/90 rounded-2xl p-4 sm:p-6 max-w-6xl w-full shadow-2xl space-y-4 my-auto max-h-[95vh] flex flex-col">
-                <!-- Modal Header -->
+                class="bg-gray-900 border border-gray-700/90 rounded-2xl p-3 sm:p-6 max-w-6xl w-full min-w-0 shadow-2xl space-y-4 my-auto max-h-[95vh] flex flex-col overflow-hidden">
+                <!-- Modal Header (Fixed at top) -->
                 <div
-                    class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
+                    class="flex-shrink-0 flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
                     <div class="flex items-center gap-3">
                         <span class="p-2 bg-emerald-950/70 border border-emerald-800/80 rounded-xl text-emerald-400">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3473,7 +3908,7 @@
                                 Realized P/L</div>
                             <div class="text-lg font-bold font-mono"
                                 :class="stockHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                ${{ formatNumber(stockHistorySummary.totalPL) }}
+                                {{ formatMoney(stockHistorySummary.totalPL, { sign: true }) }}
                             </div>
                         </div>
                         <button @click="closeStockHistoryModal"
@@ -3481,279 +3916,329 @@
                     </div>
                 </div>
 
-                <!-- Multi-Dimensional Filter Controls Bar -->
-                <div class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 space-y-3">
-                    <div class="flex flex-wrap items-center justify-between gap-2.5">
-                        <!-- Year Pills -->
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                <!-- Unified Scrollable Modal Body (Filters + KPIs + Records) -->
+                <div class="overflow-y-auto flex-1 min-w-0 w-full space-y-4 pr-1">
+                    <!-- Multi-Dimensional Filter Controls Bar -->
+                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3.5 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2.5">
+                            <!-- Year Pills -->
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-xs font-semibold text-gray-400 mr-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Year:
+                                </span>
+                                <button @click="setStockHistoryYear('ALL')"
+                                    :class="stockHistoryYearFilter === 'ALL' && !stockHistoryDateFrom && !stockHistoryDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                    class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                    All Years
+                                </button>
+                                <button v-for="y in availableStockHistoryYears" :key="y" @click="setStockHistoryYear(y)"
+                                    :class="stockHistoryYearFilter === y && !stockHistoryDateFrom && !stockHistoryDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
+                                    class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
+                                    {{ y }}
+                                </button>
+                            </div>
+
+                            <!-- Reset / Clear Button -->
+                            <button @click="resetStockHistoryFilters"
+                                class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2 py-1 rounded bg-gray-800/80 hover:bg-gray-800 border border-gray-700">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Reset Filters
+                            </button>
+                        </div>
+
+                        <!-- Date Range, Ticker, Outcome, and Search -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
+                            <!-- Date From -->
+                            <div
+                                class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
+                                <input type="date" v-model="stockHistoryDateFrom"
+                                    @change="stockHistoryYearFilter = 'CUSTOM'"
+                                    class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                            </div>
+
+                            <!-- Date To -->
+                            <div
+                                class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
+                                <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
+                                <input type="date" v-model="stockHistoryDateTo"
+                                    @change="stockHistoryYearFilter = 'CUSTOM'"
+                                    class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                            </div>
+
+                            <!-- Ticker Filter -->
+                            <div class="relative">
+                                <select v-model="stockHistoryTickerFilter"
+                                    class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-emerald-500 text-xs appearance-none cursor-pointer">
+                                    <option value="ALL">All Tickers</option>
+                                    <option v-for="t in availableStockHistoryTickers" :key="t" :value="t">{{ t }}</option>
+                                </select>
+                                <span class="absolute right-2.5 top-2 text-gray-400 pointer-events-none text-[10px]">▼</span>
+                            </div>
+
+                            <!-- Outcome Filter -->
+                            <div class="relative">
+                                <select v-model="stockHistoryOutcomeFilter"
+                                    class="w-full bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 text-gray-200 focus:outline-none focus:border-emerald-500 text-xs appearance-none cursor-pointer">
+                                    <option value="ALL">All Outcomes</option>
+                                    <option value="WIN">Winners (Profit &gt; 0)</option>
+                                    <option value="LOSS">Losers (Profit &lt; 0)</option>
+                                </select>
+                                <span class="absolute right-2.5 top-2 text-gray-400 pointer-events-none text-[10px]">▼</span>
+                            </div>
+
+                            <!-- Search -->
+                            <div
+                                class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                Year:
-                            </span>
-                            <button @click="setStockHistoryYear('ALL')"
-                                :class="stockHistoryYearFilter === 'ALL' && !stockHistoryDateFrom && !stockHistoryDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
-                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
-                                All Years
-                            </button>
-                            <button v-for="y in availableStockHistoryYears" :key="y" @click="setStockHistoryYear(y)"
-                                :class="stockHistoryYearFilter === y && !stockHistoryDateFrom && !stockHistoryDateTo ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40' : 'bg-gray-800 text-gray-300 hover:bg-gray-750 hover:text-white border border-gray-700'"
-                                class="px-2.5 py-1 text-xs rounded-lg transition font-medium">
-                                {{ y }}
-                            </button>
+                                <input type="text" v-model="stockHistorySearchQuery" placeholder="Search ticker or date..."
+                                    class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
+                                <button v-if="stockHistorySearchQuery" @click="stockHistorySearchQuery = ''"
+                                    class="text-gray-400 hover:text-white">✕</button>
+                            </div>
                         </div>
-
-                        <!-- Reset / Clear Button -->
-                        <button @click="resetStockHistoryFilters"
-                            class="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1 transition px-2 py-1 rounded bg-gray-800/80 hover:bg-gray-800 border border-gray-700">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            Reset Filters
-                        </button>
                     </div>
 
-                    <!-- Date Range, Ticker, Outcome, and Search -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 pt-1 text-xs">
-                        <!-- Date From -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">From:</span>
-                            <input type="date" v-model="stockHistoryDateFrom"
-                                @change="stockHistoryYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                    <!-- KPI Summary Cards Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <!-- 1. Realized P/L in Selection -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized
+                                P/L</div>
+                            <div class="text-xl font-bold font-mono mt-1"
+                                :class="stockHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                {{ formatMoney(stockHistorySummary.totalPL, { sign: true }) }}
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
+                                <span>{{ stockHistorySummary.totalTrades }} closed sells</span>
+                                <span class="text-emerald-400 font-medium">{{ stockHistorySummary.winRate.toFixed(1) }}% win
+                                    rate</span>
+                            </div>
                         </div>
 
-                        <!-- Date To -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 overflow-hidden">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px] shrink-0">To:</span>
-                            <input type="date" v-model="stockHistoryDateTo" @change="stockHistoryYearFilter = 'CUSTOM'"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full min-w-0 text-xs [color-scheme:dark] cursor-pointer">
+                        <!-- 2. Win / Loss Record -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Win / Loss Record
+                            </div>
+                            <div class="text-xl font-bold font-mono mt-1 text-white flex items-baseline gap-2">
+                                <span class="text-emerald-400">{{ stockHistorySummary.wins }}W</span>
+                                <span class="text-gray-500 text-sm">/</span>
+                                <span class="text-rose-400">{{ stockHistorySummary.losses }}L</span>
+                                <span v-if="stockHistorySummary.breakeven > 0" class="text-gray-400 text-xs font-normal">({{
+                                    stockHistorySummary.breakeven }} Even)</span>
+                            </div>
+                            <!-- Mini Win Bar -->
+                            <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mt-2 flex">
+                                <div class="bg-emerald-500 h-full" :style="{ width: stockHistorySummary.winRate + '%' }">
+                                </div>
+                                <div class="bg-rose-500 h-full"
+                                    :style="{ width: (100 - stockHistorySummary.winRate) + '%' }"></div>
+                            </div>
                         </div>
 
-                        <!-- Ticker Filter -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Ticker:</span>
-                            <select v-model="stockHistoryTickerFilter"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
-                                <option value="" class="bg-gray-800">All Tickers ({{ availableStockHistoryTickers.length
-                                    }})</option>
-                                <option v-for="t in availableStockHistoryTickers" :key="t" :value="t"
-                                    class="bg-gray-800">{{ t }}</option>
+                        <!-- 3. Capital Returned & Cost Sold -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Proceeds & Basis
+                            </div>
+                            <div class="space-y-1 mt-1 text-[11px]">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Total Proceeds:</span>
+                                    <span class="font-mono font-semibold text-gray-200">{{
+                                        formatMoney(stockHistorySummary.totalProceeds) }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-400">Cost Basis Sold:</span>
+                                    <span class="font-mono font-semibold text-gray-400">{{
+                                        formatMoney(stockHistorySummary.totalCostBasis) }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Commissions & Regulatory Fees -->
+                        <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
+                            <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Commissions & Fees
+                            </div>
+                            <div class="text-xl font-bold font-mono mt-1 text-amber-400">
+                                {{ formatMoney(stockHistorySummary.totalFees) }}
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1">
+                                Schwab & SEC regulatory transaction fees
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs: Ledger vs Yearly Overview -->
+                    <div class="flex items-center justify-between border-b border-gray-800 pt-1">
+                        <div class="flex gap-2">
+                            <button @click="stockHistoryActiveTab = 'trades'"
+                                :class="stockHistoryActiveTab === 'trades' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                                class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                <span>Closed Stock Sells ({{ filteredStockRecords.length }})</span>
+                            </button>
+                            <button @click="stockHistoryActiveTab = 'yearly'"
+                                :class="stockHistoryActiveTab === 'yearly' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
+                                class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                <span>Yearly Breakdown</span>
+                            </button>
+                        </div>
+
+                        <!-- Per Page Selector -->
+                        <div v-if="stockHistoryActiveTab === 'trades'"
+                            class="flex items-center gap-2 text-xs text-gray-400 pb-2">
+                            <span>Show:</span>
+                            <select v-model.number="stockHistoryPerPage" @change="stockHistoryPage = 1"
+                                class="bg-gray-800 border border-gray-700 text-gray-200 rounded px-2 py-0.5 text-xs cursor-pointer">
+                                <option :value="15">15</option>
+                                <option :value="25">25</option>
+                                <option :value="50">50</option>
+                                <option :value="100">100</option>
+                                <option :value="-1">All</option>
                             </select>
                         </div>
-
-                        <!-- Outcome Filter -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <span class="text-gray-400 whitespace-nowrap text-[11px]">Outcome:</span>
-                            <select v-model="stockHistoryOutcomeFilter"
-                                class="bg-transparent text-gray-200 focus:outline-none w-full text-xs">
-                                <option value="ALL" class="bg-gray-800">All Trades</option>
-                                <option value="WIN" class="bg-gray-800">Profitable (Wins)</option>
-                                <option value="LOSS" class="bg-gray-800">Losses Only</option>
-                            </select>
-                        </div>
-
-                        <!-- Search -->
-                        <div
-                            class="flex items-center gap-1.5 bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5">
-                            <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" v-model="stockHistorySearchQuery" placeholder="Search ticker or date..."
-                                class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
-                            <button v-if="stockHistorySearchQuery" @click="stockHistorySearchQuery = ''"
-                                class="text-gray-400 hover:text-white">✕</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KPI Summary Cards Grid -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <!-- 1. Realized P/L in Selection -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Filtered Realized
-                            P/L</div>
-                        <div class="text-xl font-bold font-mono mt-1"
-                            :class="stockHistorySummary.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                            ${{ formatNumber(stockHistorySummary.totalPL) }}
-                        </div>
-                        <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
-                            <span>{{ stockHistorySummary.totalTrades }} closed sells</span>
-                            <span class="text-emerald-400 font-medium">{{ stockHistorySummary.winRate.toFixed(1) }}% win
-                                rate</span>
-                        </div>
                     </div>
 
-                    <!-- 2. Win / Loss Record -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Win / Loss Record
-                        </div>
-                        <div class="text-xl font-bold font-mono mt-1 text-white flex items-baseline gap-2">
-                            <span class="text-emerald-400">{{ stockHistorySummary.wins }}W</span>
-                            <span class="text-gray-500 text-sm">/</span>
-                            <span class="text-rose-400">{{ stockHistorySummary.losses }}L</span>
-                            <span v-if="stockHistorySummary.breakeven > 0" class="text-gray-400 text-xs font-normal">({{
-                                stockHistorySummary.breakeven }} Even)</span>
-                        </div>
-                        <!-- Mini Win Bar -->
-                        <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden mt-2 flex">
-                            <div class="bg-emerald-500 h-full" :style="{ width: stockHistorySummary.winRate + '%' }">
-                            </div>
-                            <div class="bg-rose-500 h-full"
-                                :style="{ width: (100 - stockHistorySummary.winRate) + '%' }"></div>
-                        </div>
-                    </div>
-
-                    <!-- 3. Capital Returned & Cost Sold -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Proceeds & Basis
-                        </div>
-                        <div class="space-y-1 mt-1 text-[11px]">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Total Proceeds:</span>
-                                <span class="font-mono font-semibold text-gray-200">${{
-                                    formatNumber(stockHistorySummary.totalProceeds) }}</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-400">Cost Basis Sold:</span>
-                                <span class="font-mono font-semibold text-gray-400">${{
-                                    formatNumber(stockHistorySummary.totalCostBasis) }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 4. Commissions & Regulatory Fees -->
-                    <div class="bg-gray-850 border border-gray-800 rounded-xl p-3">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Commissions & Fees
-                        </div>
-                        <div class="text-xl font-bold font-mono mt-1 text-amber-400">
-                            ${{ formatNumber(stockHistorySummary.totalFees) }}
-                        </div>
-                        <div class="text-[11px] text-gray-400 mt-1">
-                            Schwab & SEC regulatory transaction fees
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabs: Ledger vs Yearly Overview -->
-                <div class="flex items-center justify-between border-b border-gray-800 pt-1">
-                    <div class="flex gap-2">
-                        <button @click="stockHistoryActiveTab = 'trades'"
-                            :class="stockHistoryActiveTab === 'trades' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
-                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            Closed Stock Sells ({{ filteredStockRecords.length }})
-                        </button>
-                        <button @click="stockHistoryActiveTab = 'yearly'"
-                            :class="stockHistoryActiveTab === 'yearly' ? 'border-emerald-500 text-emerald-400 font-semibold' : 'border-transparent text-gray-400 hover:text-white'"
-                            class="pb-2 px-1 text-xs border-b-2 transition flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Yearly Performance Breakdown
-                        </button>
-                    </div>
-
-                    <!-- Per Page Selector -->
-                    <div v-if="stockHistoryActiveTab === 'trades'"
-                        class="flex items-center gap-2 text-xs text-gray-400 pb-2">
-                        <span>Show:</span>
-                        <select v-model.number="stockHistoryPerPage" @change="stockHistoryPage = 1"
-                            class="bg-gray-800 border border-gray-700 text-gray-200 rounded px-2 py-0.5 text-xs">
-                            <option :value="15">15</option>
-                            <option :value="25">25</option>
-                            <option :value="50">50</option>
-                            <option :value="100">100</option>
-                            <option :value="-1">All</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Content Area (Scrollable) -->
-                <div class="overflow-y-auto flex-1 pr-1 min-h-[300px]">
                     <!-- TAB 1: Detailed Stock Sells Ledger -->
-                    <div v-if="stockHistoryActiveTab === 'trades'">
+                    <div v-if="stockHistoryActiveTab === 'trades'" class="space-y-3">
                         <div v-if="filteredStockRecords.length === 0" class="text-center py-12 text-gray-400 text-xs">
                             No stock sell records found matching the active filters.
                             <button @click="resetStockHistoryFilters"
                                 class="block mx-auto mt-2 text-emerald-400 underline">Reset all filters</button>
                         </div>
-                        <div v-else class="overflow-x-auto">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead
-                                    class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-700">
-                                    <tr>
-                                        <th @click="toggleStockHistorySort('date')"
-                                            class="p-2.5 cursor-pointer hover:text-white transition">
-                                            Date {{ stockHistorySortKey === 'date' ? (stockHistorySortAsc ? '↑' : '↓') :
-                                            '' }}
-                                        </th>
-                                        <th @click="toggleStockHistorySort('ticker')"
-                                            class="p-2.5 cursor-pointer hover:text-white transition">
-                                            Symbol {{ stockHistorySortKey === 'ticker' ? (stockHistorySortAsc ? '↑' :
-                                            '↓') : '' }}
-                                        </th>
-                                        <th class="p-2.5 text-center">Shares</th>
-                                        <th class="p-2.5 text-right">Avg Cost / Sh</th>
-                                        <th class="p-2.5 text-right">Sale Price / Sh</th>
-                                        <th class="p-2.5 text-right">Total Cost Basis</th>
-                                        <th class="p-2.5 text-right">Net Proceeds</th>
-                                        <th class="p-2.5 text-right">Fee</th>
-                                        <th @click="toggleStockHistorySort('profit')"
-                                            class="p-2.5 text-right cursor-pointer hover:text-white transition">
-                                            Realized P/L {{ stockHistorySortKey === 'profit' ? (stockHistorySortAsc ?
-                                            '↑' : '↓') : '' }}
-                                        </th>
-                                        <th class="p-2.5 text-right">Return %</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-800 text-gray-200">
-                                    <tr v-for="rec in paginatedStockRecords" :key="rec.id"
-                                        class="hover:bg-gray-800/50 transition">
-                                        <td class="p-2.5 font-mono text-gray-400 whitespace-nowrap">{{ rec.date }}</td>
-                                        <td class="p-2.5 font-bold text-white whitespace-nowrap">{{ rec.ticker }}</td>
-                                        <td class="p-2.5 text-center font-mono font-semibold text-gray-300">{{
-                                            rec.quantity }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-300">${{
-                                            rec.entryPrice.toFixed(2) }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-300">${{
-                                            rec.closePrice.toFixed(2) }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-400">${{
-                                            formatNumber(rec.costBasis) }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-200">${{
-                                            formatNumber(rec.proceeds) }}</td>
-                                        <td class="p-2.5 text-right font-mono text-gray-400">${{ rec.fee.toFixed(2) }}
-                                        </td>
-                                        <td class="p-2.5 text-right font-mono font-bold whitespace-nowrap"
-                                            :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ rec.profit >= 0 ? '+' : '' }}${{ formatNumber(rec.profit) }}
-                                        </td>
-                                        <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap"
-                                            :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ formatPercent(rec.returnPct) }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div v-else>
+                            <!-- Mobile Card View for Stock Sells (sm:hidden) -->
+                            <div class="sm:hidden space-y-2.5">
+                                <div v-for="rec in paginatedStockRecords" :key="rec.id"
+                                    class="bg-gray-850 border border-gray-800 rounded-xl p-3 space-y-2 hover:border-gray-700 transition">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-bold text-white text-base leading-none">{{ rec.ticker }}</span>
+                                                <span class="text-xs px-1.5 py-0.5 rounded bg-emerald-950/70 border border-emerald-800/80 text-emerald-300 font-mono font-semibold">
+                                                    {{ rec.quantity }} shs
+                                                </span>
+                                            </div>
+                                            <div class="text-[10px] text-gray-500 font-mono mt-1">
+                                                Sold: {{ rec.date }}
+                                            </div>
+                                        </div>
+                                        <div class="text-right shrink-0">
+                                            <div class="text-sm font-bold font-mono"
+                                                :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatMoney(rec.profit, { sign: true }) }}
+                                            </div>
+                                            <div class="text-[10px] font-mono mt-0.5"
+                                                :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatPercent(rec.returnPct) }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Price & Basis details -->
+                                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-800/80 text-xs font-mono">
+                                        <div class="bg-gray-800/40 rounded p-1.5">
+                                            <div class="text-[10px] text-gray-400 uppercase font-sans">Avg Cost → Sold At</div>
+                                            <div class="text-gray-200 text-[11px] truncate">
+                                                {{ formatMoney(rec.entryPrice) }} → {{ formatMoney(rec.closePrice) }}
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-800/40 rounded p-1.5 text-right">
+                                            <div class="text-[10px] text-gray-400 uppercase font-sans">Basis / Proceeds</div>
+                                            <div class="text-gray-200 text-[11px] truncate">
+                                                {{ formatMoney(rec.costBasis) }} / {{ formatMoney(rec.proceeds) }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="rec.fee > 0" class="text-right text-[10px] text-gray-500 font-mono">
+                                        Fee: {{ formatMoney(rec.fee) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Desktop Table View for Stock Sells (hidden sm:block) -->
+                            <div class="hidden sm:block overflow-x-auto w-full max-w-full scrollbar-thin">
+                                <table class="min-w-[700px] w-full text-left text-xs border-collapse">
+                                    <thead
+                                        class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold sticky top-0 border-b border-gray-700">
+                                        <tr>
+                                            <th @click="toggleStockHistorySort('date')"
+                                                class="p-2.5 cursor-pointer hover:text-white transition">
+                                                Date {{ stockHistorySortKey === 'date' ? (stockHistorySortAsc ? '↑' : '↓') :
+                                                '' }}
+                                            </th>
+                                            <th @click="toggleStockHistorySort('ticker')"
+                                                class="p-2.5 cursor-pointer hover:text-white transition">
+                                                Symbol {{ stockHistorySortKey === 'ticker' ? (stockHistorySortAsc ? '↑' :
+                                                '↓') : '' }}
+                                            </th>
+                                            <th class="p-2.5 text-center">Shares</th>
+                                            <th class="p-2.5 text-right">Avg Cost / Sh</th>
+                                            <th class="p-2.5 text-right">Sale Price / Sh</th>
+                                            <th class="p-2.5 text-right">Total Cost Basis</th>
+                                            <th class="p-2.5 text-right">Net Proceeds</th>
+                                            <th class="p-2.5 text-right">Fee</th>
+                                            <th @click="toggleStockHistorySort('profit')"
+                                                class="p-2.5 text-right cursor-pointer hover:text-white transition">
+                                                Realized P/L {{ stockHistorySortKey === 'profit' ? (stockHistorySortAsc ?
+                                                '↑' : '↓') : '' }}
+                                            </th>
+                                            <th class="p-2.5 text-right">Return %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800 text-gray-200">
+                                        <tr v-for="rec in paginatedStockRecords" :key="rec.id"
+                                            class="hover:bg-gray-800/50 transition">
+                                            <td class="p-2.5 font-mono text-gray-400 whitespace-nowrap">{{ rec.date }}</td>
+                                            <td class="p-2.5 font-bold text-white whitespace-nowrap">{{ rec.ticker }}</td>
+                                            <td class="p-2.5 text-center font-mono font-semibold text-gray-300">{{
+                                                rec.quantity }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-300">{{
+                                                formatMoney(rec.entryPrice) }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-300">{{
+                                                formatMoney(rec.closePrice) }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-400">{{
+                                                formatMoney(rec.costBasis) }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-200">{{
+                                                formatMoney(rec.proceeds) }}</td>
+                                            <td class="p-2.5 text-right font-mono text-gray-400">{{ formatMoney(rec.fee) }}
+                                            </td>
+                                            <td class="p-2.5 text-right font-mono font-bold whitespace-nowrap"
+                                                :class="rec.profit >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatMoney(rec.profit, { sign: true }) }}
+                                            </td>
+                                            <td class="p-2.5 text-right font-mono text-[11px] whitespace-nowrap"
+                                                :class="rec.returnPct >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                                {{ formatPercent(rec.returnPct) }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
                         <!-- Pagination Controls -->
                         <div v-if="stockHistoryPerPage !== -1 && stockHistoryTotalPages > 1"
-                            class="flex items-center justify-between border-t border-gray-800 pt-3 mt-2 text-xs text-gray-400">
+                            class="flex flex-col sm:flex-row items-center justify-between border-t border-gray-800 pt-3 mt-2 text-xs text-gray-400 gap-2">
                             <div>
                                 Showing {{ (stockHistoryPage - 1) * stockHistoryPerPage + 1 }} -
                                 {{ Math.min(stockHistoryPage * stockHistoryPerPage, filteredStockRecords.length) }}
@@ -3779,8 +4264,45 @@
 
                     <!-- TAB 2: Yearly Performance Breakdown Table -->
                     <div v-if="stockHistoryActiveTab === 'yearly'" class="space-y-4">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs border-collapse">
+                        <!-- Mobile Card View for Yearly Breakdown (sm:hidden) -->
+                        <div class="sm:hidden space-y-2.5">
+                            <div v-for="y in stockYearlySummary" :key="y.year"
+                                class="bg-gray-850 border border-gray-800 rounded-xl p-3 space-y-2.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-mono font-bold text-white text-base">{{ y.year }}</span>
+                                    <div class="text-right">
+                                        <div class="text-sm font-bold font-mono"
+                                            :class="y.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ formatMoney(y.totalPL, { sign: true }) }}
+                                        </div>
+                                        <div class="text-[10px] text-emerald-400 font-mono">
+                                            {{ y.winRate.toFixed(1) }}% win rate
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-xs font-mono bg-gray-800/40 rounded-lg p-2">
+                                    <div>
+                                        <span class="text-gray-400">Record:</span>
+                                        <span class="text-emerald-400 ml-1">{{ y.wins }}W</span> / <span class="text-rose-400">{{ y.losses }}L</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-gray-400">Proceeds:</span>
+                                        <span class="text-gray-200 ml-1">{{ formatMoney(y.totalProceeds) }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-1 border-t border-gray-800 text-xs">
+                                    <span class="text-gray-400 text-[11px]">Top: <strong class="text-white">{{ y.topTicker }}</strong></span>
+                                    <button @click="setStockHistoryYear(y.year); stockHistoryActiveTab = 'trades'"
+                                        class="px-2 py-0.5 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 text-[11px] font-semibold">
+                                        View {{ y.year }} Sells →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Table View for Yearly (hidden sm:block) -->
+                        <div class="hidden sm:block overflow-x-auto w-full max-w-full scrollbar-thin">
+                            <table class="min-w-[650px] w-full text-left text-xs border-collapse">
                                 <thead
                                     class="bg-gray-800/80 text-gray-400 uppercase text-[10px] font-semibold border-b border-gray-700">
                                     <tr>
@@ -3799,7 +4321,7 @@
                                         <td class="p-3 font-mono font-bold text-white text-sm">{{ y.year }}</td>
                                         <td class="p-3 text-right font-mono font-bold text-sm"
                                             :class="y.totalPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                                            {{ y.totalPL >= 0 ? '+' : '' }}${{ formatNumber(y.totalPL) }}
+                                            {{ formatMoney(y.totalPL, { sign: true }) }}
                                         </td>
                                         <td class="p-3 text-center font-mono font-semibold text-emerald-400">
                                             {{ y.winRate.toFixed(1) }}%
@@ -3810,7 +4332,7 @@
                                             <span class="text-gray-500 text-[11px] ml-1">({{ y.trades }})</span>
                                         </td>
                                         <td class="p-3 text-right font-mono text-gray-200">
-                                            ${{ formatNumber(y.totalProceeds) }}
+                                            {{ formatMoney(y.totalProceeds) }}
                                         </td>
                                         <td class="p-3 font-semibold text-gray-200">
                                             {{ y.topTicker }}
@@ -3829,14 +4351,14 @@
                     </div>
                 </div>
 
-                <!-- Modal Footer -->
-                <div class="flex justify-between items-center pt-3 border-t border-gray-800 text-xs text-gray-400">
+                <!-- Modal Footer (Fixed at bottom) -->
+                <div class="flex-shrink-0 flex flex-col sm:flex-row justify-between items-center gap-2 pt-3 border-t border-gray-800 text-xs text-gray-400">
                     <span class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         Uses chronological cost basis matching across all stock purchases and sales.
                     </span>
                     <button type="button" @click="closeStockHistoryModal"
-                        class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700">
+                        class="w-full sm:w-auto px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition border border-gray-700">
                         Close
                     </button>
                 </div>
@@ -4190,10 +4712,214 @@
                     }
                 };
 
-                // Cost Basis Accounting Method State ('FIFO' | 'LIFO' | 'AVG')
+                // Theme Mode State ('dark' | 'oled' | 'light')
+                const themeMode = ref(localStorage.getItem('theme_mode') || 'dark');
+                const setThemeMode = (mode) => {
+                    if (['dark', 'oled', 'light'].includes(mode)) {
+                        themeMode.value = mode;
+                        localStorage.setItem('theme_mode', mode);
+                        document.documentElement.classList.remove('theme-oled', 'theme-light');
+                        if (document.body) {
+                            document.body.classList.remove('theme-oled', 'theme-light');
+                        }
+                        if (mode === 'oled') {
+                            document.documentElement.classList.add('theme-oled');
+                            if (document.body) document.body.classList.add('theme-oled');
+                        } else if (mode === 'light') {
+                            document.documentElement.classList.add('theme-light');
+                            if (document.body) document.body.classList.add('theme-light');
+                        }
+                    }
+                };
+
+                // Multi-Currency & FX Exchange State
+                const SUPPORTED_CURRENCIES = [
+                    { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸' },
+                    { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM', flag: '🇲🇾' },
+                    { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', flag: '🇸🇬' },
+                    { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺' },
+                    { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧' },
+                    { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$', flag: '🇭🇰' },
+                    { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵' },
+                    { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', flag: '🇨🇦' },
+                    { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', flag: '🇦🇺' }
+                ];
+
+                const DEFAULT_EXCHANGE_RATES = {
+                    USD: 1.0,
+                    MYR: 4.08,
+                    SGD: 1.28,
+                    EUR: 0.87,
+                    GBP: 0.76,
+                    HKD: 7.82,
+                    JPY: 155.0,
+                    CAD: 1.36,
+                    AUD: 1.52
+                };
+
+                let initialRates = { ...DEFAULT_EXCHANGE_RATES };
+                try {
+                    const cached = localStorage.getItem('exchange_rates');
+                    if (cached) initialRates = { ...initialRates, ...JSON.parse(cached) };
+                } catch (e) {
+                    console.warn("Could not parse cached exchange rates", e);
+                }
+
+                let initialCustomRates = {};
+                try {
+                    const savedCustom = localStorage.getItem('custom_fx_rates');
+                    if (savedCustom) initialCustomRates = JSON.parse(savedCustom);
+                } catch (e) {
+                    initialCustomRates = {};
+                }
+
+                const selectedCurrency = ref(localStorage.getItem('selected_currency') || 'USD');
+                const exchangeRates = ref(initialRates);
+                const customFxRates = ref(initialCustomRates);
+                const fxLastUpdated = ref(localStorage.getItem('fx_last_updated') || '');
+                const isFetchingFx = ref(false);
+                const showCurrencyDropdown = ref(false);
+                const showCurrencyModal = ref(false);
+                const customRateInput = ref('');
+
+                const activeCurrencyObj = computed(() => {
+                    return SUPPORTED_CURRENCIES.find(c => c.code === selectedCurrency.value) || SUPPORTED_CURRENCIES[0];
+                });
+
+                const currencySymbol = computed(() => {
+                    return activeCurrencyObj.value ? activeCurrencyObj.value.symbol : '$';
+                });
+
+                const activeFxRate = computed(() => {
+                    const code = selectedCurrency.value;
+                    if (code === 'USD') return 1.0;
+                    if (customFxRates.value && customFxRates.value[code] && !isNaN(customFxRates.value[code])) {
+                        return parseFloat(customFxRates.value[code]);
+                    }
+                    if (exchangeRates.value && exchangeRates.value[code] && !isNaN(exchangeRates.value[code])) {
+                        return parseFloat(exchangeRates.value[code]);
+                    }
+                    return 1.0;
+                });
+
+                const selectCurrency = (code) => {
+                    selectedCurrency.value = code;
+                    localStorage.setItem('selected_currency', code);
+                    if (customFxRates.value && customFxRates.value[code]) {
+                        customRateInput.value = customFxRates.value[code].toString();
+                    } else {
+                        customRateInput.value = '';
+                    }
+                };
+
+                const openCurrencyModal = () => {
+                    const code = selectedCurrency.value;
+                    if (customFxRates.value && customFxRates.value[code]) {
+                        customRateInput.value = customFxRates.value[code].toString();
+                    } else {
+                        customRateInput.value = '';
+                    }
+                    showCurrencyModal.value = true;
+                };
+
+                const saveCustomFxRate = () => {
+                    const code = selectedCurrency.value;
+                    if (code === 'USD') {
+                        showNotification("USD is the base currency (1.00) and cannot be overridden.", "error");
+                        return;
+                    }
+                    const parsed = parseFloat(customRateInput.value);
+                    if (!isNaN(parsed) && parsed > 0) {
+                        customFxRates.value = { ...customFxRates.value, [code]: parsed };
+                        localStorage.setItem('custom_fx_rates', JSON.stringify(customFxRates.value));
+                        showNotification(`Saved custom FX rate for ${code}: 1 USD = ${parsed}`, "success");
+                    } else {
+                        showNotification("Please enter a valid positive exchange rate.", "error");
+                    }
+                };
+
+                const resetCustomFxRate = (code) => {
+                    if (customFxRates.value && customFxRates.value[code]) {
+                        const nextCustom = { ...customFxRates.value };
+                        delete nextCustom[code];
+                        customFxRates.value = nextCustom;
+                        localStorage.setItem('custom_fx_rates', JSON.stringify(nextCustom));
+                        customRateInput.value = '';
+                        showNotification(`Reset ${code} to live market exchange rate`, "info");
+                    }
+                };
+
+                const fetchExchangeRates = async (force = false) => {
+                    const lastUpdatedTime = localStorage.getItem('fx_last_updated_epoch');
+                    const now = Date.now();
+                    // Cache for 6 hours unless force is true
+                    if (!force && lastUpdatedTime && (now - parseInt(lastUpdatedTime, 10)) < 21600000) {
+                        return;
+                    }
+                    isFetchingFx.value = true;
+                    try {
+                        const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const data = await res.json();
+                        if (data && data.rates) {
+                            const updated = { ...exchangeRates.value };
+                            SUPPORTED_CURRENCIES.forEach(c => {
+                                if (data.rates[c.code]) {
+                                    updated[c.code] = parseFloat(data.rates[c.code]);
+                                }
+                            });
+                            exchangeRates.value = updated;
+                            localStorage.setItem('exchange_rates', JSON.stringify(updated));
+
+                            const dateStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date().toLocaleDateString([], { month: 'short', day: 'numeric' });
+                            fxLastUpdated.value = dateStr;
+                            localStorage.setItem('fx_last_updated', dateStr);
+                            localStorage.setItem('fx_last_updated_epoch', now.toString());
+
+                            if (force) {
+                                showNotification("Live exchange rates updated successfully!", "success");
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Failed to fetch live FX rates:", e);
+                        if (force) {
+                            showNotification("Could not fetch live rates. Using cached rates.", "warning");
+                        }
+                    } finally {
+                        isFetchingFx.value = false;
+                    }
+                };
+
+                const fx = (usdNum) => {
+                    const num = (usdNum !== undefined && usdNum !== null && !isNaN(usdNum)) ? Number(usdNum) : 0;
+                    return num * activeFxRate.value;
+                };
+
+                const formatMoney = (usdNum, options = {}) => {
+                    const { sign = false, showSymbol = true } = options;
+                    const num = (usdNum !== undefined && usdNum !== null && !isNaN(usdNum)) ? Number(usdNum) : 0;
+                    const val = num * (activeFxRate.value || 1);
+                    const isNeg = val < -0.0001;
+                    const isPos = val > 0.0001;
+                    const absVal = Math.abs(val);
+                    const decimals = selectedCurrency.value === 'JPY' ? 0 : 2;
+                    const formattedNum = absVal.toLocaleString(undefined, {
+                        minimumFractionDigits: decimals,
+                        maximumFractionDigits: decimals
+                    });
+                    const sym = showSymbol ? (currencySymbol.value ? currencySymbol.value + (['RM', 'S$', 'HK$', 'CA$', 'A$'].includes(currencySymbol.value) ? ' ' : '') : '$') : '';
+                    if (sign) {
+                        if (isNeg) return `-${sym}${formattedNum}`;
+                        if (isPos) return `+${sym}${formattedNum}`;
+                        return `${sym}${formattedNum}`;
+                    }
+                    return isNeg ? `-${sym}${formattedNum}` : `${sym}${formattedNum}`;
+                };
+
+                // Cost Basis Accounting Method State ('FIFO' | 'LIFO' | 'HIFO' | 'AVG')
                 const costBasisMethod = ref(localStorage.getItem('cost_basis_method') || 'FIFO');
                 const setCostBasisMethod = (method) => {
-                    if (['FIFO', 'LIFO', 'AVG'].includes(method)) {
+                    if (['FIFO', 'LIFO', 'HIFO', 'AVG'].includes(method)) {
                         costBasisMethod.value = method;
                         localStorage.setItem('cost_basis_method', method);
                     }
@@ -4622,6 +5348,12 @@ function doPost(e) {
 
                     // Automatically apply configured ticker aliases silently
                     applyTickerAliasesToLedger(false);
+
+                    // Theme initialization
+                    setThemeMode(themeMode.value);
+
+                    // Fetch live FX rates on load (silently cached)
+                    fetchExchangeRates(false);
 
                     // Initial chart draw
                     updateAllocationChart();
@@ -5698,7 +6430,7 @@ No markdown fences or commentary outside the JSON.`;
                         });
                     }
 
-                    // FIFO or LIFO Tax Lot Accounting
+                    // FIFO, LIFO, or HIFO Tax Lot Accounting
                     const lotsMap = {};
                     chronTransactions.forEach(tx => {
                         const ticker = resolveTicker(tx.ticker);
@@ -5710,15 +6442,19 @@ No markdown fences or commentary outside the JSON.`;
                             lots.push({
                                 quantity: tx.quantity,
                                 unitCost: unitCost,
-                                totalCost: (tx.quantity * tx.price) + (tx.fee || 0)
+                                totalCost: (tx.quantity * tx.price) + (tx.fee || 0),
+                                order: lots.length
                             });
                         } else if (tx.action === 'Sell') {
                             let needed = tx.quantity;
+                            if (method === 'HIFO') {
+                                lots.sort((a, b) => (b.unitCost - a.unitCost) || (a.order - b.order));
+                            }
                             while (needed > 0.000001 && lots.length > 0) {
-                                const targetLot = method === 'FIFO' ? lots[0] : lots[lots.length - 1];
+                                const targetLot = (method === 'FIFO' || method === 'HIFO') ? lots[0] : lots[lots.length - 1];
                                 if (targetLot.quantity <= needed + 0.000001) {
                                     needed -= targetLot.quantity;
-                                    if (method === 'FIFO') lots.shift();
+                                    if (method === 'FIFO' || method === 'HIFO') lots.shift();
                                     else lots.pop();
                                 } else {
                                     targetLot.quantity -= needed;
@@ -6198,7 +6934,7 @@ No markdown fences or commentary outside the JSON.`;
                             }
                         });
                     } else {
-                        // FIFO or LIFO Tax Lot Matching for Realized Trades
+                        // FIFO, LIFO, or HIFO Tax Lot Matching for Realized Trades
                         const lotsMap = {};
                         chronTransactions.forEach(tx => {
                             const ticker = resolveTicker(tx.ticker);
@@ -6210,17 +6946,21 @@ No markdown fences or commentary outside the JSON.`;
                                 lots.push({
                                     quantity: tx.quantity,
                                     unitCost: unitCost,
-                                    totalCost: (tx.quantity * tx.price) + (tx.fee || 0)
+                                    totalCost: (tx.quantity * tx.price) + (tx.fee || 0),
+                                    order: lots.length
                                 });
                             } else if (tx.action === 'Sell') {
                                 let needed = tx.quantity;
                                 let costBasisSold = 0;
+                                if (method === 'HIFO') {
+                                    lots.sort((a, b) => (b.unitCost - a.unitCost) || (a.order - b.order));
+                                }
                                 while (needed > 0.000001 && lots.length > 0) {
-                                    const targetLot = method === 'FIFO' ? lots[0] : lots[lots.length - 1];
+                                    const targetLot = (method === 'FIFO' || method === 'HIFO') ? lots[0] : lots[lots.length - 1];
                                     if (targetLot.quantity <= needed + 0.000001) {
                                         needed -= targetLot.quantity;
                                         costBasisSold += targetLot.totalCost;
-                                        if (method === 'FIFO') lots.shift();
+                                        if (method === 'FIFO' || method === 'HIFO') lots.shift();
                                         else lots.pop();
                                     } else {
                                         const costChunk = needed * targetLot.unitCost;
@@ -7942,6 +8682,29 @@ No markdown fences or commentary outside the JSON.`;
                     totalPortfolioNetPL,
                     costBasisMethod,
                     setCostBasisMethod,
+                    // Theme Switcher
+                    themeMode,
+                    setThemeMode,
+                    // Multi-Currency & FX
+                    SUPPORTED_CURRENCIES,
+                    selectedCurrency,
+                    exchangeRates,
+                    customFxRates,
+                    fxLastUpdated,
+                    isFetchingFx,
+                    showCurrencyDropdown,
+                    showCurrencyModal,
+                    customRateInput,
+                    activeCurrencyObj,
+                    currencySymbol,
+                    activeFxRate,
+                    selectCurrency,
+                    openCurrencyModal,
+                    saveCustomFxRate,
+                    resetCustomFxRate,
+                    fetchExchangeRates,
+                    fx,
+                    formatMoney,
                     stockHoldingsSortKey,
                     stockHoldingsSortAsc,
                     stockHoldingsSearch,
