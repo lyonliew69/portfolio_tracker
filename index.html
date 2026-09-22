@@ -2933,13 +2933,23 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-2">
-                                <input type="checkbox" id="autoSyncCheckbox" v-model="cloudAutoSync"
-                                    @change="saveCloudWebhookSettings"
-                                    class="rounded bg-gray-900 border-gray-700 text-sky-600 focus:ring-0">
-                                <label for="autoSyncCheckbox" class="text-xs text-gray-300 cursor-pointer">
-                                    Automatically upload to cloud whenever I add, edit, or delete transactions
-                                </label>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="autoPullCheckbox" v-model="cloudAutoPullOnLoad"
+                                        @change="saveCloudWebhookSettings"
+                                        class="rounded bg-gray-900 border-gray-700 text-sky-600 focus:ring-0">
+                                    <label for="autoPullCheckbox" class="text-xs text-gray-300 cursor-pointer font-medium">
+                                        Automatically pull latest transactions from cloud on page load or refresh
+                                    </label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="autoSyncCheckbox" v-model="cloudAutoSync"
+                                        @change="saveCloudWebhookSettings"
+                                        class="rounded bg-gray-900 border-gray-700 text-sky-600 focus:ring-0">
+                                    <label for="autoSyncCheckbox" class="text-xs text-gray-300 cursor-pointer">
+                                        Automatically upload to cloud whenever I add, edit, or delete transactions
+                                    </label>
+                                </div>
                             </div>
 
                             <div class="flex flex-wrap gap-2 pt-1">
@@ -4245,6 +4255,7 @@
                 const showStorageHubModal = ref(false);
                 const cloudWebhookUrl = ref(localStorage.getItem('cloud_webhook_url') || '');
                 const cloudAutoSync = ref(localStorage.getItem('cloud_auto_sync') !== 'false');
+                const cloudAutoPullOnLoad = ref(localStorage.getItem('cloud_auto_pull_on_load') !== 'false');
                 const lastCloudSyncTime = ref(localStorage.getItem('cloud_last_sync') || '');
                 const isSyncingCloud = ref(false);
                 const showAdvancedCloud = ref(false);
@@ -4447,6 +4458,7 @@
                     cloudWebhookUrl.value = url;
                     localStorage.setItem('cloud_webhook_url', url);
                     localStorage.setItem('cloud_auto_sync', cloudAutoSync.value);
+                    localStorage.setItem('cloud_auto_pull_on_load', cloudAutoPullOnLoad.value);
                     showNotification("Cloud storage settings saved.", "success");
                 };
 
@@ -4473,9 +4485,9 @@
                     }
                 };
 
-                const pullFromCloudWebhook = async () => {
+                const pullFromCloudWebhook = async (silent = false) => {
                     if (!cloudWebhookUrl.value) {
-                        showNotification("Please enter a Cloud Webhook URL first.", "error");
+                        if (!silent) showNotification("Please enter a Cloud Webhook URL first.", "error");
                         return;
                     }
                     isSyncingCloud.value = true;
@@ -4487,13 +4499,13 @@
                             await saveLedgerData();
                             lastCloudSyncTime.value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                             localStorage.setItem('cloud_last_sync', lastCloudSyncTime.value);
-                            showNotification(`Successfully loaded ${data.length} transactions from Cloud!`, "success");
+                            showNotification(`Loaded ${data.length} transactions from Cloud.`, "success");
                         } else {
-                            showNotification("Cloud response format invalid: expected an array of transactions.", "error");
+                            if (!silent) showNotification("Cloud response format invalid: expected an array of transactions.", "error");
                         }
                     } catch (err) {
                         console.error(err);
-                        showNotification("Failed to load records from Cloud.", "error");
+                        if (!silent) showNotification("Failed to load records from Cloud.", "error");
                     } finally {
                         isSyncingCloud.value = false;
                     }
@@ -4592,6 +4604,11 @@ function doPost(e) {
                         const savedTx = localStorage.getItem('tx_portfolio_data');
                         if (savedTx) transactions.value = JSON.parse(savedTx);
                         else loadMockData();
+                    }
+
+                    // Auto-pull latest transactions from Cloud Webhook on page load/refresh
+                    if (cloudWebhookUrl.value && cloudAutoPullOnLoad.value) {
+                        pullFromCloudWebhook(true);
                     }
 
                     const savedPrices = localStorage.getItem('tx_market_prices');
@@ -7961,6 +7978,7 @@ No markdown fences or commentary outside the JSON.`;
                     showStorageHubModal,
                     cloudWebhookUrl,
                     cloudAutoSync,
+                    cloudAutoPullOnLoad,
                     lastCloudSyncTime,
                     isSyncingCloud,
                     showAdvancedCloud,
