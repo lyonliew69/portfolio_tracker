@@ -348,6 +348,52 @@
                                 Settings & Keys
                             </div>
 
+                            <!-- Cost Basis Method Switcher -->
+                            <div class="px-3 py-2.5 hover:bg-gray-800/60 transition">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded bg-emerald-950/70 border border-emerald-800/60 flex items-center justify-center text-emerald-400 text-xs font-mono font-bold">
+                                            ∑
+                                        </div>
+                                        <div>
+                                            <div class="text-xs font-medium text-gray-200">Cost Basis Method</div>
+                                            <div class="text-[10px] text-gray-400">Stock accounting mode</div>
+                                        </div>
+                                    </div>
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold bg-gray-700 text-emerald-300 border border-gray-600">
+                                        {{ costBasisMethod }}
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-1 bg-gray-900/90 p-1 rounded-lg border border-gray-700/80">
+                                    <button @click="setCostBasisMethod('FIFO')"
+                                        type="button"
+                                        class="py-1 text-[11px] font-semibold rounded text-center transition-all"
+                                        :class="costBasisMethod === 'FIFO' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="First-In, First-Out: Earliest purchased lots sold first (Schwab / IRS standard)">
+                                        FIFO
+                                    </button>
+                                    <button @click="setCostBasisMethod('LIFO')"
+                                        type="button"
+                                        class="py-1 text-[11px] font-semibold rounded text-center transition-all"
+                                        :class="costBasisMethod === 'LIFO' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="Last-In, First-Out (First In, Last Out): Most recent lots sold first">
+                                        LIFO
+                                    </button>
+                                    <button @click="setCostBasisMethod('AVG')"
+                                        type="button"
+                                        class="py-1 text-[11px] font-semibold rounded text-center transition-all"
+                                        :class="costBasisMethod === 'AVG' ? 'bg-emerald-600 text-white shadow-sm font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/80'"
+                                        title="Continuous Moving Weighted Average cost basis">
+                                        AVG
+                                    </button>
+                                </div>
+                                <div class="text-[9.5px] text-gray-400 mt-1.5 leading-tight italic">
+                                    <span v-if="costBasisMethod === 'FIFO'">FIFO: Closes earliest lots first (Broker default).</span>
+                                    <span v-else-if="costBasisMethod === 'LIFO'">LIFO: Closes newest lots first (First in, last out).</span>
+                                    <span v-else>AVG: Continuous blended weighted average price.</span>
+                                </div>
+                            </div>
+
                             <!-- API & AI Configuration -->
                             <button @click="showApiModal = true; showToolsDropdown = false"
                                 class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-200 hover:text-white flex items-center gap-2.5 transition group cursor-pointer">
@@ -1111,6 +1157,11 @@
                                     {{ sortedAndFilteredStockHoldings.length }} <span
                                         v-if="sortedAndFilteredStockHoldings.length !== computedStockHoldings.length">of
                                         {{ computedStockHoldings.length }}</span> Positions
+                                </span>
+                                <span
+                                    class="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-750 border border-gray-650 text-emerald-300 font-mono"
+                                    :title="'Accounting Method: ' + (costBasisMethod === 'FIFO' ? 'First-In, First-Out' : (costBasisMethod === 'LIFO' ? 'Last-In, First-Out' : 'Moving Average')) + ' (Change in Tools menu)'">
+                                    {{ costBasisMethod }}
                                 </span>
                             </div>
                             <span class="text-xs text-gray-400 font-normal">P/L fluctuates with current market
@@ -4129,6 +4180,15 @@
                     }
                 };
 
+                // Cost Basis Accounting Method State ('FIFO' | 'LIFO' | 'AVG')
+                const costBasisMethod = ref(localStorage.getItem('cost_basis_method') || 'FIFO');
+                const setCostBasisMethod = (method) => {
+                    if (['FIFO', 'LIFO', 'AVG'].includes(method)) {
+                        costBasisMethod.value = method;
+                        localStorage.setItem('cost_basis_method', method);
+                    }
+                };
+
                 // Stock Holdings Table State (Enhancement 4)
                 const stockHoldingsSortKey = ref('marketValue');
                 const stockHoldingsSortAsc = ref(false);
@@ -5576,47 +5636,107 @@ No markdown fences or commentary outside the JSON.`;
                 });
 
                 const computedStockHoldings = computed(() => {
-                    const stockMap = {};
+                    const method = costBasisMethod.value || 'FIFO';
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Stock')
                         .sort(compareChronologicalAscending);
 
+                    if (method === 'AVG') {
+                        const stockMap = {};
+                        chronTransactions.forEach(tx => {
+                            const ticker = resolveTicker(tx.ticker);
+                            if (!stockMap[ticker]) {
+                                stockMap[ticker] = { symbol: ticker, quantity: 0, totalCost: 0, avgCost: 0 };
+                            }
+                            const stock = stockMap[ticker];
+
+                            if (tx.action === 'Buy') {
+                                stock.quantity += tx.quantity;
+                                stock.totalCost += (tx.quantity * tx.price) + (tx.fee || 0);
+                                stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
+                            } else if (tx.action === 'Sell') {
+                                const costBasisSold = tx.quantity * stock.avgCost;
+                                stock.quantity -= tx.quantity;
+                                stock.totalCost -= costBasisSold;
+                                if (stock.quantity <= 0.0001) {
+                                    stock.quantity = 0;
+                                    stock.totalCost = 0;
+                                    stock.avgCost = 0;
+                                }
+                            }
+                        });
+
+                        return Object.values(stockMap).filter(s => s.quantity > 0.0001).map(s => {
+                            const currentPrice = marketPrices.value[s.symbol] || s.avgCost;
+                            const marketValue = s.quantity * currentPrice;
+                            const unrealizedPL = marketValue - s.totalCost;
+                            const unrealizedPercent = s.totalCost > 0 ? (unrealizedPL / s.totalCost) * 100 : 0;
+                            return {
+                                ...s,
+                                currentPrice,
+                                marketValue,
+                                unrealizedPL,
+                                unrealizedPercent
+                            };
+                        });
+                    }
+
+                    // FIFO or LIFO Tax Lot Accounting
+                    const lotsMap = {};
                     chronTransactions.forEach(tx => {
                         const ticker = resolveTicker(tx.ticker);
-                        if (!stockMap[ticker]) {
-                            stockMap[ticker] = { symbol: ticker, quantity: 0, totalCost: 0, avgCost: 0 };
-                        }
-                        const stock = stockMap[ticker];
+                        if (!lotsMap[ticker]) lotsMap[ticker] = [];
+                        const lots = lotsMap[ticker];
 
                         if (tx.action === 'Buy') {
-                            stock.quantity += tx.quantity;
-                            stock.totalCost += (tx.quantity * tx.price) + (tx.fee || 0);
-                            stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
+                            const unitCost = tx.quantity > 0 ? (tx.price + ((tx.fee || 0) / tx.quantity)) : tx.price;
+                            lots.push({
+                                quantity: tx.quantity,
+                                unitCost: unitCost,
+                                totalCost: (tx.quantity * tx.price) + (tx.fee || 0)
+                            });
                         } else if (tx.action === 'Sell') {
-                            const costBasisSold = tx.quantity * stock.avgCost;
-                            stock.quantity -= tx.quantity;
-                            stock.totalCost -= costBasisSold;
-                            if (stock.quantity <= 0) {
-                                stock.quantity = 0;
-                                stock.totalCost = 0;
-                                stock.avgCost = 0;
+                            let needed = tx.quantity;
+                            while (needed > 0.000001 && lots.length > 0) {
+                                const targetLot = method === 'FIFO' ? lots[0] : lots[lots.length - 1];
+                                if (targetLot.quantity <= needed + 0.000001) {
+                                    needed -= targetLot.quantity;
+                                    if (method === 'FIFO') lots.shift();
+                                    else lots.pop();
+                                } else {
+                                    targetLot.quantity -= needed;
+                                    targetLot.totalCost = targetLot.quantity * targetLot.unitCost;
+                                    needed = 0;
+                                }
                             }
                         }
                     });
 
-                    return Object.values(stockMap).filter(s => s.quantity > 0).map(s => {
-                        const currentPrice = marketPrices.value[s.symbol] || s.avgCost;
-                        const marketValue = s.quantity * currentPrice;
-                        const unrealizedPL = marketValue - s.totalCost;
-                        const unrealizedPercent = s.totalCost > 0 ? (unrealizedPL / s.totalCost) * 100 : 0;
-                        return {
-                            ...s,
-                            currentPrice,
-                            marketValue,
-                            unrealizedPL,
-                            unrealizedPercent
-                        };
+                    const holdings = [];
+                    Object.keys(lotsMap).forEach(ticker => {
+                        const lots = lotsMap[ticker];
+                        const quantity = lots.reduce((sum, l) => sum + l.quantity, 0);
+                        if (quantity > 0.0001) {
+                            const totalCost = lots.reduce((sum, l) => sum + l.totalCost, 0);
+                            const avgCost = quantity > 0 ? (totalCost / quantity) : 0;
+                            const currentPrice = marketPrices.value[ticker] || avgCost;
+                            const marketValue = quantity * currentPrice;
+                            const unrealizedPL = marketValue - totalCost;
+                            const unrealizedPercent = totalCost > 0 ? (unrealizedPL / totalCost) * 100 : 0;
+                            holdings.push({
+                                symbol: ticker,
+                                quantity,
+                                totalCost,
+                                avgCost,
+                                currentPrice,
+                                marketValue,
+                                unrealizedPL,
+                                unrealizedPercent
+                            });
+                        }
                     });
+
+                    return holdings;
                 });
 
                 const computedOptionHoldings = computed(() => {
@@ -6011,53 +6131,110 @@ No markdown fences or commentary outside the JSON.`;
                 });
 
                 const allRealizedStockRecords = computed(() => {
+                    const method = costBasisMethod.value || 'FIFO';
                     const records = [];
-                    const stockMap = {};
                     const chronTransactions = [...transactions.value]
                         .filter(tx => tx.assetType === 'Stock')
                         .sort(compareChronologicalAscending);
 
-                    chronTransactions.forEach(tx => {
-                        const ticker = resolveTicker(tx.ticker);
-                        if (!stockMap[ticker]) {
-                            stockMap[ticker] = { quantity: 0, totalCost: 0, avgCost: 0 };
-                        }
-                        const stock = stockMap[ticker];
-
-                        if (tx.action === 'Buy') {
-                            stock.quantity += tx.quantity;
-                            stock.totalCost += (tx.quantity * tx.price) + (tx.fee || 0);
-                            stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
-                        } else if (tx.action === 'Sell') {
-                            const costBasisSold = tx.quantity * stock.avgCost;
-                            const proceeds = (tx.quantity * tx.price) - (tx.fee || 0);
-                            const profit = proceeds - costBasisSold;
-                            const entryCostPerShare = stock.avgCost;
-                            records.push({
-                                id: tx.id || `stock_rec_${records.length}`,
-                                date: tx.date,
-                                year: tx.date ? tx.date.substring(0, 4) : '',
-                                ticker: ticker,
-                                quantity: tx.quantity,
-                                entryPrice: entryCostPerShare,
-                                closePrice: tx.price,
-                                costBasis: costBasisSold,
-                                proceeds: proceeds,
-                                fee: tx.fee || 0,
-                                profit: profit,
-                                returnPct: costBasisSold > 0 ? (profit / costBasisSold) * 100 : 0
-                            });
-                            stock.quantity -= tx.quantity;
-                            stock.totalCost -= costBasisSold;
-                            if (stock.quantity <= 0.0001) {
-                                stock.quantity = 0;
-                                stock.totalCost = 0;
-                                stock.avgCost = 0;
-                            } else {
-                                stock.avgCost = stock.totalCost / stock.quantity;
+                    if (method === 'AVG') {
+                        const stockMap = {};
+                        chronTransactions.forEach(tx => {
+                            const ticker = resolveTicker(tx.ticker);
+                            if (!stockMap[ticker]) {
+                                stockMap[ticker] = { quantity: 0, totalCost: 0, avgCost: 0 };
                             }
-                        }
-                    });
+                            const stock = stockMap[ticker];
+
+                            if (tx.action === 'Buy') {
+                                stock.quantity += tx.quantity;
+                                stock.totalCost += (tx.quantity * tx.price) + (tx.fee || 0);
+                                stock.avgCost = stock.quantity > 0 ? (stock.totalCost / stock.quantity) : 0;
+                            } else if (tx.action === 'Sell') {
+                                const costBasisSold = tx.quantity * stock.avgCost;
+                                const proceeds = (tx.quantity * tx.price) - (tx.fee || 0);
+                                const profit = proceeds - costBasisSold;
+                                const entryCostPerShare = stock.avgCost;
+                                records.push({
+                                    id: tx.id || `stock_rec_${records.length}`,
+                                    date: tx.date,
+                                    year: tx.date ? tx.date.substring(0, 4) : '',
+                                    ticker: ticker,
+                                    quantity: tx.quantity,
+                                    entryPrice: entryCostPerShare,
+                                    closePrice: tx.price,
+                                    costBasis: costBasisSold,
+                                    proceeds: proceeds,
+                                    fee: tx.fee || 0,
+                                    profit: profit,
+                                    returnPct: costBasisSold > 0 ? (profit / costBasisSold) * 100 : 0
+                                });
+                                stock.quantity -= tx.quantity;
+                                stock.totalCost -= costBasisSold;
+                                if (stock.quantity <= 0.0001) {
+                                    stock.quantity = 0;
+                                    stock.totalCost = 0;
+                                    stock.avgCost = 0;
+                                } else {
+                                    stock.avgCost = stock.totalCost / stock.quantity;
+                                }
+                            }
+                        });
+                    } else {
+                        // FIFO or LIFO Tax Lot Matching for Realized Trades
+                        const lotsMap = {};
+                        chronTransactions.forEach(tx => {
+                            const ticker = resolveTicker(tx.ticker);
+                            if (!lotsMap[ticker]) lotsMap[ticker] = [];
+                            const lots = lotsMap[ticker];
+
+                            if (tx.action === 'Buy') {
+                                const unitCost = tx.quantity > 0 ? (tx.price + ((tx.fee || 0) / tx.quantity)) : tx.price;
+                                lots.push({
+                                    quantity: tx.quantity,
+                                    unitCost: unitCost,
+                                    totalCost: (tx.quantity * tx.price) + (tx.fee || 0)
+                                });
+                            } else if (tx.action === 'Sell') {
+                                let needed = tx.quantity;
+                                let costBasisSold = 0;
+                                while (needed > 0.000001 && lots.length > 0) {
+                                    const targetLot = method === 'FIFO' ? lots[0] : lots[lots.length - 1];
+                                    if (targetLot.quantity <= needed + 0.000001) {
+                                        needed -= targetLot.quantity;
+                                        costBasisSold += targetLot.totalCost;
+                                        if (method === 'FIFO') lots.shift();
+                                        else lots.pop();
+                                    } else {
+                                        const costChunk = needed * targetLot.unitCost;
+                                        costBasisSold += costChunk;
+                                        targetLot.quantity -= needed;
+                                        targetLot.totalCost -= costChunk;
+                                        needed = 0;
+                                    }
+                                }
+
+                                const proceeds = (tx.quantity * tx.price) - (tx.fee || 0);
+                                const profit = proceeds - costBasisSold;
+                                const entryCostPerShare = tx.quantity > 0 ? (costBasisSold / tx.quantity) : 0;
+                                records.push({
+                                    id: tx.id || `stock_rec_${records.length}`,
+                                    date: tx.date,
+                                    year: tx.date ? tx.date.substring(0, 4) : '',
+                                    ticker: ticker,
+                                    quantity: tx.quantity,
+                                    entryPrice: entryCostPerShare,
+                                    closePrice: tx.price,
+                                    costBasis: costBasisSold,
+                                    proceeds: proceeds,
+                                    fee: tx.fee || 0,
+                                    profit: profit,
+                                    returnPct: costBasisSold > 0 ? (profit / costBasisSold) * 100 : 0
+                                });
+                            }
+                        });
+                    }
+
                     return records;
                 });
 
@@ -7746,6 +7923,8 @@ No markdown fences or commentary outside the JSON.`;
                     toggleStockHistorySort,
                     // Enhancement 3 & 4 Returns
                     totalPortfolioNetPL,
+                    costBasisMethod,
+                    setCostBasisMethod,
                     stockHoldingsSortKey,
                     stockHoldingsSortAsc,
                     stockHoldingsSearch,
