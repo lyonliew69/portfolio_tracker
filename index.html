@@ -732,7 +732,7 @@
         </header>
 
         <!-- Top Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
             <!-- 1. Total Portfolio Net Profit -->
             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm relative overflow-hidden group">
                 <div class="flex items-center justify-between">
@@ -830,6 +830,30 @@
                     <span>Click to view breakdown</span>
                     <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by
                         year</span>
+                </div>
+            </div>
+
+            <!-- 6. Unrealized Options (Open Premium) -->
+            <div @click="scrollToActiveOptions"
+                class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
+                title="Click to jump to Active Options & Spreads">
+                <div class="flex items-center justify-between">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Unrealized Options</div>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border"
+                        :class="openOptionsSummary.totalContracts > 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-gray-700/60 border-gray-600 text-gray-400'">
+                        {{ openOptionsSummary.totalContracts }} {{ openOptionsSummary.totalContracts === 1 ? 'Contract' : 'Contracts' }}
+                    </span>
+                </div>
+                <div class="text-2xl font-bold mt-1 font-mono"
+                    :class="openOptionsSummary.netPremium >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    {{ formatMoney(openOptionsSummary.netPremium, { sign: true }) }}
+                </div>
+                <div class="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
+                    <span v-if="openOptionsSummary.totalContracts > 0">
+                        {{ openOptionsSummary.shortContracts > 0 && openOptionsSummary.longContracts > 0 ? 'Net pending premium' : (openOptionsSummary.shortContracts > 0 ? 'Net credit at stake' : 'Net debit paid') }}
+                    </span>
+                    <span v-else class="text-gray-500">No active contracts</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">View active ↓</span>
                 </div>
             </div>
         </div>
@@ -1568,11 +1592,16 @@
                 </div>
 
                 <!-- Active Option & Spread Positions Table -->
-                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
+                <div id="activeOptionsSection" class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700 scroll-mt-20">
                     <h2 class="text-lg font-semibold mb-4 text-emerald-400 flex justify-between items-center">
-                        <span>Active Options & Spreads</span>
-                        <span class="text-xs text-gray-400 font-normal">Close or expire position to realize ledger
-                            P/L.</span>
+                        <div class="flex items-center gap-2">
+                            <span>Active Options & Spreads</span>
+                            <span v-if="openOptionsSummary.totalContracts > 0"
+                                class="text-xs px-2 py-0.5 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300 font-mono font-semibold">
+                                {{ openOptionsSummary.totalContracts }} {{ openOptionsSummary.totalContracts === 1 ? 'Contract' : 'Contracts' }}
+                            </span>
+                        </div>
+                        <span class="text-xs text-gray-400 font-normal hidden sm:inline">Close or expire position to realize ledger P/L.</span>
                     </h2>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -1611,8 +1640,8 @@
                                         </div>
                                         <!-- Mobile-only Contracts & Avg Premium -->
                                         <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
-                                            {{ holding.quantity }} contract{{ holding.quantity > 1 ? 's' : '' }} @ ${{
-                                            formatNumber(holding.avgCost) }}
+                                            {{ holding.quantity }} contract{{ holding.quantity > 1 ? 's' : '' }} @ {{
+                                            formatMoney(holding.avgCost) }}
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
@@ -1624,12 +1653,12 @@
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
                                         holding.quantity }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
-                                        formatNumber(holding.avgCost) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
+                                        formatMoney(holding.avgCost) }}</td>
                                     <td class="py-3 px-3 sm:px-4 text-right font-mono text-white">
                                         <div class="text-xs text-gray-400 font-sans">{{ holding.positionType === 'Long'
                                             ? 'Debit:' : 'Credit:' }}</div>
-                                        <div class="font-semibold">${{ formatNumber(holding.totalCost) }}</div>
+                                        <div class="font-semibold">{{ formatMoney(holding.totalCost) }}</div>
                                     </td>
                                     <td class="py-3 px-3 sm:px-4 text-center">
                                         <div class="flex items-center justify-center gap-1.5 flex-wrap sm:flex-nowrap">
@@ -1649,6 +1678,32 @@
                                         spread positions.</td>
                                 </tr>
                             </tbody>
+                            <tfoot v-if="computedOptionHoldings.length > 0"
+                                class="border-t-2 border-gray-700 bg-gray-900/40 text-xs font-semibold text-gray-300">
+                                <tr>
+                                    <td class="py-3 px-3 sm:px-4 font-bold text-white">
+                                        <div>Total ({{ computedOptionHoldings.length }} {{ computedOptionHoldings.length === 1 ? 'position' : 'positions' }})</div>
+                                        <div class="sm:hidden text-[11px] font-mono text-gray-400 font-normal mt-0.5">
+                                            {{ openOptionsSummary.totalContracts }} contracts
+                                        </div>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
+                                        <span class="text-[11px] text-gray-400 font-mono font-normal">
+                                            {{ openOptionsSummary.shortContracts }}S / {{ openOptionsSummary.longContracts }}L
+                                        </span>
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-white font-bold">
+                                        {{ openOptionsSummary.totalContracts }}
+                                    </td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono text-gray-500">—</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-bold"
+                                        :class="openOptionsSummary.netPremium >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                                        <div class="text-[10px] text-gray-400 font-normal uppercase font-sans">Net Premium:</div>
+                                        <div>{{ formatMoney(openOptionsSummary.netPremium, { sign: true }) }}</div>
+                                    </td>
+                                    <td class="py-3 px-3 sm:px-4 text-center text-gray-500">—</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -6538,6 +6593,48 @@ No markdown fences or commentary outside the JSON.`;
                     return Object.values(optionMap);
                 });
 
+                // Enhancement: Unrealized Options / Open Options Premium Summary
+                const openOptionsSummary = computed(() => {
+                    const holdings = computedOptionHoldings.value || [];
+                    let netPremium = 0;       // Net credit (+) or debit (-) pending at expiration
+                    let shortPremium = 0;     // Total short option premium collected
+                    let longDebit = 0;        // Total long option debit paid
+                    let totalContracts = 0;   // Sum of all active contracts
+                    let shortContracts = 0;
+                    let longContracts = 0;
+
+                    holdings.forEach(opt => {
+                        const qty = opt.quantity || 0;
+                        totalContracts += qty;
+                        if (opt.positionType === 'Short') {
+                            shortContracts += qty;
+                            shortPremium += (opt.totalCost || 0);
+                            netPremium += (opt.totalCost || 0);
+                        } else {
+                            longContracts += qty;
+                            longDebit += (opt.totalCost || 0);
+                            netPremium -= (opt.totalCost || 0);
+                        }
+                    });
+
+                    return {
+                        count: holdings.length,
+                        totalContracts,
+                        shortContracts,
+                        longContracts,
+                        netPremium,
+                        shortPremium,
+                        longDebit
+                    };
+                });
+
+                const scrollToActiveOptions = () => {
+                    const el = document.getElementById('activeOptionsSection');
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+
                 // Toggle placeholder depending purely on active stock holdings
                 const hasNoStockHoldings = computed(() => {
                     return computedStockHoldings.value.length === 0;
@@ -8680,6 +8777,8 @@ No markdown fences or commentary outside the JSON.`;
                     toggleStockHistorySort,
                     // Enhancement 3 & 4 Returns
                     totalPortfolioNetPL,
+                    openOptionsSummary,
+                    scrollToActiveOptions,
                     costBasisMethod,
                     setCostBasisMethod,
                     // Theme Switcher
