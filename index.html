@@ -735,7 +735,7 @@
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
             <!-- 1. Total Portfolio Net Profit -->
             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm relative overflow-hidden group">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[32px]">
                     <div class="text-gray-400 text-xs uppercase font-semibold">Total Net Profit</div>
                     <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border"
                         :class="totalPortfolioNetPL >= 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-rose-950/70 border-rose-800 text-rose-300'">
@@ -757,7 +757,7 @@
 
             <!-- 2. Active Stocks Value -->
             <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[32px]">
                     <div class="text-gray-400 text-xs uppercase font-semibold">Active Stocks Value</div>
                     <span class="text-[10px] text-gray-400 bg-gray-700/60 border border-gray-600 px-1.5 py-0.5 rounded">
                         {{ computedStockHoldings.length }} Holdings
@@ -770,11 +770,13 @@
             </div>
 
             <!-- 3. Stock Unrealized P/L -->
-            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <div class="text-gray-400 text-xs uppercase font-semibold font-mono">Stock Unrealized</div>
-                    <span class="text-[10px] font-mono font-semibold"
-                        :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+            <div @click="scrollToStockHoldings"
+                class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
+                title="Click to jump to Current Stock Holdings">
+                <div class="flex items-center justify-between min-h-[32px]">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Stock<br>Unrealized</div>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border font-mono"
+                        :class="stockUnrealizedPL >= 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-rose-950/70 border-rose-800 text-rose-300'">
                         {{ formatPercent(stockCostBasis > 0 ? (stockUnrealizedPL / stockCostBasis * 100) : 0) }}
                     </span>
                 </div>
@@ -782,8 +784,9 @@
                     :class="stockUnrealizedPL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
                     {{ formatMoney(stockUnrealizedPL, { sign: true }) }}
                 </div>
-                <div class="text-[11px] text-gray-400 mt-0.5">
-                    Market value vs cost
+                <div class="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
+                    <span>Market value vs cost</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">View stocks ↓</span>
                 </div>
             </div>
 
@@ -791,7 +794,7 @@
             <div @click="openStockHistoryModal"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to view full Stock Realized History & Filter by Year/Date">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[32px]">
                     <div class="text-gray-400 text-xs uppercase font-semibold">Realized Stocks</div>
                     <span
                         class="text-[10px] text-emerald-400/90 bg-emerald-950/70 border border-emerald-800/70 px-1.5 py-0.5 rounded font-medium group-hover:border-emerald-500 group-hover:bg-emerald-900/60 transition flex items-center gap-1">
@@ -814,7 +817,7 @@
             <div @click="openOptionsHistoryModal"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to view full Options Realized History & Filter by Year/Date">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[32px]">
                     <div class="text-gray-400 text-xs uppercase font-semibold">Realized Options</div>
                     <span
                         class="text-[10px] text-emerald-400/90 bg-emerald-950/70 border border-emerald-800/70 px-1.5 py-0.5 rounded font-medium group-hover:border-emerald-500 group-hover:bg-emerald-900/60 transition flex items-center gap-1">
@@ -837,7 +840,7 @@
             <div @click="scrollToActiveOptions"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to jump to Active Options & Spreads">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between min-h-[32px]">
                     <div class="text-gray-400 text-xs uppercase font-semibold">Unrealized Options</div>
                     <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border"
                         :class="openOptionsSummary.totalContracts > 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-gray-700/60 border-gray-600 text-gray-400'">
@@ -1457,7 +1460,7 @@
             <div class="lg:col-span-2 space-y-6">
 
                 <!-- Stock Holdings Table -->
-                <div class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
+                <div id="stockHoldingsSection" class="bg-gray-800 p-4 sm:p-6 rounded-lg border border-gray-700">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                         <div>
                             <div class="flex items-center gap-2">
@@ -6922,6 +6925,13 @@ No markdown fences or commentary outside the JSON.`;
                     }
                 };
 
+                const scrollToStockHoldings = () => {
+                    const el = document.getElementById('stockHoldingsSection');
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+
                 // Toggle placeholder depending purely on active stock holdings
                 const hasNoStockHoldings = computed(() => {
                     return computedStockHoldings.value.length === 0;
@@ -9171,7 +9181,8 @@ No markdown fences or commentary outside the JSON.`;
                     followUpError,
                     askDeepResearchFollowUp,
                     clearDeepResearchChat,
-                    copyChatMessage
+                    copyChatMessage,
+                    scrollToStockHoldings
                 };
             }
         }).mount('#app');
