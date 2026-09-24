@@ -6783,6 +6783,20 @@ No markdown fences or commentary outside the JSON.`;
                         const lots = lotsMap[ticker];
 
                         if (tx.action === 'Buy') {
+                            const isStockSplit = tx.originalAction === 'Stock Split' || tx.action === 'Stock Split';
+                            if (isStockSplit) {
+                                const currentOpenShares = lots.reduce((sum, l) => sum + l.quantity, 0);
+                                if (currentOpenShares > 0.0001) {
+                                    const splitRatio = (currentOpenShares + tx.quantity) / currentOpenShares;
+                                    lots.forEach(lot => {
+                                        lot.quantity *= splitRatio;
+                                        lot.unitCost /= splitRatio;
+                                        lot.totalCost = lot.quantity * lot.unitCost;
+                                    });
+                                    return;
+                                }
+                            }
+
                             const unitCost = tx.quantity > 0 ? (tx.price + ((tx.fee || 0) / tx.quantity)) : tx.price;
                             lots.push({
                                 quantity: tx.quantity,
@@ -7336,6 +7350,20 @@ No markdown fences or commentary outside the JSON.`;
                             const lots = lotsMap[ticker];
 
                             if (tx.action === 'Buy') {
+                                const isStockSplit = tx.originalAction === 'Stock Split' || tx.action === 'Stock Split';
+                                if (isStockSplit) {
+                                    const currentOpenShares = lots.reduce((sum, l) => sum + l.quantity, 0);
+                                    if (currentOpenShares > 0.0001) {
+                                        const splitRatio = (currentOpenShares + tx.quantity) / currentOpenShares;
+                                        lots.forEach(lot => {
+                                            lot.quantity *= splitRatio;
+                                            lot.unitCost /= splitRatio;
+                                            lot.totalCost = lot.quantity * lot.unitCost;
+                                        });
+                                        return;
+                                    }
+                                }
+
                                 const unitCost = tx.quantity > 0 ? (tx.price + ((tx.fee || 0) / tx.quantity)) : tx.price;
                                 lots.push({
                                     quantity: tx.quantity,
