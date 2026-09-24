@@ -2894,6 +2894,16 @@
                             <span>{{ deepResearchReport ? 'Refresh Daily Analysis' : 'Generate Daily Analysis' }}</span>
                         </button>
 
+                        <button v-if="deepResearchTab === 'portfolio'" @click="copyDailyPortfolioPrompt"
+                            class="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg text-xs font-medium border border-gray-700 transition flex items-center gap-1 shadow-sm"
+                            title="Copy current research prompt containing portfolio data and instructions to clipboard">
+                            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <span>Copy Prompt</span>
+                        </button>
+
                         <button
                             v-if="(deepResearchTab === 'portfolio' && deepResearchReport) || (deepResearchTab === 'ticker' && singleTickerReport)"
                             @click="copyResearchReport"
@@ -2904,7 +2914,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                             </svg>
-                            <span>Copy</span>
+                            <span>Copy Report</span>
                         </button>
                     </div>
                 </div>
@@ -2978,6 +2988,140 @@
                                 <span class="text-amber-400">⚡</span>
                                 <span>Note: Google Search Grounding was busy; analysis was completed successfully using
                                     standard Gemini analytical models.</span>
+                            </div>
+
+                            <!-- Interactive Follow-up Q&A Copilot -->
+                            <div class="bg-gray-950/80 border border-indigo-500/30 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 mt-6">
+                                <!-- Q&A Header -->
+                                <div class="flex items-center justify-between border-b border-gray-800 pb-3 flex-wrap gap-2">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="p-2 bg-indigo-950/80 border border-indigo-700/60 rounded-xl text-indigo-400">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                            </svg>
+                                        </span>
+                                        <div>
+                                            <h4 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                                                Ask AI Copilot About This Report
+                                            </h4>
+                                            <p class="text-[11px] text-gray-400 mt-0.5">
+                                                Ask arbitrary questions about these findings, specific holdings, options risks, or new opportunities.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button v-if="deepResearchChatHistory.length > 0" @click="clearDeepResearchChat"
+                                        class="px-2.5 py-1 text-[11px] text-gray-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg border border-gray-800 hover:border-rose-900 transition flex items-center gap-1">
+                                        <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                        <span>Clear Conversation</span>
+                                    </button>
+                                </div>
+
+                                <!-- Q&A Conversation Thread -->
+                                <div v-if="deepResearchChatHistory.length > 0" class="space-y-3.5 max-h-[420px] overflow-y-auto pr-1">
+                                    <div v-for="(msg, mIdx) in deepResearchChatHistory" :key="mIdx">
+                                        <!-- User Message Bubble -->
+                                        <div v-if="msg.role === 'user'"
+                                            class="bg-indigo-950/70 border border-indigo-800/80 rounded-2xl rounded-tr-sm p-3.5 text-xs text-indigo-100 max-w-[92%] sm:max-w-[82%] ml-auto shadow-sm space-y-1">
+                                            <div class="flex items-center justify-between gap-2 text-[10px] text-indigo-300 font-semibold border-b border-indigo-900/60 pb-1">
+                                                <span class="flex items-center gap-1">
+                                                    <span>👤</span>
+                                                    <span>You</span>
+                                                </span>
+                                                <span class="font-mono text-indigo-400/80">{{ msg.timestamp }}</span>
+                                            </div>
+                                            <div class="whitespace-pre-wrap leading-relaxed pt-1 text-gray-100">{{ msg.text }}</div>
+                                        </div>
+
+                                        <!-- AI Response Bubble -->
+                                        <div v-else
+                                            class="bg-gray-900 border border-gray-800 rounded-2xl rounded-tl-sm p-4 text-xs text-gray-200 max-w-[96%] sm:max-w-[92%] shadow-md space-y-2">
+                                            <div class="flex items-center justify-between gap-2 text-[10px] text-emerald-400 font-semibold border-b border-gray-800 pb-1.5">
+                                                <span class="flex items-center gap-1.5">
+                                                    <span>✨</span>
+                                                    <span>Gemini Investment Copilot</span>
+                                                </span>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-gray-500 font-mono text-[9px]">{{ msg.timestamp }}</span>
+                                                    <button @click="copyChatMessage(msg.text)"
+                                                        class="text-gray-400 hover:text-white p-1 hover:bg-gray-800 rounded transition"
+                                                        title="Copy answer">
+                                                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="leading-relaxed space-y-1 text-gray-200" v-html="formatResearchMarkdown(msg.text)"></div>
+
+                                            <!-- Citations if any -->
+                                            <div v-if="msg.sources && msg.sources.length > 0" class="pt-2 border-t border-gray-800/80 flex flex-wrap gap-1.5">
+                                                <a v-for="(s, sIdx) in msg.sources" :key="sIdx" :href="s.uri" target="_blank" rel="noopener noreferrer"
+                                                    class="text-[10px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-750 text-indigo-300 hover:text-white border border-gray-700 transition">
+                                                    {{ s.title || s.uri }} ↗
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Thinking / Loading Bubble -->
+                                <div v-if="isAskingFollowUp"
+                                    class="bg-gray-900/90 border border-indigo-500/30 rounded-2xl rounded-tl-sm p-3.5 text-xs text-gray-300 max-w-[92%] flex items-center gap-3">
+                                    <div class="w-5 h-5 rounded-full bg-indigo-600/30 border border-indigo-500 flex items-center justify-center text-indigo-400 animate-spin shrink-0">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-xs text-indigo-300 animate-pulse font-medium">
+                                        Analyzing portfolio and synthesizing response...
+                                    </span>
+                                </div>
+
+                                <!-- Error Notice -->
+                                <div v-if="followUpError"
+                                    class="p-2.5 bg-rose-950/80 border border-rose-800 rounded-xl text-xs text-rose-200 flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-rose-400">⚠️</span>
+                                        <span>{{ followUpError }}</span>
+                                    </div>
+                                    <button @click="followUpError = ''" class="text-gray-400 hover:text-white text-xs">✕</button>
+                                </div>
+
+                                <!-- Input Box Area -->
+                                <div class="space-y-1.5 pt-1">
+                                    <div class="relative flex items-end gap-2 bg-gray-900/90 border border-gray-750 focus-within:border-indigo-500 rounded-xl p-2 transition shadow-inner">
+                                        <textarea
+                                            v-model="deepResearchFollowUpInput"
+                                            @keydown.enter.exact.prevent="askDeepResearchFollowUp"
+                                            rows="2"
+                                            placeholder="Ask a question about this research or your portfolio... (e.g. 'What is my max downside on my options?' or 'Explain Opportunity #1 in detail')"
+                                            class="w-full bg-transparent text-xs text-gray-200 placeholder-gray-500 focus:outline-none resize-none leading-relaxed font-sans pr-2"
+                                            :disabled="isAskingFollowUp || !geminiApiKey"
+                                        ></textarea>
+                                        <button
+                                            @click="askDeepResearchFollowUp"
+                                            :disabled="isAskingFollowUp || !deepResearchFollowUpInput.trim() || !geminiApiKey"
+                                            class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-lg text-xs font-semibold transition shrink-0 flex items-center gap-1.5 shadow-sm">
+                                            <svg v-if="isAskingFollowUp" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                            </svg>
+                                            <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                            </svg>
+                                            <span>Send</span>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between px-1 text-[10px] text-gray-500">
+                                        <span>Press <kbd class="px-1 py-0.2 bg-gray-800 rounded text-gray-400 font-mono">Enter</kbd> to send, <kbd class="px-1 py-0.2 bg-gray-800 rounded text-gray-400 font-mono">Shift+Enter</kbd> for newline</span>
+                                        <span>Context: Full Portfolio &amp; Briefing Attached</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -4739,6 +4883,18 @@
                 const enableSearchGrounding = ref(localStorage.getItem('gemini_search_grounding') !== 'false');
                 const deepResearchError = ref('');
 
+                // Follow-up Q&A Copilot State
+                const deepResearchFollowUpInput = ref('');
+                let savedFollowUpChat = [];
+                try {
+                    savedFollowUpChat = JSON.parse(localStorage.getItem('deep_research_chat_history') || '[]');
+                } catch (e) {
+                    savedFollowUpChat = [];
+                }
+                const deepResearchChatHistory = ref(savedFollowUpChat);
+                const isAskingFollowUp = ref(false);
+                const followUpError = ref('');
+
                 const saveSearchGroundingPref = () => {
                     localStorage.setItem('gemini_search_grounding', enableSearchGrounding.value);
                 };
@@ -5595,7 +5751,7 @@ function doPost(e) {
 
 
 
-                const callGeminiResearchAPI = async (prompt, onStatusUpdate) => {
+                const callGeminiResearchAPI = async (promptOrContents, onStatusUpdate) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
                         throw new Error('Google Gemini API Key is missing. Please enter your key in API & AI Settings.');
                     }
@@ -5606,9 +5762,13 @@ function doPost(e) {
                         ? ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
                         : ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
 
+                    const formattedContents = typeof promptOrContents === 'string'
+                        ? [{ parts: [{ text: promptOrContents }] }]
+                        : promptOrContents;
+
                     const tryGenerate = async (modelName, withSearch) => {
                         const payload = {
-                            contents: [{ parts: [{ text: prompt }] }]
+                            contents: formattedContents
                         };
                         if (withSearch) {
                             payload.tools = [{ google_search: {} }];
@@ -5698,20 +5858,9 @@ function doPost(e) {
                     };
                 };
 
-                const generateDailyPortfolioResearch = async () => {
-                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
-                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
-                        showApiModal.value = true;
-                        return;
-                    }
-
-                    deepResearchError.value = '';
-                    isGeneratingResearch.value = true;
-                    deepResearchProgress.value = 'Gathering portfolio stocks and options...';
-
+                const buildDailyPortfolioPrompt = () => {
                     const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-                    let prompt = '';
                     if (enableSearchGrounding.value) {
                         // Comprehensive Institutional-Grade Research (Live Google Search Grounding ON)
                         const stocksList = (computedStockHoldings.value || []).map(s => 
@@ -5722,7 +5871,7 @@ function doPost(e) {
                             `- ${o.symbol}: ${o.quantity} contracts | ${o.positionType} ${o.optionType || o.strategyName || 'Option'} | Strike: $${o.strike || 'N/A'} | Exp: ${o.expiration || 'N/A'} | Total Cost: $${formatNumber(o.totalCost)}`
                         ).join('\n') || 'No active options or spread positions.';
 
-                        prompt = `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
+                        return `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
 Conduct a comprehensive, institutional-grade daily market analysis for today (${todayDate}) based on the investor's exact portfolio below.
 USE GOOGLE SEARCH GROUNDING TO RETRIEVE LIVE GOOGLE FINANCE DATA, CURRENT INDEX/VIX LEVELS, UPCOMING EARNINGS DATES, AND BREAKING MARKET NEWS.
 
@@ -5760,6 +5909,14 @@ Please generate a high-conviction, professional report structured in Markdown wi
 - Hedging opportunities or covered call writing ideas on 100+ share lots.
 - 3 clear, prioritized tactical action items for the investor today.
 
+## 5. 🚀 High-Conviction Synergistic & Similar Opportunities
+- Identify 2 to 3 actionable new opportunities that align with the user's portfolio profile:
+  - Ecosystem / Value-Chain Synergies: Suppliers, customers, or direct peers benefiting from the same catalysts as held positions at compelling valuations.
+  - Asymmetric Pullback / Breakout Plays: High-quality tickers near key support (50/200 DMA) with strong risk/reward.
+  - Options Income / Wheel Opportunities: High IV rank candidates suitable for selling Cash-Secured Puts (CSPs) at discount strike prices.
+- For each opportunity, provide: Ticker, Core Thesis, Recommended Entry Zone / Strike, Catalyst, and Invalidation (Stop-Loss) Level.
+- Guardrail: Only recommend liquid mid-to-large-cap securities (market cap > $5B, robust trading volume). Do not recommend low-volume or speculative penny stocks.
+
 Maintain an objective, analytical, and highly actionable tone. Ground all insights with today's real market prices and verified corporate news.`;
                     } else {
                         // Fast Minimized Briefing (Live Google Search Grounding OFF / Standard AI)
@@ -5771,7 +5928,7 @@ Maintain an objective, analytical, and highly actionable tone. Ground all insigh
                             `- ${o.symbol}: ${o.quantity}x ${o.positionType} ${o.optionType || o.strategyName || 'Option'} $${o.strike || 'N/A'} exp ${o.expiration || 'N/A'}`
                         ).join('\n') || 'None';
 
-                        prompt = `Provide a daily market & portfolio briefing for ${todayDate}.
+                        return `Provide a daily market & portfolio briefing for ${todayDate}.
 
 PORTFOLIO:
 Stocks:
@@ -5790,8 +5947,35 @@ Output in Markdown:
 - Upcoming expirations, moneyness, and assignment risks.
 
 ## 4. 🎯 Tactical Action Items
-- 3 prioritized action items for the portfolio today.`;
+- 3 prioritized action items for the portfolio today.
+
+## 5. 🚀 Synergistic & Similar Opportunities
+- 2 high-quality peer, value-chain, or dip-buying opportunities matching this portfolio's style (Ticker, Thesis, Key Levels).`;
                     }
+                };
+
+                const copyDailyPortfolioPrompt = () => {
+                    const prompt = buildDailyPortfolioPrompt();
+                    if (!prompt) return;
+                    navigator.clipboard.writeText(prompt).then(() => {
+                        showNotification('Daily research prompt copied to clipboard!', 'success');
+                    }).catch(() => {
+                        showNotification('Failed to copy prompt to clipboard.', 'error');
+                    });
+                };
+
+                const generateDailyPortfolioResearch = async () => {
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
+                        showApiModal.value = true;
+                        return;
+                    }
+
+                    deepResearchError.value = '';
+                    isGeneratingResearch.value = true;
+                    deepResearchProgress.value = 'Gathering portfolio stocks and options...';
+
+                    const prompt = buildDailyPortfolioPrompt();
 
                     const progressTimer = setInterval(() => {
                         if (deepResearchProgress.value.includes('Gathering')) {
@@ -5827,6 +6011,109 @@ Output in Markdown:
                         isGeneratingResearch.value = false;
                         deepResearchProgress.value = '';
                     }
+                };
+
+                const askDeepResearchFollowUp = async () => {
+                    const question = (deepResearchFollowUpInput.value || '').trim();
+                    if (!question) return;
+
+                    if (!geminiApiKey.value || !geminiApiKey.value.trim()) {
+                        showNotification('Please configure your Google Gemini API Key first.', 'warning');
+                        showApiModal.value = true;
+                        return;
+                    }
+
+                    if (!deepResearchReport.value) {
+                        showNotification('Please generate the Daily Portfolio Analysis first.', 'warning');
+                        return;
+                    }
+
+                    followUpError.value = '';
+                    isAskingFollowUp.value = true;
+                    const userTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    // Append user question immediately to UI
+                    deepResearchChatHistory.value.push({
+                        role: 'user',
+                        text: question,
+                        timestamp: userTimestamp
+                    });
+                    deepResearchFollowUpInput.value = '';
+
+                    const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                    const stocksList = (computedStockHoldings.value || []).map(s => 
+                        `- ${s.symbol}: ${s.quantity} shares | Avg Cost: $${formatNumber(s.avgCost)} | Current Price: $${formatNumber(s.currentPrice)} | Market Val: $${formatNumber(s.marketValue)} | P/L: ${s.unrealizedPL >= 0 ? '+' : ''}$${formatNumber(s.unrealizedPL)} (${s.unrealizedPercent.toFixed(1)}%)`
+                    ).join('\n') || 'No open stock holdings.';
+
+                    const optionsList = (computedOptionHoldings.value || []).map(o => 
+                        `- ${o.symbol}: ${o.quantity} contracts | ${o.positionType} ${o.optionType || o.strategyName || 'Option'} | Strike: $${o.strike || 'N/A'} | Exp: ${o.expiration || 'N/A'} | Total Cost: $${formatNumber(o.totalCost)}`
+                    ).join('\n') || 'No active options or spread positions.';
+
+                    const systemContext = `You are a world-class senior portfolio manager, Wall Street equity research director, and options risk specialist.
+You recently generated this institutional Daily Market & Portfolio Research report for the investor on ${todayDate}:
+
+=== DAILY RESEARCH REPORT ===
+${deepResearchReport.value}
+
+=== INVESTOR PORTFOLIO HOLDINGS ===
+STOCKS HELD:
+${stocksList}
+
+ACTIVE OPTIONS & SPREADS:
+${optionsList}
+
+PORTFOLIO TOTAL STOCK MARKET VALUE: $${formatNumber(holdingsTotals.value.marketValue)}
+REALIZED NET PROFIT TO DATE: $${formatNumber(totalPortfolioNetPL.value)}
+=== END PORTFOLIO ===
+
+Please answer the investor's follow-up questions with institutional accuracy, referencing their specific portfolio holdings, options strikes, expirations, or the research findings. Format your response in clean Markdown.`;
+
+                    // Construct alternating multi-turn contents
+                    const contents = [
+                        { role: 'user', parts: [{ text: systemContext }] },
+                        { role: 'model', parts: [{ text: 'Understood. I have full context on your portfolio, active options contracts, and the daily research report. How can I assist you further with this analysis?' }] }
+                    ];
+
+                    deepResearchChatHistory.value.forEach(msg => {
+                        contents.push({
+                            role: msg.role === 'user' ? 'user' : 'model',
+                            parts: [{ text: msg.text }]
+                        });
+                    });
+
+                    try {
+                        const res = await callGeminiResearchAPI(contents);
+                        const modelTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        deepResearchChatHistory.value.push({
+                            role: 'model',
+                            text: res.text,
+                            timestamp: modelTimestamp,
+                            sources: res.sources || []
+                        });
+                        localStorage.setItem('deep_research_chat_history', JSON.stringify(deepResearchChatHistory.value));
+                    } catch (e) {
+                        console.error('Follow-up Q&A Error:', e);
+                        followUpError.value = e.message;
+                        showNotification(`Q&A query failed: ${e.message}`, 'error');
+                    } finally {
+                        isAskingFollowUp.value = false;
+                    }
+                };
+
+                const clearDeepResearchChat = () => {
+                    deepResearchChatHistory.value = [];
+                    localStorage.removeItem('deep_research_chat_history');
+                    followUpError.value = '';
+                    showNotification('Follow-up Q&A conversation cleared.', 'info');
+                };
+
+                const copyChatMessage = (text) => {
+                    if (!text) return;
+                    navigator.clipboard.writeText(text).then(() => {
+                        showNotification('Answer copied to clipboard!', 'success');
+                    }).catch(() => {
+                        showNotification('Failed to copy to clipboard.', 'error');
+                    });
                 };
 
                 const generateSingleTickerResearch = async (tickerOverride) => {
@@ -8875,7 +9162,16 @@ No markdown fences or commentary outside the JSON.`;
                     enableSearchGrounding,
                     saveSearchGroundingPref,
                     deepResearchError,
-                    singleTickerProgress
+                    singleTickerProgress,
+                    buildDailyPortfolioPrompt,
+                    copyDailyPortfolioPrompt,
+                    deepResearchFollowUpInput,
+                    deepResearchChatHistory,
+                    isAskingFollowUp,
+                    followUpError,
+                    askDeepResearchFollowUp,
+                    clearDeepResearchChat,
+                    copyChatMessage
                 };
             }
         }).mount('#app');
