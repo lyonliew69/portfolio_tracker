@@ -769,12 +769,12 @@
                 </div>
             </div>
 
-            <!-- 3. Stock Unrealized P/L -->
+            <!-- 3. Unrealized Stock P/L -->
             <div @click="scrollToStockHoldings"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to jump to Current Stock Holdings">
                 <div class="flex items-center justify-between min-h-[32px]">
-                    <div class="text-gray-400 text-xs uppercase font-semibold">Stock<br>Unrealized</div>
+                    <div class="text-gray-400 text-xs uppercase font-semibold">UNREALIZED STOCK</div>
                     <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border font-mono"
                         :class="stockUnrealizedPL >= 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-rose-950/70 border-rose-800 text-rose-300'">
                         {{ formatPercent(stockCostBasis > 0 ? (stockUnrealizedPL / stockCostBasis * 100) : 0) }}
@@ -790,7 +790,31 @@
                 </div>
             </div>
 
-            <!-- 4. Realized Stock P/L -->
+            <!-- 4. Unrealized Options (Open Premium) -->
+            <div @click="scrollToActiveOptions"
+                class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
+                title="Click to jump to Active Options & Spreads">
+                <div class="flex items-center justify-between min-h-[32px]">
+                    <div class="text-gray-400 text-xs uppercase font-semibold">Unrealized Options</div>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border"
+                        :class="openOptionsSummary.totalContracts > 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-gray-700/60 border-gray-600 text-gray-400'">
+                        {{ openOptionsSummary.totalContracts }} {{ openOptionsSummary.totalContracts === 1 ? 'Contract' : 'Contracts' }}
+                    </span>
+                </div>
+                <div class="text-2xl font-bold mt-1 font-mono"
+                    :class="openOptionsSummary.netPremium >= 0 ? 'text-emerald-400' : 'text-rose-400'">
+                    {{ formatMoney(openOptionsSummary.netPremium, { sign: true }) }}
+                </div>
+                <div class="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
+                    <span v-if="openOptionsSummary.totalContracts > 0">
+                        {{ openOptionsSummary.shortContracts > 0 && openOptionsSummary.longContracts > 0 ? 'Net pending premium' : (openOptionsSummary.shortContracts > 0 ? 'Net credit at stake' : 'Net debit paid') }}
+                    </span>
+                    <span v-else class="text-gray-500">No active contracts</span>
+                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">View active ↓</span>
+                </div>
+            </div>
+
+            <!-- 5. Realized Stock P/L -->
             <div @click="openStockHistoryModal"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to view full Stock Realized History & Filter by Year/Date">
@@ -813,7 +837,7 @@
                 </div>
             </div>
 
-            <!-- 5. Realized Options P/L -->
+            <!-- 6. Realized Options P/L -->
             <div @click="openOptionsHistoryModal"
                 class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
                 title="Click to view full Options Realized History & Filter by Year/Date">
@@ -833,30 +857,6 @@
                     <span>Click to view breakdown</span>
                     <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">Filter by
                         year</span>
-                </div>
-            </div>
-
-            <!-- 6. Unrealized Options (Open Premium) -->
-            <div @click="scrollToActiveOptions"
-                class="bg-gray-800 hover:bg-gray-750 p-4 rounded-lg border border-gray-700 hover:border-emerald-500/60 cursor-pointer transition-all duration-200 group relative shadow-sm hover:shadow-emerald-950/20"
-                title="Click to jump to Active Options & Spreads">
-                <div class="flex items-center justify-between min-h-[32px]">
-                    <div class="text-gray-400 text-xs uppercase font-semibold">Unrealized Options</div>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded font-medium border"
-                        :class="openOptionsSummary.totalContracts > 0 ? 'bg-emerald-950/70 border-emerald-800 text-emerald-300' : 'bg-gray-700/60 border-gray-600 text-gray-400'">
-                        {{ openOptionsSummary.totalContracts }} {{ openOptionsSummary.totalContracts === 1 ? 'Contract' : 'Contracts' }}
-                    </span>
-                </div>
-                <div class="text-2xl font-bold mt-1 font-mono"
-                    :class="openOptionsSummary.netPremium >= 0 ? 'text-emerald-400' : 'text-rose-400'">
-                    {{ formatMoney(openOptionsSummary.netPremium, { sign: true }) }}
-                </div>
-                <div class="text-[11px] text-gray-400 mt-0.5 flex items-center justify-between">
-                    <span v-if="openOptionsSummary.totalContracts > 0">
-                        {{ openOptionsSummary.shortContracts > 0 && openOptionsSummary.longContracts > 0 ? 'Net pending premium' : (openOptionsSummary.shortContracts > 0 ? 'Net credit at stake' : 'Net debit paid') }}
-                    </span>
-                    <span v-else class="text-gray-500">No active contracts</span>
-                    <span class="text-[10px] text-gray-400 group-hover:text-emerald-400 transition">View active ↓</span>
                 </div>
             </div>
         </div>
