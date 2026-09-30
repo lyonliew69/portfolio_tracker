@@ -339,6 +339,10 @@
                 <input type="file" ref="schwabFileInput" @change="handleSchwabFileSelect" accept=".json,.xml"
                     class="hidden">
 
+                <!-- Hidden file input for IBKR Import -->
+                <input type="file" ref="ibkrFileInput" @change="handleIbkrFileSelect" accept=".html,.htm"
+                    class="hidden">
+
                 <!-- 2. AI Deep Research Button -->
                 <button @click="openDeepResearchModal"
                     class="px-2.5 py-2 bg-gradient-to-r from-indigo-900/60 to-purple-900/60 hover:from-indigo-800/80 hover:to-purple-800/80 text-indigo-200 hover:text-white text-xs font-semibold rounded border border-indigo-500/50 transition flex items-center gap-1.5 shadow-sm"
@@ -469,6 +473,21 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="font-medium">Import Schwab</div>
                                     <div class="text-[10px] text-gray-400">JSON or XML export file</div>
+                                </div>
+                            </button>
+
+                            <!-- Import IBKR -->
+                            <button @click="triggerIbkrFileInput(); showToolsDropdown = false"
+                                class="w-full text-left px-3 py-2 hover:bg-gray-800 text-gray-200 hover:text-white flex items-center gap-2.5 transition group cursor-pointer">
+                                <div class="w-7 h-7 rounded-lg bg-red-950/60 border border-red-800/50 flex items-center justify-center text-red-400 group-hover:text-red-300 flex-shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium">Import IBKR</div>
+                                    <div class="text-[10px] text-gray-400">Activity Statement HTML report</div>
                                 </div>
                             </button>
 
@@ -2319,6 +2338,335 @@
                             </path>
                         </svg>
                         Confirm Import ({{ schwabImportData.transactions.length }} Trades)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- IBKR Import Preview Modal -->
+        <div v-if="showIbkrModal && ibkrImportData"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-2xl w-full shadow-2xl space-y-5 my-8">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-start border-b border-gray-700 pb-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 bg-red-950/80 border border-red-700 rounded text-red-300">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                    </path>
+                                </svg>
+                            </span>
+                            <h3 class="text-lg font-bold text-white">Interactive Brokers (IBKR) Import</h3>
+                            <span v-if="ibkrImportData.account"
+                                class="px-2 py-0.5 bg-red-900/40 text-red-200 border border-red-700/60 rounded text-xs font-mono font-bold">
+                                {{ ibkrImportData.account }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">
+                            File: <span class="text-gray-200 font-mono">{{ ibkrImportData.fileName }}</span>
+                            <span v-if="ibkrImportData.fromDate && ibkrImportData.toDate"
+                                class="ml-2 px-2 py-0.5 bg-gray-700 text-gray-300 rounded text-[11px]">
+                                {{ ibkrImportData.fromDate }} to {{ ibkrImportData.toDate }}
+                            </span>
+                            <span v-if="ibkrImportData.baseCurrency"
+                                class="ml-1 px-1.5 py-0.5 bg-gray-800 text-gray-400 rounded text-[10px]">
+                                Base: {{ ibkrImportData.baseCurrency }}
+                            </span>
+                        </p>
+                    </div>
+                    <button @click="closeIbkrModal"
+                        class="text-gray-400 hover:text-white text-lg font-bold px-2 py-1">✕</button>
+                </div>
+
+                <!-- Summary Stats Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-700/60 text-center">
+                        <div class="text-[11px] text-gray-400 uppercase font-semibold">Total Records</div>
+                        <div class="text-xl font-bold text-white mt-1">{{ ibkrImportData.stats.total }}</div>
+                    </div>
+                    <div class="bg-red-950/40 p-3 rounded-lg border border-red-800/40 text-center">
+                        <div class="text-[11px] text-red-400 uppercase font-semibold">Valid Trades</div>
+                        <div class="text-xl font-bold text-red-300 mt-1">{{ ibkrImportData.stats.trades }}</div>
+                    </div>
+                    <div class="bg-emerald-950/40 p-3 rounded-lg border border-emerald-800/40 text-center">
+                        <div class="text-[11px] text-emerald-400 uppercase font-semibold">Stock Trades</div>
+                        <div class="text-xl font-bold text-emerald-300 mt-1">{{ ibkrImportData.stats.stocks }}</div>
+                    </div>
+                    <div class="bg-amber-950/40 p-3 rounded-lg border border-amber-800/40 text-center">
+                        <div class="text-[11px] text-amber-400 uppercase font-semibold">Option Trades</div>
+                        <div class="text-xl font-bold text-amber-300 mt-1">{{ ibkrImportData.stats.options }}</div>
+                    </div>
+                </div>
+
+                <!-- Ticker Aliases Active notice -->
+                <div
+                    class="bg-indigo-950/30 border border-indigo-800/50 rounded-lg p-3 text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                        <div>
+                            <span class="text-gray-200">
+                                Ticker Aliases:
+                                <strong v-for="(to, from) in tickerAliases" :key="from" class="text-amber-300 ml-1">
+                                    {{ from }} → {{ to }}
+                                </strong>
+                            </span>
+                            <span v-if="ibkrImportData.stats.aliasMapped > 0"
+                                class="text-indigo-300 ml-1.5 font-medium">
+                                ({{ ibkrImportData.stats.aliasMapped }} trades unified)
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" @click="showAliasesModal = true"
+                        class="text-indigo-400 hover:text-indigo-300 text-[11px] font-semibold underline whitespace-nowrap ml-2">
+                        Manage Aliases
+                    </button>
+                </div>
+
+                <!-- Non-trade entries note -->
+                <div v-if="ibkrImportData.stats.skipped > 0"
+                    class="bg-gray-900/40 border border-gray-700/60 rounded-lg p-3 text-xs">
+                    <div class="flex justify-between items-center cursor-pointer select-none"
+                        @click="showIbkrSkippedDetails = !showIbkrSkippedDetails">
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                            <span><strong>{{ ibkrImportData.stats.skipped }} non-trade records</strong> detected and
+                                skipped (Forex FX conversions, dividends, taxes, deposits/withdrawals).</span>
+                        </div>
+                        <span class="text-red-400 hover:text-red-300 text-[11px] underline">
+                            {{ showIbkrSkippedDetails ? 'Hide details' : 'View breakdown' }}
+                        </span>
+                    </div>
+                    <div v-show="showIbkrSkippedDetails"
+                        class="mt-2 pt-2 border-t border-gray-700/60 flex flex-wrap gap-1.5">
+                        <span v-for="(count, action) in ibkrImportData.skippedBreakdown" :key="action"
+                            class="px-2 py-0.5 bg-gray-800 border border-gray-700 rounded text-[11px] text-gray-300">
+                            {{ action }}: <strong class="text-white">{{ count }}</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Inbound Transferred Securities Cost Basis Review Section -->
+                <div v-if="ibkrImportData.detectedTransfers && ibkrImportData.detectedTransfers.length > 0"
+                    class="bg-indigo-950/30 border border-indigo-500/40 rounded-xl p-4 space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="p-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-lg text-indigo-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                </svg>
+                            </span>
+                            <div>
+                                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                                    Inbound ACAT Transfers: Review Cost Basis
+                                    <span
+                                        class="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30 font-mono">
+                                        {{ ibkrImportData.detectedTransfers.length }} Transferred Positions
+                                    </span>
+                                </h4>
+                                <p class="text-xs text-gray-400">
+                                    IBKR statements do not transmit purchase prices for ACATS transferred securities.
+                                    Review suggested prices or auto-search historical market close.
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" @click="autoSearchAllTransferPrices" :disabled="isSearchingTransferPrices"
+                            class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-xs font-semibold rounded-lg transition shadow flex items-center justify-center gap-1.5 whitespace-nowrap self-start sm:self-auto">
+                            <svg v-if="isSearchingTransferPrices" class="w-3.5 h-3.5 animate-spin" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <span>{{ isSearchingTransferPrices ? 'Searching Web...' : 'Auto-Search All from Web' }}</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-56 border border-gray-700/60 rounded-lg bg-gray-900/60">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead
+                                class="bg-gray-900/90 text-gray-400 border-b border-gray-700 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-2.5">Security / Symbol</th>
+                                    <th class="p-2.5">Transfer Date</th>
+                                    <th class="p-2.5 text-right">Shares / Qty</th>
+                                    <th class="p-2.5">Price Source & Status</th>
+                                    <th class="p-2.5 text-right w-36">Cost Basis ($ / share)</th>
+                                    <th class="p-2.5 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700/50">
+                                <tr v-for="item in ibkrImportData.detectedTransfers" :key="item.key"
+                                    class="hover:bg-gray-800/40">
+                                    <td class="p-2.5">
+                                        <span class="font-bold text-white text-sm">{{ item.ticker }}</span>
+                                        <span class="text-[11px] text-gray-400 block">{{ item.assetType }} <span
+                                                v-if="item.optionDetails" class="text-amber-400">({{ item.optionDetails
+                                                }})</span></span>
+                                    </td>
+                                    <td class="p-2.5 font-mono text-gray-300">{{ item.date }}</td>
+                                    <td class="p-2.5 text-right font-mono font-medium text-white">{{ item.quantity }}
+                                    </td>
+                                    <td class="p-2.5">
+                                        <span
+                                            :class="item.price > 0 ? 'text-emerald-400 bg-emerald-950/40 border-emerald-800/50' : 'text-amber-400 bg-amber-950/40 border-amber-800/50'"
+                                            class="px-2 py-0.5 rounded text-[11px] font-medium border inline-flex items-center gap-1">
+                                            <span class="w-1.5 h-1.5 rounded-full"
+                                                :class="item.price > 0 ? 'bg-emerald-400' : 'bg-amber-400'"></span>
+                                            {{ item.sourceLabel || (item.price > 0 ? 'Ready' : 'Pending Input') }}
+                                        </span>
+                                    </td>
+                                    <td class="p-2.5 text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <span class="text-gray-400 font-mono">$</span>
+                                            <input type="number" step="any" min="0" v-model.number="item.price"
+                                                @input="updateTransferPriceInImport(item.ticker, item.date, item.price)"
+                                                placeholder="0.00"
+                                                class="w-24 bg-gray-800 border border-gray-600 focus:border-indigo-500 rounded px-2 py-1 text-right text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        </div>
+                                    </td>
+                                    <td class="p-2.5 text-center">
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button type="button" @click="searchSingleTransferPrice(item)"
+                                                :disabled="item.status === 'searching'"
+                                                class="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded border border-gray-700 text-[11px] transition inline-flex items-center gap-1"
+                                                title="Fetch historical price on this transfer date via configured API / AI">
+                                                <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                                <span>Search</span>
+                                            </button>
+                                            <a :href="'https://www.google.com/search?q=' + encodeURIComponent(item.ticker + ' stock price on ' + item.date)"
+                                                target="_blank" rel="noopener noreferrer"
+                                                class="px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-emerald-400 rounded border border-gray-700 text-[11px] transition inline-flex items-center gap-1"
+                                                title="Look up historical market close on Google in a new tab (no API key required)">
+                                                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                                <span>Google</span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Import Mode Selection -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-gray-400 mb-2">Select Import Mode</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label
+                            :class="ibkrImportMode === 'merge' ? 'border-red-500 bg-red-950/20' : 'border-gray-700 bg-gray-700/20 hover:border-gray-600'"
+                            class="flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition">
+                            <input type="radio" v-model="ibkrImportMode" value="merge"
+                                class="mt-0.5 text-red-600 focus:ring-red-500">
+                            <div>
+                                <div class="text-sm font-semibold text-white">Merge & Deduplicate</div>
+                                <div class="text-xs text-gray-400 mt-0.5">Append only new trades to your current ledger.
+                                    Existing trades matching date, symbol & action will not be duplicated.</div>
+                            </div>
+                        </label>
+                        <label
+                            :class="ibkrImportMode === 'replace' ? 'border-red-500 bg-red-950/20' : 'border-gray-700 bg-gray-700/20 hover:border-gray-600'"
+                            class="flex items-start gap-3 p-3.5 rounded-lg border cursor-pointer transition">
+                            <input type="radio" v-model="ibkrImportMode" value="replace"
+                                class="mt-0.5 text-red-600 focus:ring-red-500">
+                            <div>
+                                <div class="text-sm font-semibold text-white">Replace Entire Ledger</div>
+                                <div class="text-xs text-gray-400 mt-0.5">Clear the current ledger and import this
+                                    report as the complete record. Recommended for first full import.</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Sample Trades Preview -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-xs font-semibold uppercase text-gray-400">Sample Parsed Transactions (First
+                            5)</span>
+                        <span class="text-[11px] text-gray-500">Total ready: {{ ibkrImportData.transactions.length }}</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-48 border border-gray-700/70 rounded-lg">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead class="bg-gray-900 text-gray-400 border-b border-gray-700">
+                                <tr>
+                                    <th class="p-2">Date / Time</th>
+                                    <th class="p-2">Type</th>
+                                    <th class="p-2">Asset / Contract</th>
+                                    <th class="p-2">Action</th>
+                                    <th class="p-2 text-right">Qty</th>
+                                    <th class="p-2 text-right">Price</th>
+                                    <th class="p-2 text-right">Net Value</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700/40">
+                                <tr v-for="t in ibkrImportData.transactions.slice(0, 5)" :key="t.id"
+                                    class="hover:bg-gray-700/20">
+                                    <td class="p-2 text-gray-300 font-mono text-[11px]">
+                                        {{ t.date }} <span v-if="t.time" class="text-gray-500">{{ t.time }}</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span :class="t.assetType === 'Stock' ? 'text-blue-400' : 'text-purple-400'">{{
+                                            t.assetType }}</span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span class="font-bold text-white">{{ t.ticker }}</span>
+                                        <span v-if="t.assetType === 'Option'" class="text-[10px] text-gray-400 block">
+                                            {{ t.optionType }} ${{ t.strike }} Exp {{ t.expiration }}
+                                        </span>
+                                    </td>
+                                    <td class="p-2">
+                                        <span
+                                            :class="['Buy', 'Buy to Open', 'Buy to Close'].includes(t.action) ? 'text-emerald-400' : (['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(t.action) ? 'text-gray-400' : 'text-rose-400')">
+                                            {{ t.action }}
+                                        </span>
+                                    </td>
+                                    <td class="p-2 text-right font-mono">{{ t.quantity }}</td>
+                                    <td class="p-2 text-right font-mono">${{ formatNumber(t.price) }}</td>
+                                    <td class="p-2 text-right font-mono font-medium"
+                                        :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(t.action) ? 'text-rose-400' : 'text-emerald-400'">
+                                        {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned',
+                                        'Exchange or Exercise'].includes(t.action) ? '-' : '+' }}${{
+                                        formatNumber(t.totalValue) }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex justify-end items-center gap-3 pt-3 border-t border-gray-700">
+                    <button @click="closeIbkrModal"
+                        class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-semibold rounded-lg transition">
+                        Cancel
+                    </button>
+                    <button @click="executeIbkrImport"
+                        class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-lg transition shadow-lg shadow-red-900/30 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        Confirm Import ({{ ibkrImportData.transactions.length }} Trades)
                     </button>
                 </div>
             </div>
@@ -5160,6 +5508,14 @@
                 const schwabImportData = ref(null);
                 const schwabImportMode = ref('merge');
                 const showSkippedDetails = ref(false);
+
+                // IBKR import state
+                const ibkrFileInput = ref(null);
+                const showIbkrModal = ref(false);
+                const ibkrImportData = ref(null);
+                const ibkrImportMode = ref('merge');
+                const showIbkrSkippedDetails = ref(false);
+
                 const isSearchingTransferPrices = ref(false);
                 let savedTransferPrices = {};
                 try {
@@ -6689,6 +7045,11 @@ No markdown fences or commentary outside the JSON.`;
                 const compareChronologicalAscending = (a, b) => {
                     const dDiff = new Date(a.date) - new Date(b.date);
                     if (dDiff !== 0) return dDiff;
+
+                    if (a.time && b.time) {
+                        const tDiff = a.time.localeCompare(b.time);
+                        if (tDiff !== 0) return tDiff;
+                    }
 
                     if (a.rawIndex !== undefined && b.rawIndex !== undefined) {
                         return b.rawIndex - a.rawIndex;
@@ -8510,24 +8871,29 @@ No markdown fences or commentary outside the JSON.`;
                     if (!customTransferPrices.value) customTransferPrices.value = {};
                     customTransferPrices.value[transferKey] = prc;
 
-                    if (schwabImportData.value && Array.isArray(schwabImportData.value.transactions)) {
-                        schwabImportData.value.transactions.forEach(tx => {
-                            if (tx.originalAction === 'Security Transfer' && resolveTicker(tx.ticker) === resolved && tx.date === date) {
-                                tx.price = prc;
-                                const mult = tx.assetType === 'Stock' ? 1 : 100;
-                                const gross = tx.quantity * prc * mult;
-                                tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? (gross + (tx.fee || 0)) : (gross - (tx.fee || 0));
-                            }
-                        });
-                    }
-
-                    if (schwabImportData.value && Array.isArray(schwabImportData.value.detectedTransfers)) {
-                        const item = schwabImportData.value.detectedTransfers.find(d => resolveTicker(d.ticker) === resolved && d.date === date);
-                        if (item) {
-                            item.price = prc;
-                            item.sourceLabel = prc > 0 ? 'User Specified' : 'Pending Input';
+                    const updateTarget = (importDataRef) => {
+                        if (importDataRef && importDataRef.value && Array.isArray(importDataRef.value.transactions)) {
+                            importDataRef.value.transactions.forEach(tx => {
+                                if (tx.originalAction === 'Security Transfer' && resolveTicker(tx.ticker) === resolved && tx.date === date) {
+                                    tx.price = prc;
+                                    const mult = tx.assetType === 'Stock' ? 1 : 100;
+                                    const gross = tx.quantity * prc * mult;
+                                    tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? (gross + (tx.fee || 0)) : (gross - (tx.fee || 0));
+                                }
+                            });
                         }
-                    }
+
+                        if (importDataRef && importDataRef.value && Array.isArray(importDataRef.value.detectedTransfers)) {
+                            const item = importDataRef.value.detectedTransfers.find(d => resolveTicker(d.ticker) === resolved && d.date === date);
+                            if (item) {
+                                item.price = prc;
+                                item.sourceLabel = prc > 0 ? 'User Specified' : 'Pending Input';
+                            }
+                        }
+                    };
+
+                    updateTarget(schwabImportData);
+                    updateTarget(ibkrImportData);
                 };
 
                 const searchSingleTransferPrice = async (item) => {
@@ -8554,11 +8920,12 @@ No markdown fences or commentary outside the JSON.`;
                 };
 
                 const autoSearchAllTransferPrices = async () => {
-                    if (!schwabImportData.value || !Array.isArray(schwabImportData.value.detectedTransfers)) return;
+                    const activeImportData = (ibkrImportData.value && showIbkrModal.value) ? ibkrImportData : schwabImportData;
+                    if (!activeImportData.value || !Array.isArray(activeImportData.value.detectedTransfers)) return;
                     isSearchingTransferPrices.value = true;
                     let foundCount = 0;
                     try {
-                        for (const item of schwabImportData.value.detectedTransfers) {
+                        for (const item of activeImportData.value.detectedTransfers) {
                             item.status = 'searching';
                             item.sourceLabel = 'Searching...';
                             const found = await fetchHistoricalStockPrice(item.ticker, item.date);
@@ -8903,6 +9270,490 @@ No markdown fences or commentary outside the JSON.`;
                     closeSchwabModal();
                 };
 
+                const triggerIbkrFileInput = () => {
+                    if (ibkrFileInput.value) {
+                        ibkrFileInput.value.click();
+                    }
+                };
+
+                const closeIbkrModal = () => {
+                    showIbkrModal.value = false;
+                    ibkrImportData.value = null;
+                    if (ibkrFileInput.value) {
+                        ibkrFileInput.value.value = '';
+                    }
+                };
+
+                const handleIbkrFileSelect = (event) => {
+                    const file = event.target.files && event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const content = e.target.result;
+                            processIbkrFileContent(content, file.name);
+                        } catch (err) {
+                            console.error('Error reading IBKR file:', err);
+                            showNotification(`Failed to read file: ${err.message}`, 'error');
+                        } finally {
+                            if (event.target) event.target.value = '';
+                        }
+                    };
+                    reader.onerror = () => {
+                        showNotification('Failed to read file from disk.', 'error');
+                        if (event.target) event.target.value = '';
+                    };
+                    reader.readAsText(file);
+                };
+
+                const processIbkrFileContent = (content, fileName) => {
+                    if (!content || (!content.includes('tblTransactions_') && !content.includes('Activity Statement'))) {
+                        showNotification('Unsupported file format. Please upload an Interactive Brokers (IBKR) Activity Statement HTML report.', 'error');
+                        return;
+                    }
+
+                    // Metadata extraction
+                    let fromDate = '';
+                    let toDate = '';
+                    const dateRangeMatch = content.match(/class="text-title"[^>]*>Activity Statement<br><span>([^<]+)<\/span>/i) ||
+                                           content.match(/<title>[^<]*Activity Statement\s+([A-Za-z0-9,\s]+?)\s*-\s*([A-Za-z0-9,\s]+?)\s*-\s*Interactive Brokers<\/title>/i);
+                    if (dateRangeMatch) {
+                        if (dateRangeMatch[2]) {
+                            fromDate = dateRangeMatch[1].trim();
+                            toDate = dateRangeMatch[2].trim();
+                        } else {
+                            const parts = dateRangeMatch[1].split(' - ');
+                            if (parts.length === 2) {
+                                fromDate = parts[0].trim();
+                                toDate = parts[1].trim();
+                            }
+                        }
+                    }
+
+                    const accMatch = content.match(/<td>Account<\/td>\s*<td>([^<]+)<\/td>/i);
+                    const account = accMatch ? accMatch[1].trim() : '';
+
+                    const baseCurrMatch = content.match(/<td>Base Currency<\/td>\s*<td>([^<]+)<\/td>/i);
+                    const baseCurrency = baseCurrMatch ? baseCurrMatch[1].trim() : 'USD';
+
+                    // Parse Trades
+                    const transStart = content.indexOf('tblTransactions_');
+                    const transEnd = content.indexOf('secTransactionsTax_');
+                    if (transStart === -1 || transEnd === -1) {
+                        showNotification('No trades section found in this IBKR report.', 'error');
+                        return;
+                    }
+
+                    const transSection = content.slice(transStart, transEnd);
+                    const tbodies = transSection.split('<tbody>');
+
+                    const monthMap = {
+                        JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06',
+                        JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12'
+                    };
+                    const optRegex = /^([A-Z0-9\.\s]+?)\s+(\d{2})([A-Z]{3})(\d{2})\s+([\d\.]+)\s+([CP])$/;
+
+                    let currentAsset = '';
+                    let currentCurrency = '';
+
+                    const parsed = [];
+                    const skipped = [];
+                    const skippedBreakdown = {};
+                    let aliasMappedCount = 0;
+                    let rawIdx = 0;
+
+                    for (const tbody of tbodies) {
+                        if (tbody.includes('header-asset')) {
+                            const match = tbody.match(/class="header-asset"[^>]*>([^<]+)/);
+                            if (match) currentAsset = match[1].trim();
+                        }
+                        if (tbody.includes('header-currency')) {
+                            const match = tbody.match(/class="header-currency"[^>]*>([^<]+)/);
+                            if (match) currentCurrency = match[1].trim();
+                        }
+
+                        if (tbody.includes('<tr') && !tbody.includes('header-asset') && !tbody.includes('header-currency') && !tbody.includes('subtotal') && !tbody.includes('total')) {
+                            const tds = [];
+                            const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/g;
+                            let m;
+                            while ((m = tdRegex.exec(tbody)) !== null) {
+                                tds.push(m[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+                            }
+
+                            if (tds.length < 7) continue;
+
+                            const symbol = tds[0];
+                            const dateTime = tds[1];
+                            const rawQty = parseFloat((tds[2] || '0').replace(/,/g, '')) || 0;
+                            const price = parseFloat((tds[3] || '0').replace(/,/g, '')) || 0;
+                            const fee = Math.abs(parseFloat((tds[6] || '0').replace(/,/g, '')) || 0);
+                            const code = tds[10] || '';
+                            const codes = code.split(';').map(c => c.trim()).filter(Boolean);
+
+                            const [datePart, timePart] = dateTime.split(', ');
+                            const date = (datePart || '').trim();
+                            const time = (timePart || '').trim();
+                            const qty = Math.abs(rawQty);
+
+                            if (currentAsset === 'Equity and Index Options') {
+                                const optMatch = symbol.match(optRegex);
+                                if (!optMatch) {
+                                    skipped.push({ asset: currentAsset, symbol, dateTime, reason: 'Unrecognized option format' });
+                                    skippedBreakdown['Unrecognized Option'] = (skippedBreakdown['Unrecognized Option'] || 0) + 1;
+                                    continue;
+                                }
+
+                                const rawTicker = optMatch[1].trim();
+                                const ticker = resolveTicker(rawTicker);
+                                if (rawTicker !== ticker) aliasMappedCount++;
+
+                                const expDay = optMatch[2];
+                                const expMonth = monthMap[optMatch[3].toUpperCase()] || '01';
+                                const expYear = `20${optMatch[4]}`;
+                                const expiration = `${expYear}-${expMonth}-${expDay}`;
+                                const strike = parseFloat(optMatch[5]);
+                                const optionType = optMatch[6] === 'C' ? 'Call' : 'Put';
+
+                                let action = '';
+                                let effPrice = price;
+
+                                if (codes.includes('Ep') || (codes.includes('A') && codes.includes('C') && price === 0)) {
+                                    action = 'Expire';
+                                    effPrice = 0;
+                                } else if (codes.includes('O')) {
+                                    action = rawQty > 0 ? 'Buy to Open' : 'Sell to Open';
+                                } else if (codes.includes('C')) {
+                                    action = rawQty > 0 ? 'Buy to Close' : 'Sell to Close';
+                                } else if (price === 0) {
+                                    action = 'Expire';
+                                    effPrice = 0;
+                                } else {
+                                    action = rawQty > 0 ? 'Buy to Open' : 'Sell to Open';
+                                }
+
+                                const gross = qty * effPrice * 100;
+                                const totalValue = ['Buy to Open', 'Buy to Close', 'Expire'].includes(action) ? (gross + fee) : (gross - fee);
+
+                                parsed.push({
+                                    rawIndex: rawIdx,
+                                    id: `ibkr_${date.replace(/-/g, '')}_${rawIdx++}`,
+                                    date,
+                                    time,
+                                    assetType: 'Option',
+                                    ticker,
+                                    action,
+                                    originalAction: code ? `IBKR: ${code}` : action,
+                                    quantity: qty,
+                                    price: effPrice,
+                                    fee,
+                                    optionType,
+                                    strike,
+                                    expiration,
+                                    strategyName: '',
+                                    totalValue
+                                });
+                            } else if (currentAsset === 'Stocks') {
+                                const rawTicker = symbol.trim().toUpperCase();
+                                const ticker = resolveTicker(rawTicker);
+                                if (rawTicker !== ticker) aliasMappedCount++;
+
+                                const action = rawQty > 0 ? 'Buy' : 'Sell';
+                                const gross = qty * price;
+                                const totalValue = action === 'Buy' ? (gross + fee) : (gross - fee);
+
+                                parsed.push({
+                                    rawIndex: rawIdx,
+                                    id: `ibkr_${date.replace(/-/g, '')}_${rawIdx++}`,
+                                    date,
+                                    time,
+                                    assetType: 'Stock',
+                                    ticker,
+                                    action,
+                                    originalAction: code ? `IBKR: ${code}` : action,
+                                    quantity: qty,
+                                    price,
+                                    fee,
+                                    optionType: 'Call',
+                                    strike: null,
+                                    expiration: '',
+                                    strategyName: '',
+                                    totalValue
+                                });
+                            } else {
+                                skipped.push({ asset: currentAsset, symbol, dateTime });
+                                skippedBreakdown[currentAsset] = (skippedBreakdown[currentAsset] || 0) + 1;
+                            }
+                        }
+                    }
+
+                    // Inbound Transfers Section
+                    const detectedTransfers = [];
+                    const transSecStart = content.indexOf('secAccountTransfers_');
+                    const transSecEnd = content.indexOf('secCombDepWith_');
+                    if (transSecStart !== -1 && transSecEnd !== -1) {
+                        const xferHtml = content.slice(transSecStart, transSecEnd);
+                        const trRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
+                        let trMatch;
+                        while ((trMatch = trRegex.exec(xferHtml)) !== null) {
+                            const tr = trMatch[1];
+                            if (tr.includes('<th') || tr.includes('header-asset') || tr.includes('subtotal') || tr.includes('total')) continue;
+                            const tds = [];
+                            const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/g;
+                            let tdMatch;
+                            while ((tdMatch = tdRegex.exec(tr)) !== null) {
+                                tds.push(tdMatch[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+                            }
+                            if (tds.length >= 7) {
+                                const sym = tds[0];
+                                const date = tds[1];
+                                const type = tds[2];
+                                const dir = tds[3];
+                                const rawQty = parseFloat((tds[6] || '0').replace(/,/g, '')) || 0;
+                                const mktVal = parseFloat((tds[8] || '0').replace(/,/g, '')) || 0;
+
+                                if (dir === 'In' && rawQty !== 0) {
+                                    const optMatch = sym.match(optRegex);
+                                    const isOption = !!optMatch;
+                                    const ticker = isOption ? resolveTicker(optMatch[1].trim()) : resolveTicker(sym.trim().toUpperCase());
+                                    const transferKey = `${ticker}_${date}`;
+
+                                    let optionDetails = '';
+                                    let optionType = 'Call';
+                                    let strike = null;
+                                    let expiration = '';
+
+                                    if (isOption) {
+                                        const expDay = optMatch[2];
+                                        const expMonth = monthMap[optMatch[3].toUpperCase()] || '01';
+                                        const expYear = `20${optMatch[4]}`;
+                                        expiration = `${expYear}-${expMonth}-${expDay}`;
+                                        strike = parseFloat(optMatch[5]);
+                                        optionType = optMatch[6] === 'C' ? 'Call' : 'Put';
+                                        optionDetails = `${optionType} $${strike} Exp ${expiration}`;
+                                    }
+
+                                    const qty = Math.abs(rawQty);
+                                    let effPrice = 0.00;
+                                    let sourceLabel = 'Pending Input';
+
+                                    if (customTransferPrices.value && customTransferPrices.value[transferKey] !== undefined) {
+                                        effPrice = Number(customTransferPrices.value[transferKey]) || 0;
+                                        sourceLabel = 'Saved / Custom';
+                                    } else {
+                                        const existingTx = transactions.value.find(t => t.assetType === (isOption ? 'Option' : 'Stock') && resolveTicker(t.ticker) === ticker && t.price > 0 && new Date(t.date) <= new Date(date));
+                                        if (existingTx) {
+                                            effPrice = existingTx.price;
+                                            sourceLabel = 'Ledger Basis';
+                                        }
+                                    }
+
+                                    const action = isOption ? (rawQty > 0 ? 'Buy to Open' : 'Sell to Open') : (rawQty > 0 ? 'Buy' : 'Sell');
+                                    const gross = qty * effPrice * (isOption ? 100 : 1);
+                                    const totalValue = ['Buy', 'Buy to Open'].includes(action) ? gross : -gross;
+
+                                    detectedTransfers.push({
+                                        key: transferKey,
+                                        ticker,
+                                        date,
+                                        assetType: isOption ? 'Option' : 'Stock',
+                                        optionDetails,
+                                        quantity: qty,
+                                        price: effPrice,
+                                        marketValue: mktVal,
+                                        sourceLabel,
+                                        status: 'ready'
+                                    });
+
+                                    parsed.push({
+                                        rawIndex: rawIdx,
+                                        id: `ibkr_${date.replace(/-/g, '')}_xfer_${rawIdx++}`,
+                                        date,
+                                        time: '00:00:00',
+                                        assetType: isOption ? 'Option' : 'Stock',
+                                        ticker,
+                                        action,
+                                        originalAction: 'Security Transfer',
+                                        quantity: qty,
+                                        price: effPrice,
+                                        fee: 0,
+                                        optionType,
+                                        strike,
+                                        expiration,
+                                        strategyName: '',
+                                        totalValue
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // Corporate Actions / Stock Splits
+                    const corpStart = content.indexOf('secCorporateActions_');
+                    const corpEnd = content.indexOf('secCodes_');
+                    if (corpStart !== -1 && corpEnd !== -1) {
+                        const corpChunk = content.slice(corpStart, corpEnd);
+                        const trRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
+                        let trMatch;
+                        while ((trMatch = trRegex.exec(corpChunk)) !== null) {
+                            const tr = trMatch[1];
+                            if (tr.includes('<th') || tr.includes('subtotal') || tr.includes('total')) continue;
+                            const tds = [];
+                            const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/g;
+                            let tdMatch;
+                            while ((tdMatch = tdRegex.exec(tr)) !== null) {
+                                tds.push(tdMatch[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+                            }
+                            if (tds.length >= 4) {
+                                const rowStr = tds.join(' ').toLowerCase();
+                                if (rowStr.includes('split') || rowStr.includes('forward split') || rowStr.includes('distribution')) {
+                                    const rawSym = tds[0];
+                                    const sym = resolveTicker(rawSym.trim().toUpperCase());
+                                    const date = (tds[1] || '').split(',')[0].trim();
+                                    const qty = Math.abs(parseFloat((tds[4] || tds[3] || '0').replace(/,/g, '')) || 0);
+                                    if (sym && date && qty > 0) {
+                                        parsed.push({
+                                            rawIndex: rawIdx,
+                                            id: `ibkr_${date.replace(/-/g, '')}_split_${rawIdx++}`,
+                                            date,
+                                            time: '00:00:00',
+                                            assetType: 'Stock',
+                                            ticker: sym,
+                                            action: 'Buy',
+                                            originalAction: 'Stock Split',
+                                            quantity: qty,
+                                            price: 0,
+                                            fee: 0,
+                                            optionType: 'Call',
+                                            strike: null,
+                                            expiration: '',
+                                            strategyName: '',
+                                            totalValue: 0
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Non-trade sections breakdown
+                    const countSectionRows = (startId, endId) => {
+                        const s = content.indexOf(startId);
+                        const e = content.indexOf(endId);
+                        if (s === -1 || e === -1) return 0;
+                        const chunk = content.slice(s, e);
+                        const matches = chunk.match(/<tr/g);
+                        return matches ? Math.max(0, matches.length - 2) : 0;
+                    };
+
+                    const divCount = countSectionRows('secCombDiv_', 'secWithholdingTax_');
+                    if (divCount > 0) skippedBreakdown['Dividends'] = divCount;
+                    const taxCount = countSectionRows('secWithholdingTax_', 'secCombInt_');
+                    if (taxCount > 0) skippedBreakdown['Withholding Tax'] = taxCount;
+                    const depWithCount = countSectionRows('secCombDepWith_', 'secCombFees_');
+                    if (depWithCount > 0) skippedBreakdown['Deposits & Withdrawals'] = depWithCount;
+
+                    // Sort chronologically ascending
+                    parsed.sort(compareChronologicalAscending);
+
+                    ibkrImportData.value = {
+                        fileName,
+                        account,
+                        baseCurrency,
+                        fromDate,
+                        toDate,
+                        transactions: parsed,
+                        detectedTransfers,
+                        skipped,
+                        skippedBreakdown,
+                        stats: {
+                            total: parsed.length + skipped.length,
+                            trades: parsed.length,
+                            stocks: parsed.filter(t => t.assetType === 'Stock').length,
+                            options: parsed.filter(t => t.assetType === 'Option').length,
+                            transfers: detectedTransfers.length,
+                            aliasMapped: aliasMappedCount,
+                            skipped: skipped.length + Object.values(skippedBreakdown).reduce((a, b) => a + b, 0)
+                        }
+                    };
+
+                    showIbkrModal.value = true;
+                };
+
+                const executeIbkrImport = () => {
+                    if (!ibkrImportData.value) return;
+
+                    // Persist any reviewed/custom transfer prices to customTransferPrices and localStorage
+                    if (ibkrImportData.value && Array.isArray(ibkrImportData.value.detectedTransfers)) {
+                        if (!customTransferPrices.value) customTransferPrices.value = {};
+                        ibkrImportData.value.detectedTransfers.forEach(item => {
+                            if (item.price > 0) {
+                                customTransferPrices.value[item.key] = item.price;
+                            }
+                        });
+                        localStorage.setItem('custom_transfer_prices', JSON.stringify(customTransferPrices.value));
+                    }
+
+                    const newTrades = ibkrImportData.value.transactions;
+                    let addedCount = 0;
+                    let duplicateCount = 0;
+
+                    const getTxSig = (t) => {
+                        const qty = Number(t.quantity || 0).toFixed(4);
+                        const prc = Number(t.price || 0).toFixed(4);
+                        if (t.assetType === 'Stock') {
+                            return `STOCK_${t.date}_${(t.ticker || '').toUpperCase()}_${t.action}_${qty}_${prc}`;
+                        } else if (t.assetType === 'Option') {
+                            return `OPTION_${t.date}_${(t.ticker || '').toUpperCase()}_${t.action}_${t.optionType}_${t.strike}_${t.expiration}_${qty}_${prc}`;
+                        } else {
+                            return `SPREAD_${t.date}_${(t.ticker || '').toUpperCase()}_${t.action}_${(t.strategyName || '').toUpperCase()}_${qty}_${prc}`;
+                        }
+                    };
+
+                    if (ibkrImportMode.value === 'replace') {
+                        transactions.value = [...newTrades];
+                        addedCount = newTrades.length;
+                    } else {
+                        // Merge with multiset deduplication
+                        const existingFreq = new Map();
+                        transactions.value.forEach(t => {
+                            const sig = getTxSig(t);
+                            existingFreq.set(sig, (existingFreq.get(sig) || 0) + 1);
+                        });
+
+                        const toAdd = [];
+                        newTrades.forEach(t => {
+                            const sig = getTxSig(t);
+                            const count = existingFreq.get(sig) || 0;
+                            if (count > 0) {
+                                existingFreq.set(sig, count - 1);
+                                duplicateCount++;
+                            } else {
+                                toAdd.push(t);
+                                addedCount++;
+                            }
+                        });
+
+                        transactions.value = [...transactions.value, ...toAdd];
+                    }
+
+                    // Auto-register stock tickers to marketPrices watchlist
+                    newTrades.forEach(t => {
+                        if (t.assetType === 'Stock' && t.ticker) {
+                            if (marketPrices.value[t.ticker] === undefined) {
+                                marketPrices.value[t.ticker] = t.price || 0;
+                            }
+                        }
+                    });
+
+                    saveLedgerData();
+                    savePrices();
+
+                    const modeText = ibkrImportMode.value === 'replace' ? 'replaced' : 'merged';
+                    showNotification(`IBKR report imported: ${addedCount} trades added${duplicateCount > 0 ? `, ${duplicateCount} duplicates skipped` : ''} (${modeText}).`, 'success');
+                    closeIbkrModal();
+                };
+
                 transactions.value.forEach(tx => {
                     const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
                     tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
@@ -9035,6 +9886,15 @@ No markdown fences or commentary outside the JSON.`;
                     closeSchwabModal,
                     handleSchwabFileSelect,
                     executeSchwabImport,
+                    ibkrFileInput,
+                    showIbkrModal,
+                    ibkrImportData,
+                    ibkrImportMode,
+                    showIbkrSkippedDetails,
+                    triggerIbkrFileInput,
+                    closeIbkrModal,
+                    handleIbkrFileSelect,
+                    executeIbkrImport,
                     tickerAliases,
                     showAliasesModal,
                     newAliasFrom,
