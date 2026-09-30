@@ -2,3 +2,8 @@
 Individual_*.json
 Individual_*.xml
 portfolio.json
+portfolio_ws.json
+
+# Interactive Brokers export statements (personal financial data)
+U*.htm*
+

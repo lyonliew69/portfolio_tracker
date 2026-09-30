@@ -2428,6 +2428,46 @@
                     </button>
                 </div>
 
+                <!-- Foreign Currency (Non-USD) Conversion Notice -->
+                <div v-if="ibkrImportData.stats.fxConverted > 0"
+                    class="bg-emerald-950/30 border border-emerald-800/50 rounded-lg p-3 text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <span class="text-gray-200">
+                                Multi-Currency Auto-Conversion:
+                                <strong class="text-emerald-300 ml-1">{{ ibkrImportData.stats.fxConverted }} trade(s)</strong>
+                            </span>
+                            <span class="text-gray-400 ml-1">
+                                converted to USD base currency using exchange rates for seamless ledger compatibility.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Options (ITM) Notice -->
+                <div v-if="ibkrImportData.stats.assignedOptions > 0"
+                    class="bg-amber-950/30 border border-amber-800/50 rounded-lg p-3 text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        <div>
+                            <span class="text-gray-200">
+                                Assigned Options (ITM):
+                                <strong class="text-amber-300 ml-1">{{ ibkrImportData.stats.assignedOptions }} option trade(s)</strong>
+                            </span>
+                            <span class="text-gray-400 ml-1">
+                                identified as in-the-money assignments and correctly mapped to Assigned status.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Non-trade entries note -->
                 <div v-if="ibkrImportData.stats.skipped > 0"
                     class="bg-gray-900/40 border border-gray-700/60 rounded-lg p-3 text-xs">
@@ -9354,6 +9394,22 @@ No markdown fences or commentary outside the JSON.`;
                     };
                     const optRegex = /^([A-Z0-9\.\s]+?)\s+(\d{2})([A-Z]{3})(\d{2})\s+([\d\.]+)\s+([CP])$/;
 
+                    const getFxRateToUsd = (curr) => {
+                        if (!curr || curr.toUpperCase() === 'USD') return 1.0;
+                        const c = curr.trim().toUpperCase();
+                        if (customFxRates.value && customFxRates.value[c] && !isNaN(customFxRates.value[c])) {
+                            return parseFloat(customFxRates.value[c]);
+                        }
+                        if (exchangeRates.value && exchangeRates.value[c] && !isNaN(exchangeRates.value[c])) {
+                            return parseFloat(exchangeRates.value[c]);
+                        }
+                        if (DEFAULT_EXCHANGE_RATES && DEFAULT_EXCHANGE_RATES[c] && !isNaN(DEFAULT_EXCHANGE_RATES[c])) {
+                            return parseFloat(DEFAULT_EXCHANGE_RATES[c]);
+                        }
+                        const fallbackRates = { HKD: 7.82, SGD: 1.28, EUR: 0.87, GBP: 0.76, JPY: 155.0, CAD: 1.36, AUD: 1.52, CNY: 7.15 };
+                        return fallbackRates[c] || 1.0;
+                    };
+
                     let currentAsset = '';
                     let currentCurrency = '';
 
@@ -9361,6 +9417,7 @@ No markdown fences or commentary outside the JSON.`;
                     const skipped = [];
                     const skippedBreakdown = {};
                     let aliasMappedCount = 0;
+                    let fxConvertedCount = 0;
                     let rawIdx = 0;
 
                     for (const tbody of tbodies) {
@@ -9396,6 +9453,10 @@ No markdown fences or commentary outside the JSON.`;
                             const time = (timePart || '').trim();
                             const qty = Math.abs(rawQty);
 
+                            const tradeCurr = (currentCurrency || 'USD').trim().toUpperCase();
+                            const fxRate = getFxRateToUsd(tradeCurr);
+                            const isNonUsd = tradeCurr !== 'USD' && fxRate > 0 && fxRate !== 1.0;
+
                             if (currentAsset === 'Equity and Index Options') {
                                 const optMatch = symbol.match(optRegex);
                                 if (!optMatch) {
@@ -9418,7 +9479,13 @@ No markdown fences or commentary outside the JSON.`;
                                 let action = '';
                                 let effPrice = price;
 
-                                if (codes.includes('Ep') || (codes.includes('A') && codes.includes('C') && price === 0)) {
+                                if (codes.includes('A')) {
+                                    action = 'Assigned';
+                                    effPrice = 0;
+                                } else if (codes.includes('Ex') || codes.includes('AEx') || codes.includes('MEx')) {
+                                    action = 'Exchange or Exercise';
+                                    effPrice = 0;
+                                } else if (codes.includes('Ep')) {
                                     action = 'Expire';
                                     effPrice = 0;
                                 } else if (codes.includes('O')) {
@@ -9432,8 +9499,21 @@ No markdown fences or commentary outside the JSON.`;
                                     action = rawQty > 0 ? 'Buy to Open' : 'Sell to Open';
                                 }
 
-                                const gross = qty * effPrice * 100;
-                                const totalValue = ['Buy to Open', 'Buy to Close', 'Expire'].includes(action) ? (gross + fee) : (gross - fee);
+                                if (isNonUsd) fxConvertedCount++;
+                                const effPriceUsd = isNonUsd ? Number((effPrice / fxRate).toFixed(4)) : effPrice;
+                                const feeUsd = isNonUsd ? Number((fee / fxRate).toFixed(2)) : fee;
+
+                                const gross = qty * effPriceUsd * 100;
+                                const totalValue = ['Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(action) ? Number((gross + feeUsd).toFixed(2)) : Number((gross - feeUsd).toFixed(2));
+
+                                let originalActionLabel = code ? `IBKR: ${code}` : action;
+                                if (codes.includes('A')) {
+                                    originalActionLabel = `IBKR: ${code} (Assigned)`;
+                                } else if (codes.includes('Ex') || codes.includes('AEx') || codes.includes('MEx')) {
+                                    originalActionLabel = `IBKR: ${code} (Exercised)`;
+                                } else if (codes.includes('Ep')) {
+                                    originalActionLabel = `IBKR: ${code} (Expired)`;
+                                }
 
                                 parsed.push({
                                     rawIndex: rawIdx,
@@ -9443,15 +9523,22 @@ No markdown fences or commentary outside the JSON.`;
                                     assetType: 'Option',
                                     ticker,
                                     action,
-                                    originalAction: code ? `IBKR: ${code}` : action,
+                                    originalAction: originalActionLabel,
                                     quantity: qty,
-                                    price: effPrice,
-                                    fee,
+                                    price: effPriceUsd,
+                                    fee: feeUsd,
                                     optionType,
                                     strike,
                                     expiration,
                                     strategyName: '',
-                                    totalValue
+                                    totalValue,
+                                    currency: tradeCurr,
+                                    ...(isNonUsd ? {
+                                        originalCurrency: tradeCurr,
+                                        originalPrice: effPrice,
+                                        originalFee: fee,
+                                        fxRateToUsd: fxRate
+                                    } : {})
                                 });
                             } else if (currentAsset === 'Stocks') {
                                 const rawTicker = symbol.trim().toUpperCase();
@@ -9459,8 +9546,19 @@ No markdown fences or commentary outside the JSON.`;
                                 if (rawTicker !== ticker) aliasMappedCount++;
 
                                 const action = rawQty > 0 ? 'Buy' : 'Sell';
-                                const gross = qty * price;
-                                const totalValue = action === 'Buy' ? (gross + fee) : (gross - fee);
+                                if (isNonUsd) fxConvertedCount++;
+                                const stockPriceUsd = isNonUsd ? Number((price / fxRate).toFixed(4)) : price;
+                                const stockFeeUsd = isNonUsd ? Number((fee / fxRate).toFixed(2)) : fee;
+
+                                const gross = qty * stockPriceUsd;
+                                const totalValue = action === 'Buy' ? Number((gross + stockFeeUsd).toFixed(2)) : Number((gross - stockFeeUsd).toFixed(2));
+
+                                let stockOrigAction = code ? `IBKR: ${code}` : action;
+                                if (codes.includes('A')) {
+                                    stockOrigAction = `IBKR: ${code} (Assigned)`;
+                                } else if (codes.includes('Ex') || codes.includes('AEx') || codes.includes('MEx')) {
+                                    stockOrigAction = `IBKR: ${code} (Exercised)`;
+                                }
 
                                 parsed.push({
                                     rawIndex: rawIdx,
@@ -9470,15 +9568,22 @@ No markdown fences or commentary outside the JSON.`;
                                     assetType: 'Stock',
                                     ticker,
                                     action,
-                                    originalAction: code ? `IBKR: ${code}` : action,
+                                    originalAction: stockOrigAction,
                                     quantity: qty,
-                                    price,
-                                    fee,
+                                    price: stockPriceUsd,
+                                    fee: stockFeeUsd,
                                     optionType: 'Call',
                                     strike: null,
                                     expiration: '',
                                     strategyName: '',
-                                    totalValue
+                                    totalValue,
+                                    currency: tradeCurr,
+                                    ...(isNonUsd ? {
+                                        originalCurrency: tradeCurr,
+                                        originalPrice: price,
+                                        originalFee: fee,
+                                        fxRateToUsd: fxRate
+                                    } : {})
                                 });
                             } else {
                                 skipped.push({ asset: currentAsset, symbol, dateTime });
@@ -9673,6 +9778,8 @@ No markdown fences or commentary outside the JSON.`;
                             options: parsed.filter(t => t.assetType === 'Option').length,
                             transfers: detectedTransfers.length,
                             aliasMapped: aliasMappedCount,
+                            fxConverted: fxConvertedCount,
+                            assignedOptions: parsed.filter(t => t.assetType === 'Option' && t.action === 'Assigned').length,
                             skipped: skipped.length + Object.values(skippedBreakdown).reduce((a, b) => a + b, 0)
                         }
                     };
