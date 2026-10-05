@@ -913,7 +913,7 @@
                 <div class="flex items-center justify-between lg:justify-end gap-3">
                     <!-- Right Toolbar (Tabs & Filters) -->
                     <div v-show="showAnalyticsHub" class="flex flex-wrap items-center gap-2.5">
-                        <!-- Tab Switcher: Chart vs Matrix -->
+                        <!-- Tab Switcher: Chart vs Matrix vs Capital -->
                         <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
                             <button type="button" @click="analyticsActiveTab = 'chart'"
                                 :class="analyticsActiveTab === 'chart' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
@@ -934,10 +934,20 @@
                                 </svg>
                                 Monthly Heatmap
                             </button>
+                            <button type="button" @click="analyticsActiveTab = 'capital'"
+                                :class="analyticsActiveTab === 'capital' ? 'bg-emerald-600 text-white font-semibold shadow' : 'text-gray-400 hover:text-white'"
+                                class="px-3 py-1 rounded transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                                    </path>
+                                </svg>
+                                Capital & Deposits
+                            </button>
                         </div>
 
-                        <!-- Asset Filter: All / Stocks / Options -->
-                        <div class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
+                        <!-- Asset Filter: All / Stocks / Options (Displayed on Chart View & Monthly Heatmap) -->
+                        <div v-if="analyticsActiveTab !== 'capital'" class="flex bg-gray-900/80 p-1 rounded-lg border border-gray-700 text-xs">
                             <button type="button" @click="chartAssetFilter = 'all'"
                                 :class="chartAssetFilter === 'all' ? 'bg-gray-700 text-emerald-400 font-semibold' : 'text-gray-400 hover:text-gray-200'"
                                 class="px-2.5 py-1 rounded transition">All</button>
@@ -1109,6 +1119,240 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Capital & Deposits Tab -->
+                <div v-show="analyticsActiveTab === 'capital'" class="space-y-4">
+                    <!-- Top Metrics Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <!-- Net Invested Capital -->
+                        <div class="bg-gray-900/70 p-3.5 rounded-xl border border-gray-700/80 shadow-sm relative overflow-hidden">
+                            <div class="flex items-center justify-between text-[11px] text-gray-400 font-semibold uppercase">
+                                <span>Net Capital Invested</span>
+                                <span v-if="cashSummary.netDeposits > 0" class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border"
+                                    :class="totalPortfolioNetPL >= 0 ? 'bg-emerald-950/80 border-emerald-800 text-emerald-300' : 'bg-rose-950/80 border-rose-800 text-rose-300'">
+                                    {{ totalPortfolioNetPL >= 0 ? '+' : '' }}{{ formatNumber(cashSummary.allTimeRoiPercent) }}% ROI
+                                </span>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-bold font-mono mt-1 text-white">
+                                {{ formatMoney(cashSummary.netDeposits) }}
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1 flex items-center justify-between">
+                                <span>Funded Principal</span>
+                                <span class="font-mono text-gray-300">{{ cashSummary.count }} total transfers</span>
+                            </div>
+                        </div>
+
+                        <!-- Gross Deposits -->
+                        <div class="bg-gray-900/70 p-3.5 rounded-xl border border-emerald-900/40 shadow-sm">
+                            <div class="text-[11px] text-emerald-400 font-semibold uppercase">Total Deposited</div>
+                            <div class="text-xl sm:text-2xl font-bold font-mono mt-1 text-emerald-400">
+                                +{{ formatMoney(cashSummary.grossDeposits) }}
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1">
+                                Gross Inflows (Wires / Transfers)
+                            </div>
+                        </div>
+
+                        <!-- Gross Withdrawals -->
+                        <div class="bg-gray-900/70 p-3.5 rounded-xl border border-rose-900/40 shadow-sm">
+                            <div class="text-[11px] text-rose-400 font-semibold uppercase">Total Withdrawn</div>
+                            <div class="text-xl sm:text-2xl font-bold font-mono mt-1 text-rose-400">
+                                -{{ formatMoney(cashSummary.grossWithdrawals) }}
+                            </div>
+                            <div class="text-[11px] text-gray-400 mt-1">
+                                Disbursements & Outbound Wires
+                            </div>
+                        </div>
+
+                        <!-- Broker Breakdown -->
+                        <div class="bg-gray-900/70 p-3.5 rounded-xl border border-indigo-900/40 shadow-sm">
+                            <div class="text-[11px] text-indigo-400 font-semibold uppercase">Broker Net Injected</div>
+                            <div class="text-xs font-mono mt-1 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-400"></span>Schwab:</span>
+                                    <strong class="text-white">{{ formatMoney(cashSummary.schwabNet) }}</strong>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-300 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400"></span>IBKR:</span>
+                                    <strong class="text-white">{{ formatMoney(cashSummary.ibkrNet) }}</strong>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-gray-500 mt-1 border-t border-gray-800 pt-1">
+                                Auto-converted to Base Currency
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yearly Capital Inflows Matrix -->
+                    <div v-if="cashSummary.yearlyList && cashSummary.yearlyList.length > 0" class="border border-gray-700/80 rounded-xl bg-gray-900/60 overflow-hidden">
+                        <div class="p-3 bg-gray-850 border-b border-gray-750 flex items-center justify-between text-xs">
+                            <span class="font-bold text-white flex items-center gap-2">
+                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Yearly Capital Summary
+                            </span>
+                            <span class="text-gray-400 text-[11px]">Net inflow/outflow distribution by year</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse whitespace-nowrap font-mono">
+                                <thead class="bg-gray-800/80 text-gray-400 uppercase text-[10px] border-b border-gray-750">
+                                    <tr>
+                                        <th class="p-2.5 pl-3.5">Year</th>
+                                        <th class="p-2.5 text-right text-emerald-400">Deposits</th>
+                                        <th class="p-2.5 text-right text-rose-400">Withdrawals</th>
+                                        <th class="p-2.5 text-right text-white">Net Funded</th>
+                                        <th class="p-2.5 text-right pr-3.5">Transfers</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-800">
+                                    <tr v-for="y in cashSummary.yearlyList" :key="y.year" class="hover:bg-gray-800/40 transition">
+                                        <td class="p-2.5 pl-3.5 font-bold text-white">{{ y.year }}</td>
+                                        <td class="p-2.5 text-right text-emerald-400 font-semibold">+{{ formatMoney(y.deposits) }}</td>
+                                        <td class="p-2.5 text-right text-rose-400 font-semibold">-{{ formatMoney(y.withdrawals) }}</td>
+                                        <td class="p-2.5 text-right font-bold" :class="y.net >= 0 ? 'text-emerald-300' : 'text-rose-300'">
+                                            {{ y.net >= 0 ? '+' : '' }}{{ formatMoney(y.net) }}
+                                        </td>
+                                        <td class="p-2.5 text-right text-gray-400 pr-3.5">{{ y.count }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Cash Transactions Ledger Section -->
+                    <div class="border border-gray-700/80 rounded-xl bg-gray-900/60 overflow-hidden space-y-3 p-3.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2 border-b border-gray-750">
+                            <div>
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    <span>Cash Movements & Transfer Log</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-gray-800 text-gray-300 border border-gray-700">
+                                        {{ filteredCashTransactions.length }} records
+                                    </span>
+                                </h3>
+                                <p class="text-[11px] text-gray-400">Complete audit trail of all inbound and outbound funds.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="openCashEntryModal"
+                                    class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Record Cash Flow
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 text-xs">
+                            <!-- Search -->
+                            <div class="bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 flex items-center gap-2">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" v-model="capitalSearchQuery" placeholder="Search description..."
+                                    class="bg-transparent text-gray-200 placeholder-gray-500 focus:outline-none w-full text-xs">
+                            </div>
+
+                            <!-- Broker Filter -->
+                            <div class="bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                                <span class="text-gray-400 text-[11px] shrink-0">Broker:</span>
+                                <select v-model="capitalBrokerFilter" @change="capitalPage = 1" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs cursor-pointer">
+                                    <option value="ALL" class="bg-gray-800">All Brokers</option>
+                                    <option value="Schwab" class="bg-gray-800">Schwab</option>
+                                    <option value="IBKR" class="bg-gray-800">IBKR</option>
+                                </select>
+                            </div>
+
+                            <!-- Action Filter -->
+                            <div class="bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                                <span class="text-gray-400 text-[11px] shrink-0">Flow:</span>
+                                <select v-model="capitalActionFilter" @change="capitalPage = 1" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs cursor-pointer">
+                                    <option value="ALL" class="bg-gray-800">All Flows</option>
+                                    <option value="Deposit" class="bg-gray-800">Deposits (+)</option>
+                                    <option value="Withdrawal" class="bg-gray-800">Withdrawals (-)</option>
+                                </select>
+                            </div>
+
+                            <!-- Year Filter -->
+                            <div class="bg-gray-800/90 border border-gray-700 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                                <span class="text-gray-400 text-[11px] shrink-0">Year:</span>
+                                <select v-model="capitalYearFilter" @change="capitalPage = 1" class="bg-transparent text-gray-200 focus:outline-none w-full text-xs cursor-pointer">
+                                    <option value="ALL" class="bg-gray-800">All Years</option>
+                                    <option v-for="y in availableLedgerYears" :key="y" :value="y" class="bg-gray-800">{{ y }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border-collapse whitespace-nowrap">
+                                <thead class="border-b border-gray-700 text-gray-400 uppercase text-[10px] font-semibold">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Date</th>
+                                        <th class="py-2.5 px-3">Broker</th>
+                                        <th class="py-2.5 px-3">Type</th>
+                                        <th class="py-2.5 px-3">Description</th>
+                                        <th class="py-2.5 px-3 text-right">Original Currency</th>
+                                        <th class="py-2.5 px-3 text-right">Converted Net ($)</th>
+                                        <th class="py-2.5 px-3 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-750/50">
+                                    <tr v-for="tx in paginatedCashTransactions" :key="tx.id" class="hover:bg-gray-800/40 transition">
+                                        <td class="py-2.5 px-3 font-mono text-gray-400">{{ tx.date }}</td>
+                                        <td class="py-2.5 px-3">
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                                                :class="(tx.source === 'Schwab' || (tx.id && String(tx.id).startsWith('schwab'))) ? 'bg-blue-950/70 border border-blue-800 text-blue-300' : 'bg-red-950/70 border border-red-800 text-red-300'">
+                                                {{ tx.source || ((tx.id && String(tx.id).startsWith('schwab')) ? 'Schwab' : 'IBKR') }}
+                                            </span>
+                                        </td>
+                                        <td class="py-2.5 px-3">
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold"
+                                                :class="tx.action === 'Deposit' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'">
+                                                {{ tx.action }}
+                                            </span>
+                                        </td>
+                                        <td class="py-2.5 px-3 text-gray-200 max-w-xs truncate" :title="tx.description || tx.originalAction">
+                                            {{ tx.description || tx.originalAction || '—' }}
+                                        </td>
+                                        <td class="py-2.5 px-3 text-right font-mono text-gray-400">
+                                            <span v-if="tx.originalCurrency && tx.originalCurrency !== 'USD'">
+                                                {{ Number(tx.originalAmount || 0).toFixed(2) }} {{ tx.originalCurrency }}
+                                                <span class="text-[10px] text-indigo-300 block">(FX: {{ tx.fxRateOnDate }})</span>
+                                            </span>
+                                            <span v-else class="text-gray-500">—</span>
+                                        </td>
+                                        <td class="py-2.5 px-3 text-right font-mono font-bold"
+                                            :class="tx.action === 'Deposit' ? 'text-emerald-400' : 'text-rose-400'">
+                                            {{ tx.action === 'Deposit' ? '+' : '-' }}{{ formatMoney(tx.totalValue) }}
+                                        </td>
+                                        <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                                            <button @click="openEditModal(tx)" class="text-indigo-400 hover:text-indigo-300 text-xs font-medium mr-2">Edit</button>
+                                            <button @click="deleteTransaction(tx.id)" class="text-rose-400 hover:text-rose-300 text-xs font-medium">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="filteredCashTransactions.length === 0">
+                                        <td colspan="7" class="py-6 text-center text-gray-500 text-xs">
+                                            No cash deposit/withdrawal records match the active filters.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Cash Pagination Controls -->
+                        <div v-if="cashTotalPages > 1" class="flex items-center justify-between pt-2 border-t border-gray-750 text-xs text-gray-400">
+                            <div>Showing page {{ capitalPage }} of {{ cashTotalPages }}</div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" @click="capitalPage--" :disabled="capitalPage <= 1"
+                                    class="px-2.5 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+                                <button type="button" @click="capitalPage++" :disabled="capitalPage >= cashTotalPages"
+                                    class="px-2.5 py-1 rounded bg-gray-800 border border-gray-700 hover:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1841,8 +2085,8 @@
                                     <option value="ALL" class="bg-gray-800 text-gray-200">All Asset Types</option>
                                     <option value="Stock" class="bg-gray-800 text-gray-200">Stocks Only</option>
                                     <option value="Option" class="bg-gray-800 text-gray-200">Options Only</option>
-                                    <option value="Spread" class="bg-gray-800 text-gray-200">Spreads / Multi-Leg
-                                    </option>
+                                    <option value="Spread" class="bg-gray-800 text-gray-200">Spreads / Multi-Leg</option>
+                                    <option value="Cash" class="bg-gray-800 text-gray-200">Cash (Deposits / Withdrawals)</option>
                                 </select>
                             </div>
 
@@ -1855,12 +2099,11 @@
                                     <option value="ALL" class="bg-gray-800 text-gray-200">All Trade Actions</option>
                                     <option value="Buy" class="bg-gray-800 text-gray-200">Buys</option>
                                     <option value="Sell" class="bg-gray-800 text-gray-200">Sells</option>
-                                    <option value="Open" class="bg-gray-800 text-gray-200">Opens (Buy/Sell to Open)
-                                    </option>
-                                    <option value="Close" class="bg-gray-800 text-gray-200">Closes (Buy/Sell to Close)
-                                    </option>
-                                    <option value="Expire" class="bg-gray-800 text-gray-200">Expires / Assigned /
-                                        Exercised</option>
+                                    <option value="Open" class="bg-gray-800 text-gray-200">Opens (Buy/Sell to Open)</option>
+                                    <option value="Close" class="bg-gray-800 text-gray-200">Closes (Buy/Sell to Close)</option>
+                                    <option value="Deposit" class="bg-gray-800 text-gray-200">Deposits</option>
+                                    <option value="Withdrawal" class="bg-gray-800 text-gray-200">Withdrawals</option>
+                                    <option value="Expire" class="bg-gray-800 text-gray-200">Expires / Assigned / Exercised</option>
                                 </select>
                             </div>
                         </div>
@@ -1910,44 +2153,51 @@
                                         <!-- Mobile-only Action badge -->
                                         <div class="sm:hidden mt-1">
                                             <span
-                                                :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
+                                                :class="tx.assetType === 'Cash' ? (tx.action === 'Deposit' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800') : (['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'))"
                                                 class="px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap">
                                                 {{ tx.action }}
                                             </span>
                                         </div>
                                     </td>
                                     <td class="py-3 px-3 sm:px-4">
-                                        <div class="font-bold text-white">{{ tx.ticker }}</div>
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-bold text-white">{{ tx.ticker }}</span>
+                                            <span v-if="tx.assetType === 'Cash'" class="px-1.5 py-0.2 rounded text-[10px] font-medium"
+                                                :class="(tx.source === 'Schwab' || (tx.id && String(tx.id).startsWith('schwab'))) ? 'bg-blue-950 text-blue-300 border border-blue-800' : 'bg-red-950 text-red-300 border border-red-800'">
+                                                {{ tx.source || ((tx.id && String(tx.id).startsWith('schwab')) ? 'Schwab' : 'IBKR') }}
+                                            </span>
+                                        </div>
                                         <div v-if="tx.assetType === 'Option'" class="text-xs text-gray-400">
                                             {{ tx.optionType }} ${{ tx.strike }} Exp: {{ tx.expiration }}
                                         </div>
                                         <div v-else-if="tx.assetType === 'Spread'" class="text-xs text-amber-400">
                                             {{ tx.strategyName }}
                                         </div>
+                                        <div v-else-if="tx.assetType === 'Cash'" class="text-xs text-gray-400 max-w-xs truncate" :title="tx.description || tx.originalAction">
+                                            {{ tx.description || tx.originalAction }}
+                                            <span v-if="tx.originalCurrency && tx.originalCurrency !== 'USD'" class="text-indigo-300 text-[10px] ml-1">
+                                                ({{ Number(tx.originalAmount || 0).toFixed(2) }} {{ tx.originalCurrency }} @ {{ tx.fxRateOnDate }})
+                                            </span>
+                                        </div>
                                         <!-- Mobile-only Qty @ Price & Fee -->
-                                        <div class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
+                                        <div v-if="tx.assetType !== 'Cash'" class="sm:hidden text-xs text-gray-400 font-mono mt-0.5">
                                             {{ tx.quantity }} @ ${{ formatNumber(tx.price) }}
-                                            <span v-if="tx.fee > 0" class="text-gray-500">• fee ${{ formatNumber(tx.fee)
-                                                }}</span>
+                                            <span v-if="tx.fee > 0" class="text-gray-500">• fee ${{ formatNumber(tx.fee) }}</span>
                                         </div>
                                     </td>
                                     <td class="hidden sm:table-cell py-3 px-3 sm:px-4">
                                         <span
-                                            :class="['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800')"
+                                            :class="tx.assetType === 'Cash' ? (tx.action === 'Deposit' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800') : (['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'bg-gray-800 text-gray-300 border border-gray-600' : (['Buy', 'Buy to Open', 'Buy to Close'].includes(tx.action) ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'))"
                                             class="px-2 py-0.5 rounded text-[11px] font-semibold whitespace-nowrap">
                                             {{ tx.action }}
                                         </span>
                                     </td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{
-                                        tx.quantity }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
-                                        formatNumber(tx.price) }}</td>
-                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{
-                                        formatNumber(tx.fee) }}</td>
-                                    <td class="py-3 px-3 sm:px-4 text-right font-mono text-white font-semibold"
-                                        :class="['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400'">
-                                        {{ ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned',
-                                        'Exchange or Exercise'].includes(tx.action) ? '-' : '+' }}${{
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ tx.assetType === 'Cash' ? '—' : tx.quantity }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">${{ formatNumber(tx.price) }}</td>
+                                    <td class="hidden sm:table-cell py-3 px-3 sm:px-4 text-right font-mono">{{ tx.fee > 0 ? '$' + formatNumber(tx.fee) : '—' }}</td>
+                                    <td class="py-3 px-3 sm:px-4 text-right font-mono font-semibold"
+                                        :class="tx.assetType === 'Cash' ? (tx.action === 'Deposit' ? 'text-emerald-400' : 'text-rose-400') : (['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? 'text-rose-400' : 'text-emerald-400')">
+                                        {{ tx.assetType === 'Cash' ? (tx.action === 'Deposit' ? '+' : '-') : (['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? '-' : '+') }}${{
                                         formatNumber(tx.totalValue) }}
                                     </td>
                                     <td class="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
@@ -2097,6 +2347,29 @@
                         class="text-indigo-400 hover:text-indigo-300 text-[11px] font-semibold underline whitespace-nowrap ml-2">
                         Manage Aliases
                     </button>
+                </div>
+
+                <!-- Deposits & Withdrawals Detected Section -->
+                <div v-if="schwabImportData.detectedCashFlows && schwabImportData.detectedCashFlows.length > 0"
+                    class="bg-emerald-950/30 border border-emerald-800/50 rounded-lg p-3 text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <span class="text-gray-200">
+                                Deposits & Withdrawals:
+                                <strong class="text-emerald-300 ml-1">{{ schwabImportData.detectedCashFlows.length }} transfers detected</strong>
+                            </span>
+                            <span class="text-gray-400 ml-1">
+                                (Inflows: <strong class="text-emerald-400">+${{ formatNumber(schwabImportData.cashStats ? schwabImportData.cashStats.deposits : 0) }}</strong>, Outflows: <strong class="text-rose-400">-${{ formatNumber(schwabImportData.cashStats ? schwabImportData.cashStats.withdrawals : 0) }}</strong>)
+                            </span>
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-1.5 cursor-pointer text-gray-200 hover:text-white select-none shrink-0 ml-3">
+                        <input type="checkbox" v-model="schwabImportData.importCash" class="rounded bg-gray-700 border-gray-600 text-emerald-600 focus:ring-emerald-500">
+                        <span class="font-medium text-[11px]">Import to Ledger</span>
+                    </label>
                 </div>
 
                 <!-- Non-trade entries note -->
@@ -2464,6 +2737,65 @@
                             <span class="text-gray-400 ml-1">
                                 identified as in-the-money assignments and correctly mapped to Assigned status.
                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deposits & Withdrawals Detected Section -->
+                <div v-if="ibkrImportData.detectedCashFlows && ibkrImportData.detectedCashFlows.length > 0"
+                    class="bg-emerald-950/30 border border-emerald-800/50 rounded-lg p-3 text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <span class="text-gray-200">
+                                Deposits & Withdrawals:
+                                <strong class="text-emerald-300 ml-1">{{ ibkrImportData.detectedCashFlows.length }} transfers detected</strong>
+                            </span>
+                            <span class="text-gray-400 ml-1">
+                                (USD Net: <strong class="text-emerald-400">+${{ formatNumber(ibkrImportData.cashStats ? ibkrImportData.cashStats.usdNet : 0) }}</strong><span v-if="ibkrImportData.nonUsdCashFlows && ibkrImportData.nonUsdCashFlows.length > 0">, {{ ibkrImportData.nonUsdCashFlows.length }} non-USD converted</span>)
+                            </span>
+                        </div>
+                    </div>
+                    <label class="flex items-center gap-1.5 cursor-pointer text-gray-200 hover:text-white select-none shrink-0 ml-3">
+                        <input type="checkbox" v-model="ibkrImportData.importCash" class="rounded bg-gray-700 border-gray-600 text-emerald-600 focus:ring-emerald-500">
+                        <span class="font-medium text-[11px]">Import to Ledger</span>
+                    </label>
+                </div>
+
+                <!-- Non-USD Deposits: Historical Date Conversion Review Card -->
+                <div v-if="ibkrImportData.nonUsdCashFlows && ibkrImportData.nonUsdCashFlows.length > 0"
+                    class="bg-indigo-950/30 border border-indigo-500/40 rounded-xl p-3.5 space-y-2.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="font-bold text-white flex items-center gap-2">
+                            <span class="p-1 bg-indigo-600/30 rounded text-indigo-400">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                </svg>
+                            </span>
+                            <span>Foreign Currency Deposits: Date-Specific FX Conversion</span>
+                        </div>
+                        <span class="text-[11px] text-gray-400">ECB Daily Reference Rate</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div v-for="cf in ibkrImportData.nonUsdCashFlows" :key="cf.id"
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gray-900/70 p-2.5 rounded-lg border border-gray-700/80 text-xs">
+                            <div>
+                                <div class="font-mono text-gray-300">
+                                    <span class="text-indigo-400 font-semibold">{{ cf.date }}</span>: 
+                                    <strong class="text-white ml-1">{{ Number(cf.originalAmount).toFixed(2) }} {{ cf.originalCurrency }}</strong>
+                                    <span class="text-gray-400 ml-1">({{ cf.originalAction }})</span>
+                                </div>
+                                <div class="text-[11px] text-indigo-300 mt-0.5">
+                                    Historical Rate on {{ cf.date }}: 1 {{ cf.originalCurrency }} = {{ Number(cf.fxRateOnDate).toFixed(4) }} USD
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 self-end sm:self-center">
+                                <span class="text-gray-400 text-[11px]">Converted USD:</span>
+                                <input type="number" step="0.01" v-model.number="cf.totalValue" @input="cf.price = cf.totalValue"
+                                    class="w-24 bg-gray-800 border border-gray-600 focus:border-indigo-500 rounded px-2 py-1 text-right text-emerald-400 font-mono font-bold text-xs focus:outline-none">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2843,26 +3175,37 @@
                             <label class="block text-gray-400 mb-1">Action</label>
                             <select v-model="editingTx.action"
                                 class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
-                                <option value="Buy">Buy</option>
-                                <option value="Sell">Sell</option>
-                                <option value="Buy to Open">Buy to Open</option>
-                                <option value="Sell to Open">Sell to Open</option>
-                                <option value="Buy to Close">Buy to Close</option>
-                                <option value="Sell to Close">Sell to Close</option>
-                                <option value="Expire">Expire</option>
+                                <template v-if="editingTx.assetType === 'Cash'">
+                                    <option value="Deposit">Deposit</option>
+                                    <option value="Withdrawal">Withdrawal</option>
+                                </template>
+                                <template v-else>
+                                    <option value="Buy">Buy</option>
+                                    <option value="Sell">Sell</option>
+                                    <option value="Buy to Open">Buy to Open</option>
+                                    <option value="Sell to Open">Sell to Open</option>
+                                    <option value="Buy to Close">Buy to Close</option>
+                                    <option value="Sell to Close">Sell to Close</option>
+                                    <option value="Expire">Expire</option>
+                                </template>
                             </select>
                         </div>
-                        <div>
+                        <div v-if="editingTx.assetType !== 'Cash'">
                             <label class="block text-gray-400 mb-1">{{ editingTx.assetType === 'Stock' ? 'Shares' :
                                 'Contracts' }}</label>
                             <input type="number" step="any" v-model.number="editingTx.quantity" required min="0"
                                 class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
                         </div>
+                        <div v-else>
+                            <label class="block text-gray-400 mb-1">Broker / Source</label>
+                            <input type="text" v-model="editingTx.source"
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-gray-400 mb-1">Price ($)</label>
+                            <label class="block text-gray-400 mb-1">{{ editingTx.assetType === 'Cash' ? 'Amount ($)' : 'Price ($)' }}</label>
                             <input type="number" step="any" v-model.number="editingTx.price" required min="0"
                                 class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
                         </div>
@@ -2871,6 +3214,12 @@
                             <input type="number" step="any" v-model.number="editingTx.fee" required min="0"
                                 class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
                         </div>
+                    </div>
+
+                    <div v-if="editingTx.assetType === 'Cash'">
+                        <label class="block text-gray-400 mb-1">Description / Memo</label>
+                        <input type="text" v-model="editingTx.description"
+                            class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
                     </div>
 
                     <div class="flex justify-end gap-2 pt-3 border-t border-gray-700">
@@ -2882,6 +3231,60 @@
                             class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-semibold transition">
                             Save Changes
                         </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Record Cash Modal -->
+        <div v-if="showCashEntryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div class="flex justify-between items-start border-b border-gray-700 pb-3">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Record Cash Flow
+                    </h3>
+                    <button @click="showCashEntryModal = false" class="text-gray-400 hover:text-white text-lg font-bold">✕</button>
+                </div>
+                <form @submit.prevent="saveManualCashEntry" class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Flow Type</label>
+                            <select v-model="cashEntryForm.action" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                                <option value="Deposit">Deposit (+ Inflow)</option>
+                                <option value="Withdrawal">Withdrawal (- Outflow)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Broker / Account</label>
+                            <select v-model="cashEntryForm.source" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                                <option value="Schwab">Schwab</option>
+                                <option value="IBKR">IBKR</option>
+                                <option value="Bank">Bank / Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Date</label>
+                            <input type="date" v-model="cashEntryForm.date" required class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Amount ($ USD)</label>
+                            <input type="number" step="0.01" v-model.number="cashEntryForm.amount" required min="0.01" placeholder="0.00"
+                                class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white font-mono">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Description / Memo</label>
+                        <input type="text" v-model="cashEntryForm.description" placeholder="e.g. Wire Transfer, Monthly Savings"
+                            class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white">
+                    </div>
+                    <div class="pt-2 flex justify-end gap-2 border-t border-gray-750">
+                        <button type="button" @click="showCashEntryModal = false" class="px-3 py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300">Cancel</button>
+                        <button type="submit" class="px-4 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow">Save Record</button>
                     </div>
                 </form>
             </div>
@@ -5301,10 +5704,21 @@
 
                 // Performance Analytics Hub State (Enhancement 3)
                 const showAnalyticsHub = ref(localStorage.getItem('show_analytics_hub') !== 'false');
-                const analyticsActiveTab = ref('chart'); // 'chart' | 'matrix'
+                const analyticsActiveTab = ref('chart'); // 'chart' | 'matrix' | 'capital'
                 const chartViewMode = ref('cumulative'); // 'cumulative' | 'monthly'
                 const chartYearFilter = ref(currentYear);
                 const chartAssetFilter = ref('all'); // 'all' | 'stock' | 'option'
+
+                // Capital & Cash Flows State
+                const capitalBrokerFilter = ref('ALL'); // 'ALL' | 'Schwab' | 'IBKR'
+                const capitalActionFilter = ref('ALL'); // 'ALL' | 'Deposit' | 'Withdrawal'
+                const capitalYearFilter = ref('ALL');
+                const capitalSearchQuery = ref('');
+                const capitalPage = ref(1);
+                const capitalPerPage = ref(15);
+                const showCashEntryModal = ref(false);
+                const cashEntryForm = ref({ date: new Date().toISOString().split('T')[0], action: 'Deposit', source: 'Schwab', amount: null, description: '' });
+                const historicalFxCache = ref({});
 
                 const toggleAnalyticsHub = () => {
                     showAnalyticsHub.value = !showAnalyticsHub.value;
@@ -8437,6 +8851,10 @@ No markdown fences or commentary outside the JSON.`;
                             list = list.filter(tx => tx.action && tx.action.includes('Open'));
                         } else if (act === 'Close') {
                             list = list.filter(tx => tx.action && tx.action.includes('Close'));
+                        } else if (act === 'Deposit') {
+                            list = list.filter(tx => tx.action === 'Deposit');
+                        } else if (act === 'Withdrawal') {
+                            list = list.filter(tx => tx.action === 'Withdrawal');
                         } else if (act === 'Expire') {
                             list = list.filter(tx => ['Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action));
                         }
@@ -8760,6 +9178,195 @@ No markdown fences or commentary outside the JSON.`;
                     }
                 });
 
+                // Historical Foreign Exchange Rate Service (ECB Daily Reference Data)
+                const fetchHistoricalFxRate = async (fromCurr, toCurr, dateStr) => {
+                    if (!fromCurr || !toCurr || fromCurr.toUpperCase() === toCurr.toUpperCase()) return 1.0;
+                    const from = fromCurr.trim().toUpperCase();
+                    const to = toCurr.trim().toUpperCase();
+                    const date = (dateStr || '').trim();
+                    if (!date) return 1.0;
+
+                    const cacheKey = `${date}_${from}_${to}`;
+                    if (historicalFxCache.value[cacheKey] !== undefined) {
+                        return historicalFxCache.value[cacheKey];
+                    }
+
+                    try {
+                        const res = await fetch(`https://api.frankfurter.app/${date}?from=${from}&to=${to}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data && data.rates && data.rates[to] !== undefined) {
+                                const rate = parseFloat(data.rates[to]);
+                                if (rate > 0) {
+                                    historicalFxCache.value[cacheKey] = rate;
+                                    return rate;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Historical FX rate fetch failed for ${from}->${to} on ${date}:`, e);
+                    }
+
+                    // Fallback to active exchange rate if available
+                    const fallbackRate = (from === 'SGD' && to === 'USD') ? 0.75 : 1.0;
+                    historicalFxCache.value[cacheKey] = fallbackRate;
+                    return fallbackRate;
+                };
+
+                // Capital & Deposits Metrics Summary
+                const cashSummary = computed(() => {
+                    let grossDeposits = 0;
+                    let grossWithdrawals = 0;
+                    let schwabNet = 0;
+                    let ibkrNet = 0;
+                    let count = 0;
+                    const yearlyMap = {};
+
+                    transactions.value.forEach(tx => {
+                        if (tx.assetType === 'Cash') {
+                            count++;
+                            const val = Number(tx.totalValue !== undefined ? tx.totalValue : (tx.quantity * tx.price) || 0);
+                            const isDeposit = tx.action === 'Deposit';
+                            const yr = (tx.date && tx.date.length >= 4) ? tx.date.substring(0, 4) : currentYear;
+
+                            if (!yearlyMap[yr]) {
+                                yearlyMap[yr] = { year: yr, deposits: 0, withdrawals: 0, net: 0, schwabNet: 0, ibkrNet: 0, count: 0 };
+                            }
+                            yearlyMap[yr].count++;
+
+                            const isSchwab = (tx.source === 'Schwab' || (tx.id && String(tx.id).startsWith('schwab')));
+                            const isIbkr = (tx.source === 'IBKR' || (tx.id && String(tx.id).startsWith('ibkr')));
+
+                            if (isDeposit) {
+                                grossDeposits += val;
+                                yearlyMap[yr].deposits += val;
+                                yearlyMap[yr].net += val;
+                                if (isSchwab) {
+                                    schwabNet += val;
+                                    yearlyMap[yr].schwabNet += val;
+                                } else if (isIbkr) {
+                                    ibkrNet += val;
+                                    yearlyMap[yr].ibkrNet += val;
+                                }
+                            } else {
+                                grossWithdrawals += val;
+                                yearlyMap[yr].withdrawals += val;
+                                yearlyMap[yr].net -= val;
+                                if (isSchwab) {
+                                    schwabNet -= val;
+                                    yearlyMap[yr].schwabNet += val;
+                                } else if (isIbkr) {
+                                    ibkrNet -= val;
+                                    yearlyMap[yr].ibkrNet += val;
+                                }
+                            }
+                        }
+                    });
+
+                    const netDeposits = grossDeposits - grossWithdrawals;
+                    const totalNetPL = totalPortfolioNetPL.value || 0;
+                    const allTimeRoiPercent = netDeposits > 0 ? (totalNetPL / netDeposits) * 100 : 0;
+                    const yearlyList = Object.values(yearlyMap).sort((a, b) => b.year.localeCompare(a.year));
+
+                    return {
+                        grossDeposits,
+                        grossWithdrawals,
+                        netDeposits,
+                        schwabNet,
+                        ibkrNet,
+                        allTimeRoiPercent,
+                        count,
+                        yearlyList
+                    };
+                });
+
+                // Filtered & Paginated Cash Transactions
+                const filteredCashTransactions = computed(() => {
+                    let list = transactions.value.filter(t => t.assetType === 'Cash');
+
+                    if (capitalBrokerFilter.value !== 'ALL') {
+                        list = list.filter(t => {
+                            const broker = t.source || ((t.id && String(t.id).startsWith('schwab')) ? 'Schwab' : 'IBKR');
+                            return broker === capitalBrokerFilter.value;
+                        });
+                    }
+
+                    if (capitalActionFilter.value !== 'ALL') {
+                        list = list.filter(t => t.action === capitalActionFilter.value);
+                    }
+
+                    if (capitalYearFilter.value !== 'ALL') {
+                        list = list.filter(t => t.date && t.date.startsWith(capitalYearFilter.value));
+                    }
+
+                    if (capitalSearchQuery.value && capitalSearchQuery.value.trim() !== '') {
+                        const q = capitalSearchQuery.value.toLowerCase().trim();
+                        list = list.filter(t => {
+                            const desc = (t.description || '').toLowerCase();
+                            const orig = (t.originalAction || '').toLowerCase();
+                            const src = (t.source || '').toLowerCase();
+                            const curr = (t.originalCurrency || '').toLowerCase();
+                            return desc.includes(q) || orig.includes(q) || src.includes(q) || curr.includes(q);
+                        });
+                    }
+
+                    return list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+                });
+
+                const cashTotalPages = computed(() => {
+                    return Math.max(1, Math.ceil(filteredCashTransactions.value.length / capitalPerPage.value));
+                });
+
+                const paginatedCashTransactions = computed(() => {
+                    const start = (capitalPage.value - 1) * capitalPerPage.value;
+                    return filteredCashTransactions.value.slice(start, start + capitalPerPage.value);
+                });
+
+                const openCashEntryModal = () => {
+                    cashEntryForm.value = {
+                        date: new Date().toISOString().split('T')[0],
+                        action: 'Deposit',
+                        source: 'Schwab',
+                        amount: null,
+                        description: ''
+                    };
+                    showCashEntryModal.value = true;
+                };
+
+                const saveManualCashEntry = () => {
+                    const amt = parseFloat(cashEntryForm.value.amount);
+                    if (!amt || amt <= 0) {
+                        showNotification('Please enter a valid cash amount greater than zero.', 'error');
+                        return;
+                    }
+                    if (!cashEntryForm.value.date) {
+                        showNotification('Please enter a valid date.', 'error');
+                        return;
+                    }
+
+                    const isDeposit = cashEntryForm.value.action === 'Deposit';
+                    const newCashTx = {
+                        id: `cash_manual_${Date.now()}`,
+                        date: cashEntryForm.value.date,
+                        assetType: 'Cash',
+                        ticker: 'USD',
+                        action: cashEntryForm.value.action,
+                        source: cashEntryForm.value.source,
+                        quantity: 1,
+                        price: amt,
+                        fee: 0,
+                        totalValue: amt,
+                        currency: 'USD',
+                        description: cashEntryForm.value.description || `${cashEntryForm.value.action} (${cashEntryForm.value.source})`
+                    };
+
+                    transactions.value.push(newCashTx);
+                    transactions.value.sort(compareChronologicalAscending);
+                    saveLedgerData();
+                    showNotification(`Manual ${cashEntryForm.value.action.toLowerCase()} of $${formatNumber(amt)} recorded.`, 'success');
+                    showCashEntryModal.value = false;
+                };
+
                 const formatNumber = (num) => {
                     if (num === undefined || isNaN(num)) return '0.00';
                     return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -9046,6 +9653,9 @@ No markdown fences or commentary outside the JSON.`;
 
                     const optRegex = /^([A-Z0-9\.]+)\s+(\d{2}\/\d{2}\/\d{4})\s+([\d\.]+)\s+([CP])$/;
                     const detectedTransfersMap = {};
+                    const detectedCashFlowsSchwab = [];
+                    let grossDepositsSchwab = 0;
+                    let grossWithdrawalsSchwab = 0;
                     const parsed = [];
                     const skipped = [];
                     const skippedBreakdown = {};
@@ -9063,8 +9673,36 @@ No markdown fences or commentary outside the JSON.`;
                         const qty = Math.abs(parseFloat((raw.Quantity || '0').replace(/[^0-9.-]+/g, '')) || 0);
                         const price = parseFloat((raw.Price || '0').replace(/[^0-9.-]+/g, '')) || 0;
                         const fee = parseFloat((raw['Fees & Comm'] || raw.FeesAndCommission || '0').replace(/[^0-9.-]+/g, '')) || 0;
+                        const amtStr = (raw.Amount || '').replace(/[^0-9.-]+/g, '');
+                        const amt = parseFloat(amtStr) || 0;
 
-                        if (optRegex.test(rawSymbol)) {
+                        const isWireReceived = action === 'Wire Received';
+                        const isWireSent = action === 'Wire Sent';
+                        const isAcatCash = (action === 'Security Transfer' && !rawSymbol && Math.abs(amt) > 0);
+
+                        if (isWireReceived || isWireSent || isAcatCash) {
+                            const isDeposit = (isWireReceived || (isAcatCash && amt > 0));
+                            const val = Math.abs(amt);
+                            if (isDeposit) grossDepositsSchwab += val;
+                            else grossWithdrawalsSchwab += val;
+
+                            detectedCashFlowsSchwab.push({
+                                rawIndex: i,
+                                id: `schwab_${date.replace(/-/g, '')}_cash_${i}`,
+                                date,
+                                assetType: 'Cash',
+                                ticker: 'USD',
+                                source: 'Schwab',
+                                action: isDeposit ? 'Deposit' : 'Withdrawal',
+                                originalAction: action,
+                                quantity: 1,
+                                price: val,
+                                fee: 0,
+                                totalValue: val,
+                                currency: 'USD',
+                                description: raw.Description || (isDeposit ? 'Deposit' : 'Withdrawal')
+                            });
+                        } else if (optRegex.test(rawSymbol)) {
                             const match = rawSymbol.match(optRegex);
                             const rawOptTicker = match[1].toUpperCase();
                             const ticker = resolveTicker(rawOptTicker);
@@ -9218,6 +9856,13 @@ No markdown fences or commentary outside the JSON.`;
                         fromDate,
                         toDate,
                         transactions: parsed,
+                        detectedCashFlows: detectedCashFlowsSchwab,
+                        importCash: true,
+                        cashStats: {
+                            deposits: grossDepositsSchwab,
+                            withdrawals: grossWithdrawalsSchwab,
+                            net: grossDepositsSchwab - grossWithdrawalsSchwab
+                        },
                         skipped,
                         skippedBreakdown,
                         detectedTransfers: Object.values(detectedTransfersMap),
@@ -9227,6 +9872,7 @@ No markdown fences or commentary outside the JSON.`;
                             stocks: stockCount,
                             options: optionCount,
                             transfers: Object.values(detectedTransfersMap).length,
+                            cashFlows: detectedCashFlowsSchwab.length,
                             skipped: skipped.length,
                             aliasMapped: aliasMappedCount
                         }
@@ -9250,11 +9896,19 @@ No markdown fences or commentary outside the JSON.`;
                         localStorage.setItem('custom_transfer_prices', JSON.stringify(customTransferPrices.value));
                     }
 
-                    const newTrades = schwabImportData.value.transactions;
+                    let newTrades = [...schwabImportData.value.transactions];
+                    if (schwabImportData.value.importCash && Array.isArray(schwabImportData.value.detectedCashFlows)) {
+                        newTrades = newTrades.concat(schwabImportData.value.detectedCashFlows);
+                    }
+
                     let addedCount = 0;
                     let duplicateCount = 0;
 
                     const getTxSig = (t) => {
+                        if (t.assetType === 'Cash') {
+                            const amt = Number(t.totalValue !== undefined ? t.totalValue : t.price || 0).toFixed(2);
+                            return `CASH_${t.date}_${t.action}_${(t.source || 'SCHWAB').toUpperCase()}_${amt}`;
+                        }
                         const qty = Number(t.quantity || 0).toFixed(4);
                         const prc = Number(t.price || 0).toFixed(4);
                         if (t.assetType === 'Stock') {
@@ -9306,7 +9960,8 @@ No markdown fences or commentary outside the JSON.`;
                     savePrices();
 
                     const modeText = schwabImportMode.value === 'replace' ? 'replaced' : 'merged';
-                    showNotification(`Schwab report imported: ${addedCount} trades added${duplicateCount > 0 ? `, ${duplicateCount} duplicates skipped` : ''} (${modeText}).`, 'success');
+                    const cashCount = (schwabImportData.value.importCash && schwabImportData.value.detectedCashFlows) ? schwabImportData.value.detectedCashFlows.length : 0;
+                    showNotification(`Schwab report imported: ${addedCount} records added (${newTrades.length - cashCount} trades${cashCount > 0 ? `, ${cashCount} cash flows` : ''})${duplicateCount > 0 ? `, ${duplicateCount} duplicates skipped` : ''} (${modeText}).`, 'success');
                     closeSchwabModal();
                 };
 
@@ -9329,10 +9984,10 @@ No markdown fences or commentary outside the JSON.`;
                     if (!file) return;
 
                     const reader = new FileReader();
-                    reader.onload = (e) => {
+                    reader.onload = async (e) => {
                         try {
                             const content = e.target.result;
-                            processIbkrFileContent(content, file.name);
+                            await processIbkrFileContent(content, file.name);
                         } catch (err) {
                             console.error('Error reading IBKR file:', err);
                             showNotification(`Failed to read file: ${err.message}`, 'error');
@@ -9347,7 +10002,7 @@ No markdown fences or commentary outside the JSON.`;
                     reader.readAsText(file);
                 };
 
-                const processIbkrFileContent = (content, fileName) => {
+                const processIbkrFileContent = async (content, fileName) => {
                     if (!content || (!content.includes('tblTransactions_') && !content.includes('Activity Statement'))) {
                         showNotification('Unsupported file format. Please upload an Interactive Brokers (IBKR) Activity Statement HTML report.', 'error');
                         return;
@@ -9741,6 +10396,87 @@ No markdown fences or commentary outside the JSON.`;
                         }
                     }
 
+                    // Deposits & Withdrawals Section (secCombDepWith_)
+                    const detectedCashFlows = [];
+                    const nonUsdCashFlows = [];
+                    let grossDepositsIbkr = 0;
+                    let grossWithdrawalsIbkr = 0;
+                    let usdOnlyNet = 0;
+
+                    const depSecStart = content.indexOf('secCombDepWith_');
+                    const depSecEnd = content.indexOf('secCombFees_', depSecStart);
+                    if (depSecStart !== -1 && depSecEnd !== -1) {
+                        const depChunk = content.slice(depSecStart, depSecEnd);
+                        let currentDepCurr = 'USD';
+                        const trRegex = /<tr[^>]*>([\s\S]*?)<\/tr>/g;
+                        let trMatch;
+
+                        while ((trMatch = trRegex.exec(depChunk)) !== null) {
+                            const row = trMatch[1];
+                            if (row.includes('header-currency')) {
+                                const m = row.match(/header-currency[^>]*>([^<]+)/);
+                                if (m) currentDepCurr = m[1].trim();
+                                continue;
+                            }
+                            if (row.includes('<th') || row.includes('subtotal') || row.includes('total')) continue;
+
+                            const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/g;
+                            let tdMatch;
+                            const tds = [];
+                            while ((tdMatch = tdRegex.exec(row)) !== null) {
+                                tds.push(tdMatch[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
+                            }
+
+                            if (tds.length >= 3) {
+                                const date = tds[0];
+                                const desc = tds[1];
+                                const rawAmt = parseFloat((tds[2] || '0').replace(/,/g, '')) || 0;
+                                if (rawAmt === 0) continue;
+
+                                const isDeposit = rawAmt > 0;
+                                const originalAmount = Math.abs(rawAmt);
+                                let usdValue = originalAmount;
+                                let fxRate = 1.0;
+
+                                if (currentDepCurr !== 'USD') {
+                                    fxRate = await fetchHistoricalFxRate(currentDepCurr, 'USD', date);
+                                    usdValue = Number((originalAmount * fxRate).toFixed(2));
+                                } else {
+                                    if (isDeposit) usdOnlyNet += originalAmount;
+                                    else usdOnlyNet -= originalAmount;
+                                }
+
+                                if (isDeposit) grossDepositsIbkr += usdValue;
+                                else grossWithdrawalsIbkr += usdValue;
+
+                                const cashItem = {
+                                    rawIndex: rawIdx,
+                                    id: `ibkr_${date.replace(/-/g, '')}_cash_${rawIdx++}`,
+                                    date,
+                                    assetType: 'Cash',
+                                    ticker: 'USD',
+                                    source: 'IBKR',
+                                    action: isDeposit ? 'Deposit' : 'Withdrawal',
+                                    originalAction: desc,
+                                    quantity: 1,
+                                    price: usdValue,
+                                    fee: 0,
+                                    totalValue: usdValue,
+                                    currency: 'USD',
+                                    originalCurrency: currentDepCurr,
+                                    originalAmount: originalAmount,
+                                    fxRateOnDate: fxRate,
+                                    description: `${desc} (${currentDepCurr} ${originalAmount.toFixed(2)}${currentDepCurr !== 'USD' ? ' @ ' + fxRate.toFixed(4) : ''})`
+                                };
+
+                                detectedCashFlows.push(cashItem);
+                                if (currentDepCurr !== 'USD') {
+                                    nonUsdCashFlows.push(cashItem);
+                                }
+                            }
+                        }
+                    }
+
                     // Non-trade sections breakdown
                     const countSectionRows = (startId, endId) => {
                         const s = content.indexOf(startId);
@@ -9755,8 +10491,6 @@ No markdown fences or commentary outside the JSON.`;
                     if (divCount > 0) skippedBreakdown['Dividends'] = divCount;
                     const taxCount = countSectionRows('secWithholdingTax_', 'secCombInt_');
                     if (taxCount > 0) skippedBreakdown['Withholding Tax'] = taxCount;
-                    const depWithCount = countSectionRows('secCombDepWith_', 'secCombFees_');
-                    if (depWithCount > 0) skippedBreakdown['Deposits & Withdrawals'] = depWithCount;
 
                     // Sort chronologically ascending
                     parsed.sort(compareChronologicalAscending);
@@ -9769,6 +10503,15 @@ No markdown fences or commentary outside the JSON.`;
                         toDate,
                         transactions: parsed,
                         detectedTransfers,
+                        detectedCashFlows,
+                        nonUsdCashFlows,
+                        importCash: true,
+                        cashStats: {
+                            usdNet: usdOnlyNet,
+                            deposits: grossDepositsIbkr,
+                            withdrawals: grossWithdrawalsIbkr,
+                            net: grossDepositsIbkr - grossWithdrawalsIbkr
+                        },
                         skipped,
                         skippedBreakdown,
                         stats: {
@@ -9777,6 +10520,7 @@ No markdown fences or commentary outside the JSON.`;
                             stocks: parsed.filter(t => t.assetType === 'Stock').length,
                             options: parsed.filter(t => t.assetType === 'Option').length,
                             transfers: detectedTransfers.length,
+                            cashFlows: detectedCashFlows.length,
                             aliasMapped: aliasMappedCount,
                             fxConverted: fxConvertedCount,
                             assignedOptions: parsed.filter(t => t.assetType === 'Option' && t.action === 'Assigned').length,
@@ -9801,11 +10545,19 @@ No markdown fences or commentary outside the JSON.`;
                         localStorage.setItem('custom_transfer_prices', JSON.stringify(customTransferPrices.value));
                     }
 
-                    const newTrades = ibkrImportData.value.transactions;
+                    let newTrades = [...ibkrImportData.value.transactions];
+                    if (ibkrImportData.value.importCash && Array.isArray(ibkrImportData.value.detectedCashFlows)) {
+                        newTrades = newTrades.concat(ibkrImportData.value.detectedCashFlows);
+                    }
+
                     let addedCount = 0;
                     let duplicateCount = 0;
 
                     const getTxSig = (t) => {
+                        if (t.assetType === 'Cash') {
+                            const amt = Number(t.totalValue !== undefined ? t.totalValue : t.price || 0).toFixed(2);
+                            return `CASH_${t.date}_${t.action}_${(t.source || 'IBKR').toUpperCase()}_${amt}`;
+                        }
                         const qty = Number(t.quantity || 0).toFixed(4);
                         const prc = Number(t.price || 0).toFixed(4);
                         if (t.assetType === 'Stock') {
@@ -9857,17 +10609,20 @@ No markdown fences or commentary outside the JSON.`;
                     savePrices();
 
                     const modeText = ibkrImportMode.value === 'replace' ? 'replaced' : 'merged';
-                    showNotification(`IBKR report imported: ${addedCount} trades added${duplicateCount > 0 ? `, ${duplicateCount} duplicates skipped` : ''} (${modeText}).`, 'success');
+                    const cashCount = (ibkrImportData.value.importCash && ibkrImportData.value.detectedCashFlows) ? ibkrImportData.value.detectedCashFlows.length : 0;
+                    showNotification(`IBKR report imported: ${addedCount} records added (${newTrades.length - cashCount} trades${cashCount > 0 ? `, ${cashCount} cash flows` : ''})${duplicateCount > 0 ? `, ${duplicateCount} duplicates skipped` : ''} (${modeText}).`, 'success');
                     closeIbkrModal();
                 };
 
                 transactions.value.forEach(tx => {
+                    if (tx.assetType === 'Cash') return;
                     const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
                     tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                 });
 
                 watch(transactions, (newVal) => {
                     newVal.forEach(tx => {
+                        if (tx.assetType === 'Cash') return;
                         const gross = tx.quantity * tx.price * (tx.assetType === 'Stock' ? 1 : 100);
                         tx.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(tx.action) ? gross + (tx.fee || 0) : gross - (tx.fee || 0);
                     });
@@ -9887,10 +10642,18 @@ No markdown fences or commentary outside the JSON.`;
                     if (!editingTx.value) return;
                     const idx = transactions.value.findIndex(t => t.id === editingTx.value.id);
                     if (idx !== -1) {
-                        const gross = editingTx.value.quantity * editingTx.value.price * (editingTx.value.assetType === 'Stock' ? 1 : 100);
-                        editingTx.value.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(editingTx.value.action)
-                            ? gross + (editingTx.value.fee || 0)
-                            : gross - (editingTx.value.fee || 0);
+                        if (editingTx.value.assetType === 'Cash') {
+                            const amt = Math.abs(parseFloat(editingTx.value.price) || parseFloat(editingTx.value.totalValue) || 0);
+                            editingTx.value.price = amt;
+                            editingTx.value.totalValue = amt;
+                            editingTx.value.quantity = 1;
+                            editingTx.value.fee = 0;
+                        } else {
+                            const gross = editingTx.value.quantity * editingTx.value.price * (editingTx.value.assetType === 'Stock' ? 1 : 100);
+                            editingTx.value.totalValue = ['Buy', 'Buy to Open', 'Buy to Close', 'Expire', 'Expired', 'Assigned', 'Exchange or Exercise'].includes(editingTx.value.action)
+                                ? gross + (editingTx.value.fee || 0)
+                                : gross - (editingTx.value.fee || 0);
+                        }
                         transactions.value[idx] = { ...editingTx.value };
                         saveLedgerData();
                         showNotification('Transaction updated successfully.', 'success');
@@ -10128,6 +10891,22 @@ No markdown fences or commentary outside the JSON.`;
                     monthlyPerformanceData,
                     heatmapMatrixData,
                     updatePerformanceChart,
+                    // Capital & Deposits
+                    cashSummary,
+                    capitalBrokerFilter,
+                    capitalActionFilter,
+                    capitalYearFilter,
+                    capitalSearchQuery,
+                    capitalPage,
+                    capitalPerPage,
+                    filteredCashTransactions,
+                    cashTotalPages,
+                    paginatedCashTransactions,
+                    showCashEntryModal,
+                    cashEntryForm,
+                    openCashEntryModal,
+                    saveManualCashEntry,
+                    fetchHistoricalFxRate,
                     // Storage & Cloud Hub
                     showStorageHubModal,
                     cloudWebhookUrl,
