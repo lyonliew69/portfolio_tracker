@@ -6001,7 +6001,7 @@ function doPost(e) {
                 const callGeminiAPI = async (prompt, useSearchGrounding = false) => {
                     if (!geminiApiKey.value || !geminiApiKey.value.trim()) return null;
                     const key = geminiApiKey.value.trim();
-                    const model = useSearchGrounding ? 'gemini-3.8-flash' : 'gemini-3.5-flash';
+                    const model = useSearchGrounding ? 'gemini-4-argon' : 'gemini-3.8-flash';
 
                     const reqBody = {
                         contents: [{ parts: [{ text: prompt }] }]
@@ -6156,10 +6156,10 @@ function doPost(e) {
                     }
                     const key = geminiApiKey.value.trim();
                     const withSearch = enableSearchGrounding.value;
-                    // When Live Google Search is ON, prioritize the latest model alias; otherwise keep 3.5 as main
+                    // When Live Google Search is ON, prioritize Gemini 4; otherwise use 3.8 as main
                     const candidateModels = withSearch
-                        ? ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.5-flash']
-                        : ['gemini-3.5-flash', 'gemini-flash-latest', 'gemini-3.8-flash', 'gemini-3.7-flash'];
+                        ? ['gemini-4-argon', 'gemini-3.8-flash', 'gemini-3.7-flash']
+                        : ['gemini-3.8-flash', 'gemini-4-argon', 'gemini-flash-latest', 'gemini-3.7-flash'];
 
                     const formattedContents = typeof promptOrContents === 'string'
                         ? [{ parts: [{ text: promptOrContents }] }]
