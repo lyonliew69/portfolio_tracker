@@ -7,3 +7,11 @@ portfolio_ws.json
 # Interactive Brokers export statements (personal financial data)
 U*.htm*
 
+
+# Node & Build artifacts
+node_modules/
+dist/
+*.local
+.env*
+.vitest/
+*.tsbuildinfo

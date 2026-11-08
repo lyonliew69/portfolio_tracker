@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Suppress spin buttons on number inputs for clean layout */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+/* Modern Dark & Emerald Theme Scrollbars */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #111827;
+}
+
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: #111827;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #10b981;
+}
+
+body {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* 1. OLED Midnight Theme (True pitch black #000000) */
+html.theme-oled,
+html.theme-oled body,
+body.theme-oled,
+.theme-oled {
+    background-color: #000000 !important;
+    color: #f3f4f6 !important;
+    scrollbar-color: #262626 #000000 !important;
+}
+html.theme-oled ::-webkit-scrollbar-track,
+body.theme-oled ::-webkit-scrollbar-track {
+    background: #000000 !important;
+}
+html.theme-oled ::-webkit-scrollbar-thumb,
+body.theme-oled ::-webkit-scrollbar-thumb {
+    background: #262626 !important;
+    border-color: #121212 !important;
+}
+html.theme-oled .bg-gray-900,
+body.theme-oled .bg-gray-900,
+.theme-oled .bg-gray-900 {
+    background-color: #040404 !important;
+}
+html.theme-oled .bg-gray-850,
+body.theme-oled .bg-gray-850,
+.theme-oled .bg-gray-850 {
+    background-color: #080808 !important;
+}
+html.theme-oled .bg-gray-800,
+body.theme-oled .bg-gray-800,
+.theme-oled .bg-gray-800 {
+    background-color: #0d0d0d !important;
+    border-color: #222222 !important;
+}
+html.theme-oled .bg-gray-750,
+html.theme-oled .bg-gray-700,
+body.theme-oled .bg-gray-750,
+body.theme-oled .bg-gray-700,
+.theme-oled .bg-gray-750,
+.theme-oled .bg-gray-700 {
+    background-color: #151515 !important;
+}
+html.theme-oled .hover\:bg-gray-750:hover,
+html.theme-oled .hover\:bg-gray-800:hover,
+body.theme-oled .hover\:bg-gray-750:hover,
+body.theme-oled .hover\:bg-gray-800:hover {
+    background-color: #1a1a1a !important;
+}
+html.theme-oled .border-gray-800,
+html.theme-oled .border-gray-750,
+html.theme-oled .border-gray-700,
+html.theme-oled .border-gray-650,
+body.theme-oled .border-gray-800,
+body.theme-oled .border-gray-750,
+body.theme-oled .border-gray-700,
+body.theme-oled .border-gray-650,
+.theme-oled .border-gray-800,
+.theme-oled .border-gray-750,
+.theme-oled .border-gray-700 {
+    border-color: #222222 !important;
+}
+html.theme-oled .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+html.theme-oled .divide-gray-700 > :not([hidden]) ~ :not([hidden]),
+body.theme-oled .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+body.theme-oled .divide-gray-700 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #202020 !important;
+}
+
+/* 2. Clean Light Mode */
+html.theme-light,
+html.theme-light body,
+body.theme-light,
+.theme-light {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    scrollbar-color: #cbd5e1 #f8fafc !important;
+}
+html.theme-light ::-webkit-scrollbar-track,
+body.theme-light ::-webkit-scrollbar-track {
+    background: #f8fafc !important;
+}
+html.theme-light ::-webkit-scrollbar-thumb,
+body.theme-light ::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+    border-color: #e2e8f0 !important;
+}
+html.theme-light .text-white,
+html.theme-light .text-gray-100,
+html.theme-light .text-gray-200,
+html.theme-light .text-gray-300,
+body.theme-light .text-white,
+body.theme-light .text-gray-100,
+body.theme-light .text-gray-200,
+body.theme-light .text-gray-300,
+.theme-light .text-white,
+.theme-light .text-gray-100,
+.theme-light .text-gray-200,
+.theme-light .text-gray-300 {
+    color: #0f172a !important;
+}
+html.theme-light .text-gray-400,
+body.theme-light .text-gray-400,
+.theme-light .text-gray-400 {
+    color: #475569 !important;
+}
+html.theme-light .text-gray-500,
+body.theme-light .text-gray-500,
+.theme-light .text-gray-500 {
+    color: #64748b !important;
+}
+html.theme-light .bg-gray-900,
+body.theme-light .bg-gray-900,
+.theme-light .bg-gray-900 {
+    background-color: #f1f5f9 !important;
+}
+html.theme-light .bg-gray-850,
+body.theme-light .bg-gray-850,
+.theme-light .bg-gray-850 {
+    background-color: #f8fafc !important;
+}
+html.theme-light .bg-gray-800,
+body.theme-light .bg-gray-800,
+.theme-light .bg-gray-800 {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+}
+html.theme-light .bg-gray-750,
+html.theme-light .bg-gray-700,
+body.theme-light .bg-gray-750,
+body.theme-light .bg-gray-700,
+.theme-light .bg-gray-750,
+.theme-light .bg-gray-700 {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+html.theme-light .hover\:bg-gray-800:hover,
+html.theme-light .hover\:bg-gray-750:hover,
+html.theme-light .hover\:bg-gray-700:hover,
+body.theme-light .hover\:bg-gray-800:hover,
+body.theme-light .hover\:bg-gray-750:hover,
+body.theme-light .hover\:bg-gray-700:hover {
+    background-color: #e2e8f0 !important;
+}
+html.theme-light .border-gray-800,
+html.theme-light .border-gray-750,
+html.theme-light .border-gray-700,
+html.theme-light .border-gray-650,
+html.theme-light .border-gray-600,
+body.theme-light .border-gray-800,
+body.theme-light .border-gray-750,
+body.theme-light .border-gray-700,
+body.theme-light .border-gray-650,
+body.theme-light .border-gray-600,
+.theme-light .border-gray-800,
+.theme-light .border-gray-750,
+.theme-light .border-gray-700 {
+    border-color: #e2e8f0 !important;
+}
+html.theme-light .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+html.theme-light .divide-gray-750 > :not([hidden]) ~ :not([hidden]),
+body.theme-light .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+body.theme-light .divide-gray-750 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #e2e8f0 !important;
+}
